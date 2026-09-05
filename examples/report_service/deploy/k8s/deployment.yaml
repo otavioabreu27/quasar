@@ -53,7 +53,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: DB_POOL_SIZE
-              value: "10"
+              value: "8"
             - name: WORKER_CONCURRENCY
               value: "8"
             - name: WORKER_PREFETCH
