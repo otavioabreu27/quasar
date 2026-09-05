@@ -1,0 +1,1 @@
+DROP INDEX CONCURRENTLY IF EXISTS quasar_jobs_leases

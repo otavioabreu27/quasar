@@ -22,7 +22,7 @@ pub type MigrationError {
 }
 
 type Migration {
-  Migration(version: Int, name: String, sql: String)
+  Migration(version: Int, name: String, sql: String, online: Bool)
 }
 
 /// Builds a Store backed by an existing Pog connection pool.
@@ -105,15 +105,33 @@ pub fn new(connection: Connection) -> Store {
 
 /// Applies all pending packaged migrations in version order.
 ///
-/// The migration history and an advisory transaction lock make concurrent
-/// startup safe when multiple application instances share one database.
+/// The migration history and a shared advisory lock make concurrent startup
+/// safe when multiple application instances share one database. Migrations are
+/// applied strictly in version order; online migrations run outside a database
+/// transaction so PostgreSQL can execute `CONCURRENTLY` statements.
 pub fn migrate(connection: Connection) -> Result(Nil, MigrationError) {
   use packaged <- result.try(
     migration_files() |> result.map_error(fn(_) { MigrationUnavailable }),
   )
   let migrations =
-    list.map(packaged, fn(item) { Migration(item.0, item.1, item.2) })
-  case pog.transaction(connection, fn(tx) { migrate_locked(tx, migrations) }) {
+    list.map(packaged, fn(item) { Migration(item.0, item.1, item.2, item.3) })
+  list.try_each(migrations, fn(migration) {
+    case migration.online {
+      True ->
+        apply_online_migration(
+          connection,
+          migration.version,
+          migration.name,
+          string.trim(migration.sql),
+        )
+        |> result.map_error(fn(_) { MigrationUnavailable })
+      False -> apply_transactional_migration(connection, migration)
+    }
+  })
+}
+
+fn apply_transactional_migration(connection: Connection, migration: Migration) {
+  case pog.transaction(connection, fn(tx) { migrate_locked(tx, [migration]) }) {
     Ok(Nil) -> Ok(Nil)
     Error(pog.TransactionQueryError(error)) -> Error(Database(error))
     Error(pog.TransactionRolledBack(error)) -> Error(error)
@@ -309,7 +327,15 @@ fn first(items: List(Job)) -> Result(Job, store.Error) {
 }
 
 @external(erlang, "quasar_postgres_ffi", "migration_files")
-fn migration_files() -> Result(List(#(Int, String, String)), Nil)
+fn migration_files() -> Result(List(#(Int, String, String, Bool)), Nil)
+
+@external(erlang, "quasar_postgres_ffi", "apply_online_migration")
+fn apply_online_migration(
+  connection: Connection,
+  version: Int,
+  name: String,
+  sql: String,
+) -> Result(Nil, Nil)
 
 // Administrative commands are not execution acknowledgements. A failed
 // predicate reports the observed state (or NotFound), never a stale lease.

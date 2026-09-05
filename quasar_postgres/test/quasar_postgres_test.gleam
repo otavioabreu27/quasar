@@ -158,11 +158,25 @@ pub fn migrations_are_versioned_and_idempotent_test() {
       }
       let query =
         pog.query(
-          "SELECT count(*) FROM quasar_jobs_migrations WHERE (version, name) IN ((1, 'create_quasar_jobs'), (2, 'create_quasar_jobs_fetch'), (3, 'create_quasar_jobs_leases'))",
+          "SELECT count(*) FROM quasar_jobs_migrations WHERE (version, name) IN ((1, 'create_quasar_jobs'), (2, 'create_quasar_jobs_fetch'), (3, 'create_quasar_jobs_leases'), (4, 'online_create_quasar_jobs_ready'), (5, 'online_create_quasar_jobs_active_leases'), (6, 'online_drop_quasar_jobs_fetch'), (7, 'online_drop_quasar_jobs_leases'))",
         )
         |> pog.returning(decoder)
       let assert Ok(returned) = pog.execute(query, on: started.data)
-      assert returned.rows == [3]
+      assert returned.rows == [7]
+      let indexes =
+        pog.query(
+          "SELECT count(*) FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid WHERE i.indrelid = 'quasar_jobs'::regclass AND c.relname IN ('quasar_jobs_ready', 'quasar_jobs_active_leases') AND i.indpred IS NOT NULL AND i.indisvalid AND i.indisready",
+        )
+        |> pog.returning(decoder)
+      let assert Ok(returned_indexes) = pog.execute(indexes, on: started.data)
+      assert returned_indexes.rows == [2]
+      let removed =
+        pog.query(
+          "SELECT count(*) FROM pg_indexes WHERE schemaname = current_schema() AND indexname IN ('quasar_jobs_fetch', 'quasar_jobs_leases')",
+        )
+        |> pog.returning(decoder)
+      let assert Ok(removed_indexes) = pog.execute(removed, on: started.data)
+      assert removed_indexes.rows == [0]
       process.kill(started.pid)
     }
   }
