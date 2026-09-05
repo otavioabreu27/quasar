@@ -124,6 +124,14 @@ ser alterados com `RETENTION_COMPLETED_DAYS`, `RETENTION_CANCELLED_DAYS`,
 `RETENTION_DISCARDED_DAYS`, `RETENTION_BATCH_SIZE`, `RETENTION_PAUSE_MS` e
 `RETENTION_INTERVAL_MS`.
 
+## Wake distribuído
+
+Cada instância mantém uma conexão PostgreSQL dedicada em `LISTEN quasar_jobs`.
+O enqueue publica a fila com `pg_notify` na mesma transação do `INSERT`, e cada
+pod transforma a notificação em um wake local. A notificação é apenas uma
+otimização: `QUEUE_POLL_INTERVAL_MS` controla o polling de recuperação e usa
+5 segundos por padrão.
+
 `example_reports.job_id` usa `ON DELETE CASCADE`: remover o job também remove o
 resultado demonstrativo. Em uma aplicação real, escolha explicitamente entre
 cascata, limpeza prévia ou arquivamento da informação de negócio.

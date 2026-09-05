@@ -16,8 +16,10 @@ import quasar_jobs as quasar
 import quasar_jobs/job
 import quasar_jobs/request_id
 import quasar_jobs/retention
+import quasar_jobs/store
 import quasar_jobs/worker
 import quasar_postgres as postgres_store
+import quasar_postgres/listener as postgres_listener
 import quasar_postgres/retention as postgres_retention
 import store_contract
 
@@ -27,6 +29,75 @@ pub fn two_runtimes_claim_each_postgres_job_once_test() {
     Error(_) -> Nil
     Ok(database_url) -> run_multi_instance_test(database_url)
   }
+}
+
+pub fn notify_wakes_every_runtime_without_waiting_for_poll_test() {
+  case getenv("QUASAR_POSTGRES_URL") {
+    Error(_) -> Nil
+    Ok(database_url) -> run_distributed_wake_test(database_url)
+  }
+}
+
+fn run_distributed_wake_test(database_url: String) -> Nil {
+  let assert Ok(config) =
+    pog.url_config(process.new_name("quasar-notify-test"), database_url)
+    |> result.map(fn(config) { pog.pool_size(config, 4) })
+  let assert Ok(started) = pog.start(config)
+  process.unlink(started.pid)
+  let connection = started.data
+  let assert Ok(Nil) = migrate_when_ready(connection, 50)
+  let queue = "notify-" <> request_id.to_string(request_id.new())
+  let completed = process.new_subject()
+  let notified = process.new_subject()
+  let durable_worker =
+    worker.new(
+      name: "postgres-notify-worker",
+      encode: int.to_string,
+      decode: fn(payload) {
+        int.parse(payload) |> result.map_error(fn(_) { "invalid integer" })
+      },
+      perform: fn(value, _) {
+        process.send(completed, value)
+        Ok(Nil)
+      },
+    )
+  let database = postgres_store.new(connection)
+  let assert Ok(first) =
+    durable_runtime_with_poll(database, durable_worker, queue, 60_000)
+  let assert Ok(second) =
+    durable_runtime_with_poll(database, durable_worker, queue, 60_000)
+  let assert Ok(first_listener) =
+    postgres_listener.start(config, fn(received_queue) {
+      process.send(notified, #(1, received_queue))
+      let _ = quasar.wake(first, on: received_queue)
+      Nil
+    })
+  let assert Ok(second_listener) =
+    postgres_listener.start(config, fn(received_queue) {
+      process.send(notified, #(2, received_queue))
+      let _ = quasar.wake(second, on: received_queue)
+      Nil
+    })
+
+  // Give both dedicated connections time to establish LISTEN before enqueue.
+  process.sleep(200)
+  let now = system_milliseconds()
+  let assert Ok(_) =
+    store.insert(database, worker.job(durable_worker, 42), queue, now, now)
+  let first_notification = process.receive(notified, within: 1000)
+  let second_notification = process.receive(notified, within: 1000)
+  let assert Ok(#(first_id, first_queue)) = first_notification
+  let assert Ok(#(second_id, second_queue)) = second_notification
+  assert set.from_list([first_id, second_id]) == set.from_list([1, 2])
+  assert first_queue == queue
+  assert second_queue == queue
+  assert process.receive(completed, within: 1000) == Ok(42)
+
+  postgres_listener.stop(first_listener)
+  postgres_listener.stop(second_listener)
+  assert quasar.stop(first) == Ok(Nil)
+  assert quasar.stop(second) == Ok(Nil)
+  process.kill(started.pid)
 }
 
 fn run_multi_instance_test(database_url: String) -> Nil {
@@ -76,8 +147,13 @@ fn run_multi_instance_test(database_url: String) -> Nil {
 }
 
 fn durable_runtime(store, durable_worker, queue) {
+  durable_runtime_with_poll(store, durable_worker, queue, 1000)
+}
+
+fn durable_runtime_with_poll(store, durable_worker, queue, poll_interval) {
   quasar.new()
   |> quasar.with_store(store)
+  |> quasar.with_poll_interval(poll_interval)
   |> quasar.queue(
     name: queue,
     worker: durable_worker,

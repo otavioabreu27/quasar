@@ -6,6 +6,7 @@ import pog
 import quasar_jobs as quasar
 import quasar_jobs/retention
 import quasar_postgres
+import quasar_postgres/listener as postgres_listener
 import quasar_postgres/retention as postgres_retention
 import report_service/api
 import report_service/config
@@ -40,6 +41,7 @@ pub fn main() {
   let assert Ok(runtime) =
     quasar.new()
     |> quasar.with_store(quasar_postgres.new(db.data))
+    |> quasar.with_poll_interval(config.queue_poll_interval_ms)
     |> quasar.local_pool(
       name: "http",
       workers: config.http_pool_workers,
@@ -53,6 +55,11 @@ pub fn main() {
       prefetch: config.worker_prefetch,
     )
     |> quasar.start
+  let assert Ok(_listener) =
+    postgres_listener.start(db_config, fn(queue) {
+      let _ = quasar.wake(runtime, on: queue)
+      Nil
+    })
   let assert Ok(_) =
     api.handler(runtime, db.data, report_worker)
     |> mist.new

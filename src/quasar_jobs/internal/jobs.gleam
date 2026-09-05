@@ -36,7 +36,7 @@ pub fn enqueue(
     |> result.map_error(StoreFailure),
   )
   reporter.emit(access.reporter, event.JobInserted(id, queue))
-  wake(access, queue)
+  wake_local(access, queue)
   Ok(id)
 }
 
@@ -55,11 +55,22 @@ pub fn retry(owner, id) {
   use item <- result.try(
     store.retry(access.store, id, now()) |> result.map_error(StoreFailure),
   )
-  wake(access, job.queue(item))
+  wake_local(access, job.queue(item))
   Ok(item)
 }
 
-fn wake(access: runtime.DurableAccess, queue: String) {
+pub fn wake(owner, queue) {
+  use access <- result.try(access(owner))
+  case dict.get(access.queues, queue) {
+    Ok(queue) -> {
+      durable.wake(queue)
+      Ok(Nil)
+    }
+    Error(_) -> Error(QueueNotFound)
+  }
+}
+
+fn wake_local(access: runtime.DurableAccess, queue: String) {
   case dict.get(access.queues, queue) {
     Ok(queue) -> durable.wake(queue)
     Error(_) -> Nil

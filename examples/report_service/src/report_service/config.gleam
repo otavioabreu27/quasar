@@ -11,6 +11,7 @@ pub type Config {
     db_pool_size: Int,
     worker_concurrency: Int,
     worker_prefetch: Int,
+    queue_poll_interval_ms: Int,
     http_pool_workers: Int,
     http_pool_prefetch: Int,
     http_buffer_capacity: Int,
@@ -53,6 +54,10 @@ pub fn load() -> Result(Config, String) {
     |> int.parse
     |> result.map_error(fn(_) { "WORKER_PREFETCH must be an integer" }),
   )
+  use queue_poll_interval_ms <- result.try(positive_env(
+    "QUEUE_POLL_INTERVAL_MS",
+    "5000",
+  ))
   use http_pool_workers <- result.try(
     envoy.get("HTTP_POOL_WORKERS")
     |> result.unwrap("8")
@@ -126,6 +131,7 @@ pub fn load() -> Result(Config, String) {
         db_pool_size:,
         worker_concurrency:,
         worker_prefetch:,
+        queue_poll_interval_ms:,
         http_pool_workers:,
         http_pool_prefetch:,
         http_buffer_capacity:,

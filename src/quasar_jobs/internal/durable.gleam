@@ -89,6 +89,13 @@ pub fn worker_name(config: QueueConfig) -> String {
   worker.definition_name(config.worker)
 }
 
+pub fn with_poll_interval(
+  config: QueueConfig,
+  milliseconds: Int,
+) -> QueueConfig {
+  QueueConfig(..config, poll_interval_ms: milliseconds)
+}
+
 pub fn valid(config: QueueConfig) -> Bool {
   config.name != ""
   && config.concurrency > 0

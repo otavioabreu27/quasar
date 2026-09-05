@@ -220,7 +220,7 @@ fn insert(
   }
   let query =
     pog.query(
-      "INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) VALUES ($1, $2, $3, $4, $5, 0, $6, $7, $8) RETURNING id",
+      "WITH inserted AS (INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) VALUES ($1, $2, $3, $4, $5, 0, $6, $7, $8) RETURNING id, queue), notified AS (SELECT id, pg_notify('quasar_jobs', queue) FROM inserted) SELECT id FROM notified",
     )
     |> pog.parameter(pog.text(queue))
     |> pog.parameter(pog.text(job.worker_name(new_job)))

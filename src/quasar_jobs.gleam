@@ -43,6 +43,7 @@ pub opaque type Config {
     queues: List(durable.QueueConfig),
     store: Option(store.Store),
     reporter: fn(Event) -> Nil,
+    poll_interval_ms: Int,
     shutdown_timeout: Int,
   )
 }
@@ -54,6 +55,7 @@ pub fn new() -> Config {
     queues: [],
     store: None,
     reporter: fn(_) { Nil },
+    poll_interval_ms: 1000,
     shutdown_timeout: 5000,
   )
 }
@@ -66,6 +68,20 @@ pub fn with_shutdown_timeout(config: Config, milliseconds: Int) -> Config {
 /// Enables durable jobs using a Store implementation.
 pub fn with_store(config: Config, durable_store: store.Store) -> Config {
   Config(..config, store: Some(durable_store))
+}
+
+/// Sets the durable queue polling interval used as a recovery fallback.
+///
+/// PostgreSQL adapters can wake queues immediately through LISTEN/NOTIFY, while
+/// this interval guarantees eventual progress if a notification is lost.
+pub fn with_poll_interval(config: Config, milliseconds: Int) -> Config {
+  Config(
+    ..config,
+    poll_interval_ms: milliseconds,
+    queues: list.map(config.queues, fn(queue) {
+      durable.with_poll_interval(queue, milliseconds)
+    }),
+  )
 }
 
 /// Adds a named durable queue backed by a typed worker definition.
@@ -84,7 +100,8 @@ pub fn queue(
         worker.erase(durable_worker),
         concurrency,
         prefetch,
-      ),
+      )
+      |> durable.with_poll_interval(config.poll_interval_ms),
     ]),
   )
 }
@@ -230,6 +247,18 @@ pub fn retry_job(
 ) -> Result(job.Job, JobOperationError) {
   let Runtime(runtime) = runtime
   jobs.retry(runtime, id)
+}
+
+/// Wakes one durable queue in this runtime without changing durable state.
+///
+/// This is intended for store adapters that receive an external availability
+/// signal. The store remains the source of truth and the queue still polls.
+pub fn wake(
+  runtime: Runtime,
+  on queue: String,
+) -> Result(Nil, JobOperationError) {
+  let Runtime(runtime) = runtime
+  jobs.wake(runtime, queue)
 }
 
 /// Executes a call with an existing correlation identity (for HTTP adapters).
