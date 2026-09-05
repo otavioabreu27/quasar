@@ -22,6 +22,7 @@ pub type Event {
   RuntimeStopping
   RuntimeStopped
   JobInserted(JobId, queue: String)
+  QueueWakeReceived(queue: String, coalesced: Bool)
   QueueClaimCompleted(
     queue: String,
     requested: Int,

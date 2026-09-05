@@ -1,5 +1,11 @@
 -module(quasar_jobs_test_ffi).
 -export([getenv/1]).
+-export([crash_notifications/1]).
+
+crash_notifications({listener, Listener}) ->
+    {links, Children} = process_info(Listener, links),
+    lists:foreach(fun(Child) -> exit(Child, kill) end, Children),
+    nil.
 
 getenv(Name) ->
     case os:getenv(binary_to_list(Name)) of

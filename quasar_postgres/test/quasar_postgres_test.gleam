@@ -152,12 +152,27 @@ fn run_distributed_wake_test(database_url: String) -> Nil {
   assert second_queue == queue
   assert process.receive(completed, within: 1000) == Ok(42)
 
+  // A notifications process crash must not permanently disable distributed
+  // wake. The 60s fallback cannot make this test pass accidentally.
+  crash_notifications(first_listener)
+  process.sleep(1400)
+  let now = system_milliseconds()
+  let assert Ok(_) =
+    store.insert(database, worker.job(durable_worker, 43), queue, now, now)
+  let assert Ok(#(a, _)) = process.receive(notified, within: 1000)
+  let assert Ok(#(b, _)) = process.receive(notified, within: 1000)
+  assert set.from_list([a, b]) == set.from_list([1, 2])
+  assert process.receive(completed, within: 1000) == Ok(43)
+
   postgres_listener.stop(first_listener)
   postgres_listener.stop(second_listener)
   assert quasar.stop(first) == Ok(Nil)
   assert quasar.stop(second) == Ok(Nil)
   process.kill(started.pid)
 }
+
+@external(erlang, "quasar_jobs_test_ffi", "crash_notifications")
+fn crash_notifications(listener: postgres_listener.Listener) -> Nil
 
 fn run_multi_instance_test(database_url: String) -> Nil {
   let assert Ok(config) =

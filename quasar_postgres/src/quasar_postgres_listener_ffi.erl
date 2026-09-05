@@ -16,16 +16,17 @@ start(Config, Channel, Wake) ->
     end.
 
 init(Owner, Config, Channel, Wake) ->
+    process_flag(trap_exit, true),
     OwnerMonitor = erlang:monitor(process, Owner),
     case start_notifications(Config) of
         {ok, Notifications} ->
             case pgo_notifications:listen(Notifications, Channel) of
                 {ok, Ref} ->
                     Owner ! {self(), started},
-                    loop(OwnerMonitor, Notifications, Ref, Channel, Wake);
+                    loop(OwnerMonitor, Notifications, Ref, Channel, Wake, Config);
                 {eventually, Ref} ->
                     Owner ! {self(), started},
-                    loop(OwnerMonitor, Notifications, Ref, Channel, Wake);
+                    loop(OwnerMonitor, Notifications, Ref, Channel, Wake, Config);
                 Error ->
                     ignore_errors(fun() -> gen_statem:stop(Notifications) end),
                     Owner ! {self(), {error, Error}}
@@ -79,19 +80,41 @@ stop(Pid) ->
     end,
     nil.
 
-loop(OwnerMonitor, Notifications, Ref, Channel, Wake) ->
+loop(OwnerMonitor, Notifications, Ref, Channel, Wake, Config) ->
     receive
         {notification, Notifications, Ref, Channel, Payload} ->
             _ = try Wake(Payload) catch _:_ -> nil end,
-            loop(OwnerMonitor, Notifications, Ref, Channel, Wake);
+            loop(OwnerMonitor, Notifications, Ref, Channel, Wake, Config);
         {notification, _, _, _, _} ->
-            loop(OwnerMonitor, Notifications, Ref, Channel, Wake);
+            loop(OwnerMonitor, Notifications, Ref, Channel, Wake, Config);
+        {'EXIT', Notifications, _Reason} ->
+            reconnect(OwnerMonitor, Config, Channel, Wake);
         {stop, From} ->
             ignore_errors(fun() -> pgo_notifications:unlisten(Notifications, Ref) end),
             ignore_errors(fun() -> gen_statem:stop(Notifications) end),
             From ! {self(), stopped};
         {'DOWN', OwnerMonitor, process, _, _} ->
             ignore_errors(fun() -> gen_statem:stop(Notifications) end)
+    end.
+
+%% pgo handles socket reconnects itself. Also recover if its process crashes,
+%% while retaining owner/stop handling and never printing Config or Reason.
+reconnect(OwnerMonitor, Config, Channel, Wake) ->
+    receive
+        {'DOWN', OwnerMonitor, process, _, _} -> ok;
+        {stop, From} -> From ! {self(), stopped}
+    after 1000 ->
+        case catch start_notifications(Config) of
+            {ok, Notifications} ->
+                case catch pgo_notifications:listen(Notifications, Channel) of
+                    {ok, Ref} -> loop(OwnerMonitor, Notifications, Ref, Channel, Wake, Config);
+                    {eventually, Ref} -> loop(OwnerMonitor, Notifications, Ref, Channel, Wake, Config);
+                    _ ->
+                        ignore_errors(fun() -> gen_statem:stop(Notifications) end),
+                        reconnect(OwnerMonitor, Config, Channel, Wake)
+                end;
+            _ -> reconnect(OwnerMonitor, Config, Channel, Wake)
+        end
     end.
 
 ignore_errors(Run) ->

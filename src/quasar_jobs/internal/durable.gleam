@@ -221,7 +221,13 @@ fn handle_message(
     SourceEvent(source.SourceStopped) ->
       actor.continue(State(..state, stopping: True, pending: []))
     SourceEvent(source.DemandGranted(_)) -> actor.continue(state)
-    Wake if !state.stopping -> actor.continue(schedule_drain(state))
+    Wake if !state.stopping -> {
+      state.report(event.QueueWakeReceived(
+        state.config.name,
+        state.drain_scheduled,
+      ))
+      actor.continue(schedule_drain(state))
+    }
     Drain if !state.stopping ->
       actor.continue(process_pending(State(..state, drain_scheduled: False)))
     Tick if !state.stopping -> {

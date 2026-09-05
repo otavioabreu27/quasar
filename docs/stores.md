@@ -19,12 +19,19 @@ coordination. Missing migration assets return `MigrationUnavailable`.
 ## PostgreSQL
 
 Install `quasar_postgres`. Start and supervise a Pog pool, run
-`quasar_postgres.migrate(connection)`, then pass
+`quasar_postgres.migrate(connection)`, start the linked
+`quasar_postgres/reaper.start(connection, 1000, reporter)`, then pass
 `quasar_postgres.new(connection)` to `quasar.with_store`.
 
-Claims run in a transaction with `FOR UPDATE SKIP LOCKED`. Only the granted
+Claims use one SQL statement's implicit transaction with `FOR UPDATE SKIP LOCKED`. Only the granted
 number of eligible jobs moves to Executing. Each package's SQL migration is
 loaded from `priv/`, not duplicated in Gleam string constants.
+
+Unlike Memory/SQLite, PostgreSQL recovery no longer occurs during claim.
+Stop the explicit reaper before closing its borrowed pool. PostgreSQL also
+rejects expired execution mutations using the database clock, even before
+recovery. `new_with_pools(producer, execution, control)` optionally isolates
+API, completion and claim/heartbeat traffic within the same database/schema.
 
 The optional PostgreSQL retention worker consumes a policy from
 `quasar_jobs/retention` and removes terminal rows in bounded, observable
