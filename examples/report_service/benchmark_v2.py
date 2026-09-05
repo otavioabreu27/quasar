@@ -206,6 +206,7 @@ class Benchmark:
         with self.lock:
             return {
                 "type": "sample",
+                "timestamp_epoch_ms": int(time.time() * 1000),
                 "elapsed_s": round(now - self.start, 3),
                 "accepted": self.accepted,
                 "completed": self.completed,
@@ -221,6 +222,7 @@ class Benchmark:
 
     def run(self):
         self.verify_ready()
+        started_epoch_ms = int(time.time() * 1000)
         self.start = time.monotonic()
         scheduler = threading.Thread(target=self.scheduler, daemon=True)
         sampler = threading.Thread(target=self.sample_loop, daemon=True)
@@ -230,26 +232,31 @@ class Benchmark:
         for worker in pollers:
             worker.start()
 
-        total_scheduled = math.floor(self.args.duration * self.args.rate)
+        stages = self.args.parsed_stages
+        schedule = []
+        stage_offset = 0.0
+        sequence = 0
+        for stage_duration, stage_rate in stages:
+            stage_jobs = math.floor(stage_duration * stage_rate)
+            for stage_sequence in range(stage_jobs):
+                schedule.append((sequence, self.start + stage_offset + (stage_sequence / stage_rate)))
+                sequence += 1
+            stage_offset += stage_duration
+        total_scheduled = len(schedule)
         max_submit_backlog = self.args.submit_workers * 4
         submit_slots = threading.Semaphore(max_submit_backlog)
-        futures = []
 
         def release_slot(future):
             submit_slots.release()
 
         with ThreadPoolExecutor(max_workers=self.args.submit_workers) as executor:
-            for sequence in range(total_scheduled):
-                scheduled_at = self.start + (sequence / self.args.rate)
+            for sequence, scheduled_at in schedule:
                 delay = scheduled_at - time.monotonic()
                 if delay > 0:
                     time.sleep(delay)
                 submit_slots.acquire()
                 future = executor.submit(self.submit, sequence, scheduled_at)
                 future.add_done_callback(release_slot)
-                futures.append(future)
-            for future in futures:
-                future.result()
 
         self.stop_submitting = time.monotonic()
         self.submission_finished.set()
@@ -277,11 +284,17 @@ class Benchmark:
             result = {
                 "type": "summary",
                 "schema_version": 2,
+                "started_epoch_ms": started_epoch_ms,
+                "finished_epoch_ms": int(time.time() * 1000),
                 "scenario": self.args.scenario,
                 "url": self.base_url,
                 "work_size": self.args.work_size,
                 "configured_rate_jobs_s": self.args.rate,
                 "configured_duration_s": self.args.duration,
+                "configured_stages": [
+                    {"duration_s": duration, "rate_jobs_s": rate}
+                    for duration, rate in stages
+                ],
                 "scheduled": total_scheduled,
                 "accepted": self.accepted,
                 "completed": self.completed,
@@ -321,6 +334,10 @@ def parse_args():
     parser.add_argument("--scenario", default="unnamed")
     parser.add_argument("--duration", type=float, default=60.0)
     parser.add_argument("--rate", type=float, default=100.0)
+    parser.add_argument(
+        "--stages",
+        help="Comma-separated DURATION:RATE stages; overrides --duration and --rate",
+    )
     parser.add_argument("--work-size", type=int, default=1_000_000)
     parser.add_argument("--submit-workers", type=int, default=64)
     parser.add_argument("--poll-workers", type=int, default=64)
@@ -335,6 +352,23 @@ def parse_args():
         parser.error("duration and rate must be positive")
     if args.submit_workers <= 0 or args.poll_workers <= 0:
         parser.error("worker counts must be positive")
+    if args.stages:
+        try:
+            args.parsed_stages = [
+                tuple(float(value) for value in stage.split(":"))
+                for stage in args.stages.split(",")
+            ]
+        except (TypeError, ValueError):
+            parser.error("stages must use DURATION:RATE,DURATION:RATE format")
+        if not args.parsed_stages or any(duration <= 0 or rate <= 0 for duration, rate in args.parsed_stages):
+            parser.error("every stage duration and rate must be positive")
+        args.duration = sum(duration for duration, _ in args.parsed_stages)
+        args.rate = round(
+            sum(duration * rate for duration, rate in args.parsed_stages) / args.duration,
+            3,
+        )
+    else:
+        args.parsed_stages = [(args.duration, args.rate)]
     return args
 
 
