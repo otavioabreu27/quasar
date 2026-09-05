@@ -27,6 +27,7 @@ init(Owner, Config, Channel, Wake) ->
                     Owner ! {self(), started},
                     loop(OwnerMonitor, Notifications, Ref, Channel, Wake);
                 Error ->
+                    ignore_errors(fun() -> gen_statem:stop(Notifications) end),
                     Owner ! {self(), {error, Error}}
             end;
         Error ->
@@ -86,12 +87,15 @@ loop(OwnerMonitor, Notifications, Ref, Channel, Wake) ->
         {notification, _, _, _, _} ->
             loop(OwnerMonitor, Notifications, Ref, Channel, Wake);
         {stop, From} ->
-            _ = catch pgo_notifications:unlisten(Notifications, Ref),
-            _ = catch gen_statem:stop(Notifications),
+            ignore_errors(fun() -> pgo_notifications:unlisten(Notifications, Ref) end),
+            ignore_errors(fun() -> gen_statem:stop(Notifications) end),
             From ! {self(), stopped};
         {'DOWN', OwnerMonitor, process, _, _} ->
-            _ = catch gen_statem:stop(Notifications)
+            ignore_errors(fun() -> gen_statem:stop(Notifications) end)
     end.
+
+ignore_errors(Run) ->
+    try Run(), nil catch _:_ -> nil end.
 
 ssl_options(_Host, ssl_disabled) ->
     {false, []};
