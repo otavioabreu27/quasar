@@ -1,0 +1,18 @@
+name = "quasar_jobs"
+version = "0.1.0"
+gleam = ">= 1.18.0"
+target = "erlang"
+
+description = "Local execution and durable background jobs for Gleam on the BEAM"
+licences = ["Apache-2.0"]
+repository = { type = "github", user = "otavioabreu27", repo = "quasar" }
+internal_modules = ["quasar_jobs/internal/*"]
+
+[dependencies]
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
+gleam_otp = ">= 1.3.0 and < 2.0.0"
+gleam_erlang = ">= 1.3.0 and < 2.0.0"
+constellation = ">= 0.2.0 and < 0.3.0"
+
+[dev_dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"
