@@ -57,6 +57,7 @@ type State {
     report: fn(Event) -> Nil,
     store_available: Bool,
     stopping: Bool,
+    drain_scheduled: Bool,
   )
 }
 
@@ -65,6 +66,7 @@ type Message {
   SourceEvent(source.Event)
   Wake
   Tick
+  Drain
   StopScheduler(Subject(Nil))
 }
 
@@ -125,6 +127,7 @@ pub fn start(
           report:,
           store_available: True,
           stopping: False,
+          drain_scheduled: False,
         ))
         |> actor.returning(subject),
       )
@@ -198,7 +201,7 @@ fn handle_message(
 ) -> actor.Next(State, Message) {
   case message {
     AttachSource(attached_source) ->
-      actor.continue(process_pending(
+      actor.continue(schedule_drain(
         State(..state, source: Some(attached_source)),
       ))
     SourceEvent(source.DemandGranted(grant)) if !state.stopping -> {
@@ -206,7 +209,7 @@ fn handle_message(
         list.append(state.pending, [
           PendingGrant(grant, 0, source.grant_amount(grant)),
         ])
-      actor.continue(process_pending(State(..state, pending:)))
+      actor.continue(schedule_drain(State(..state, pending:)))
     }
     SourceEvent(source.GrantRevoked(grant)) ->
       actor.continue(
@@ -218,7 +221,9 @@ fn handle_message(
     SourceEvent(source.SourceStopped) ->
       actor.continue(State(..state, stopping: True, pending: []))
     SourceEvent(source.DemandGranted(_)) -> actor.continue(state)
-    Wake if !state.stopping -> actor.continue(process_pending(state))
+    Wake if !state.stopping -> actor.continue(schedule_drain(state))
+    Drain if !state.stopping ->
+      actor.continue(process_pending(State(..state, drain_scheduled: False)))
     Tick if !state.stopping -> {
       let state = case state.source, state.store_available {
         Some(attached_source), False -> {
@@ -228,9 +233,9 @@ fn handle_message(
         _, _ -> state
       }
       process.send_after(state.subject, state.config.poll_interval_ms, Tick)
-      actor.continue(process_pending(state))
+      actor.continue(schedule_drain(state))
     }
-    Wake | Tick -> actor.continue(state)
+    Wake | Tick | Drain -> actor.continue(state)
     StopScheduler(reply) -> {
       case state.source {
         Some(attached) -> source.unavailable(attached)
@@ -242,11 +247,23 @@ fn handle_message(
   }
 }
 
+// Gather demand grants and duplicate local/NOTIFY wakes before touching storage.
+// One serialized drain claims only the capacity reserved by the source protocol.
+fn schedule_drain(state: State) -> State {
+  case state.drain_scheduled {
+    True -> state
+    False -> {
+      process.send_after(state.subject, 1, Drain)
+      State(..state, drain_scheduled: True)
+    }
+  }
+}
+
 fn process_pending(state: State) -> State {
   case state.source {
     None -> state
     Some(attached_source) ->
-      case supply_pending(state, attached_source, state.pending, []) {
+      case claim_pending(state, attached_source) {
         Ok(pending) -> State(..state, pending:, store_available: True)
         Error(reason) -> {
           state.report(QueueClaimFailed(state.config.name, reason))
@@ -257,29 +274,26 @@ fn process_pending(state: State) -> State {
   }
 }
 
-fn supply_pending(
-  state: State,
-  attached_source: Source(Job),
-  pending: List(PendingGrant),
-  kept: List(PendingGrant),
-) -> Result(List(PendingGrant), store.Error) {
-  case pending {
-    [] -> Ok(list.reverse(kept))
-    [grant, ..rest] -> {
-      let claim_started = monotonic_milliseconds()
+fn claim_pending(state: State, attached_source: Source(Job)) {
+  let capacity =
+    list.fold(state.pending, 0, fn(total, grant) { total + grant.remaining })
+  case capacity {
+    0 -> Ok(state.pending)
+    _ -> {
+      let started = monotonic_milliseconds()
       use jobs <- result.try(store.claim(
         state.store,
         state.config.name,
-        grant.remaining,
+        capacity,
         state.config.name,
         system_milliseconds(),
         state.config.lease_ms,
       ))
       state.report(QueueClaimCompleted(
         state.config.name,
-        grant.remaining,
+        capacity,
         list.length(jobs),
-        monotonic_milliseconds() - claim_started,
+        monotonic_milliseconds() - started,
       ))
       list.each(jobs, fn(item) {
         state.report(JobClaimed(
@@ -288,22 +302,44 @@ fn supply_pending(
           job.attempt(item),
         ))
       })
-      case jobs {
-        [] -> supply_pending(state, attached_source, rest, [grant, ..kept])
-        _ ->
-          case source.supply(attached_source, grant.grant, grant.offset, jobs) {
-            Ok(source.Accepted(next_offset, remaining)) ->
-              supply_pending(state, attached_source, rest, case remaining > 0 {
-                True -> [
-                  PendingGrant(grant.grant, next_offset, remaining),
-                  ..kept
-                ]
-                False -> kept
-              })
-            Ok(source.Duplicate) | Ok(source.StaleGrant) ->
-              supply_pending(state, attached_source, rest, kept)
-            Error(_) -> supply_pending(state, attached_source, rest, kept)
-          }
+      Ok(supply_pending(state, attached_source, state.pending, jobs, []))
+    }
+  }
+}
+
+fn supply_pending(
+  state: State,
+  attached_source: Source(Job),
+  pending: List(PendingGrant),
+  jobs: List(Job),
+  kept: List(PendingGrant),
+) -> List(PendingGrant) {
+  case pending, jobs {
+    _, [] -> list.append(list.reverse(kept), pending)
+    [], _ -> list.reverse(kept)
+    [grant, ..rest], _ -> {
+      let #(batch, remaining_jobs) = list.split(jobs, grant.remaining)
+      case source.supply(attached_source, grant.grant, grant.offset, batch) {
+        Ok(source.Accepted(next_offset, remaining)) ->
+          supply_pending(
+            state,
+            attached_source,
+            rest,
+            remaining_jobs,
+            case remaining > 0 {
+              True -> [
+                PendingGrant(grant.grant, next_offset, remaining),
+                ..kept
+              ]
+              False -> kept
+            },
+          )
+        Ok(source.Duplicate) | Ok(source.StaleGrant) | Error(_) -> {
+          // Delivery may have succeeded before a timeout. Do not release
+          // these tokens: recovery is fenced by the normal lease reaper.
+          state.report(QueueClaimFailed(state.config.name, store.Unavailable))
+          supply_pending(state, attached_source, rest, remaining_jobs, kept)
+        }
       }
     }
   }

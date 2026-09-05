@@ -90,6 +90,60 @@ fn receive_values(subject, remaining: Int, values) {
   }
 }
 
+pub fn fragmented_demand_and_wake_bursts_do_not_multiply_empty_claims_test() {
+  let claims = process.new_subject()
+  let durable_worker = int_worker(fn(_, _) { Ok(Nil) })
+  let assert Ok(memory) = memory.new()
+  let assert Ok(runtime) =
+    quasar.new()
+    |> quasar.with_store(memory)
+    |> quasar.queue(name: "jobs", worker: durable_worker, concurrency: 8)
+    |> quasar.with_poll_interval(60_000)
+    |> quasar.with_reporter(fn(item) {
+      case item {
+        event.QueueClaimCompleted(_, requested, returned, _) ->
+          process.send(claims, #(requested, returned))
+        _ -> Nil
+      }
+    })
+    |> quasar.start
+  // Sequential completions deliberately fragment Constellation demand grants.
+  list.each(int.range(1, 17, [], list.prepend), fn(value) {
+    let assert Ok(id) =
+      worker.job(durable_worker, value)
+      |> quasar.enqueue(runtime, on: "jobs")
+    let assert Ok(_) = wait_for_status(runtime, id, job.Completed, 100)
+  })
+  drain_claims(claims)
+  let assert Ok(_) = quasar.wake(runtime, "jobs")
+  assert process.receive(claims, within: 1000) == Ok(#(8, 0))
+  assert process.receive(claims, within: 30) == Error(Nil)
+  // A mailbox burst must not become one query per event per grant.
+  list.each(int.range(1, 11, [], list.prepend), fn(_) {
+    let assert Ok(_) = quasar.wake(runtime, "jobs")
+    Nil
+  })
+  let burst = collect_claims(claims, [])
+  assert list.length(burst) <= 2
+  assert list.all(burst, fn(item) { item == #(8, 0) })
+  assert quasar.stop(runtime) == Ok(Nil)
+  assert store.close(memory) == Ok(Nil)
+}
+
+fn drain_claims(subject) {
+  case process.receive(subject, within: 30) {
+    Ok(_) -> drain_claims(subject)
+    Error(_) -> Nil
+  }
+}
+
+fn collect_claims(subject, items) {
+  case process.receive(subject, within: 30) {
+    Ok(item) -> collect_claims(subject, [item, ..items])
+    Error(_) -> items
+  }
+}
+
 pub fn durable_reporter_exposes_claim_lease_and_completion_metrics_test() {
   let reports = process.new_subject()
   let durable_worker = int_worker(fn(_, _) { Ok(Nil) })
