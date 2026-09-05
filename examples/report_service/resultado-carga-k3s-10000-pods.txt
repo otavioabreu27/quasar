@@ -1,0 +1,70 @@
+
+>>> Running: Custom Benchmark Run (10000 jobs, 64 threads, burst)
+[-] Progress: 91/10000 completed (0.9%) | Pending: 9909 | Elapsed: 7.9s | Speed: 11.5 jobs/s[-] Progress: 99/10000 completed (1.0%) | Pending: 9901 | Elapsed: 8.5s | Speed: 11.6 jobs/s[-] Progress: 107/10000 completed (1.1%) | Pending: 9893 | Elapsed: 9.1s | Speed: 11.8 jobs/s[-] Progress: 107/10000 completed (1.1%) | Pending: 9893 | Elapsed: 9.7s | Speed: 11.1 jobs/s[-] Progress: 115/10000 completed (1.1%) | Pending: 9885 | Elapsed: 10.3s | Speed: 11.2 jobs/s[-] Progress: 117/10000 completed (1.2%) | Pending: 9883 | Elapsed: 10.8s | Speed: 10.8 jobs/s[-] Progress: 124/10000 completed (1.2%) | Pending: 9876 | Elapsed: 11.4s | Speed: 10.8 jobs/s[-] Progress: 134/10000 completed (1.3%) | Pending: 9866 | Elapsed: 12.0s | Speed: 11.2 jobs/s[-] Progress: 143/10000 completed (1.4%) | Pending: 9857 | Elapsed: 12.6s | Speed: 11.4 jobs/s[-] Progress: 148/10000 completed (1.5%) | Pending: 9852 | Elapsed: 13.2s | Speed: 11.2 jobs/s[-] Progress: 160/10000 completed (1.6%) | Pending: 9840 | Elapsed: 13.8s | Speed: 11.6 jobs/s[-] Progress: 172/10000 completed (1.7%) | Pending: 9828 | Elapsed: 14.3s | Speed: 12.0 jobs/s[-] Progress: 180/10000 completed (1.8%) | Pending: 9820 | Elapsed: 14.9s | Speed: 12.1 jobs/s[-] Progress: 191/10000 completed (1.9%) | Pending: 9809 | Elapsed: 15.5s | Speed: 12.3 jobs/s[-] Progress: 201/10000 completed (2.0%) | Pending: 9799 | Elapsed: 16.1s | Speed: 12.5 jobs/s[-] Progress: 210/10000 completed (2.1%) | Pending: 9790 | Elapsed: 16.7s | Speed: 12.6 jobs/s[-] Progress: 225/10000 completed (2.2%) | Pending: 9775 | Elapsed: 17.3s | Speed: 13.0 jobs/s[-] Progress: 237/10000 completed (2.4%) | Pending: 9763 | Elapsed: 17.9s | Speed: 13.3 jobs/s[-] Progress: 243/10000 completed (2.4%) | Pending: 9757 | Elapsed: 18.4s | Speed: 13.2 jobs/s[-] Progress: 254/10000 completed (2.5%) | Pending: 9746 | Elapsed: 19.0s | Speed: 13.3 jobs/s[-] Progress: 274/10000 completed (2.7%) | Pending: 9726 | Elapsed: 19.6s | Speed: 14.0 jobs/s[-] Progress: 281/10000 completed (2.8%) | Pending: 9719 | Elapsed: 20.2s | Speed: 13.9 jobs/s[-] Progress: 299/10000 completed (3.0%) | Pending: 9701 | Elapsed: 20.9s | Speed: 14.3 jobs/s[-] Progress: 314/10000 completed (3.1%) | Pending: 9686 | Elapsed: 21.5s | Speed: 14.6 jobs/s[-] Progress: 328/10000 completed (3.3%) | Pending: 9672 | Elapsed: 22.1s | Speed: 14.8 jobs/s[-] Progress: 362/10000 completed (3.6%) | Pending: 9638 | Elapsed: 22.7s | Speed: 15.9 jobs/s[-] Progress: 384/10000 completed (3.8%) | Pending: 9616 | Elapsed: 23.3s | Speed: 16.5 jobs/s[-] Progress: 411/10000 completed (4.1%) | Pending: 9589 | Elapsed: 23.9s | Speed: 17.2 jobs/s[-] Progress: 456/10000 completed (4.6%) | Pending: 9544 | Elapsed: 24.6s | Speed: 18.6 jobs/s[-] Progress: 522/10000 completed (5.2%) | Pending: 9478 | Elapsed: 25.2s | Speed: 20.7 jobs/s[-] Progress: 575/10000 completed (5.8%) | Pending: 9425 | Elapsed: 25.8s | Speed: 22.3 jobs/s[-] Progress: 626/10000 completed (6.3%) | Pending: 9374 | Elapsed: 26.5s | Speed: 23.7 jobs/s[-] Progress: 683/10000 completed (6.8%) | Pending: 9317 | Elapsed: 27.1s | Speed: 25.2 jobs/s[-] Progress: 772/10000 completed (7.7%) | Pending: 9228 | Elapsed: 27.7s | Speed: 27.8 jobs/s[-] Progress: 891/10000 completed (8.9%) | Pending: 9109 | Elapsed: 28.4s | Speed: 31.4 jobs/s[-] Progress: 1046/10000 completed (10.5%) | Pending: 8954 | Elapsed: 29.0s | Speed: 36.1 jobs/s[-] Progress: 1240/10000 completed (12.4%) | Pending: 8760 | Elapsed: 29.6s | Speed: 41.9 jobs/s[-] Progress: 1502/10000 completed (15.0%) | Pending: 8498 | Elapsed: 30.3s | Speed: 49.6 jobs/s[-] Progress: 1883/10000 completed (18.8%) | Pending: 8117 | Elapsed: 31.0s | Speed: 60.7 jobs/s[-] Progress: 2434/10000 completed (24.3%) | Pending: 7566 | Elapsed: 31.7s | Speed: 76.8 jobs/s[-] Progress: 3184/10000 completed (31.8%) | Pending: 6816 | Elapsed: 32.3s | Speed: 98.4 jobs/s[-] Progress: 3952/10000 completed (39.5%) | Pending: 6048 | Elapsed: 32.9s | Speed: 120.0 jobs/s[-] Progress: 4720/10000 completed (47.2%) | Pending: 5280 | Elapsed: 33.6s | Speed: 140.5 jobs/s[-] Progress: 5488/10000 completed (54.9%) | Pending: 4512 | Elapsed: 34.2s | Speed: 160.3 jobs/s[-] Progress: 6000/10000 completed (60.0%) | Pending: 4000 | Elapsed: 34.8s | Speed: 172.6 jobs/s[-] Progress: 6768/10000 completed (67.7%) | Pending: 3232 | Elapsed: 35.5s | Speed: 190.9 jobs/s[-] Progress: 7536/10000 completed (75.4%) | Pending: 2464 | Elapsed: 36.1s | Speed: 208.9 jobs/s[-] Progress: 8304/10000 completed (83.0%) | Pending: 1696 | Elapsed: 36.7s | Speed: 226.4 jobs/s[-] Progress: 9072/10000 completed (90.7%) | Pending: 928 | Elapsed: 37.2s | Speed: 243.6 jobs/s[-] Progress: 9840/10000 completed (98.4%) | Pending: 160 | Elapsed: 37.8s | Speed: 260.1 jobs/s[✔] Finished in 37.95s (263.5 jobs/s)!
+
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ 📊 Custom Benchmark Run                                                                │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  Throughput:       263.5 jobs/s     │  Total Time:        37.95 s              │
+│  Enqueue Mean:     43.61 ms         │  Enqueue P95:      107.04 ms              │
+│  Enqueue P99:     150.47 ms         │  HTTP Requests:     48304                 │
+│  Attempts:      Att 1: 10000           │  Cluster RAM:    N/A                        │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+
+{
+  "title": "Custom Benchmark Run",
+  "jobs_completed": 10000,
+  "submitted_to": "http://report-service.reports.svc.cluster.local:8080",
+  "posts_by_api": {
+    "http://report-service.reports.svc.cluster.local:8080": 10000
+  },
+  "status_queries_by_api": {
+    "http://report-service.reports.svc.cluster.local:8080": 38304
+  },
+  "processed_by": {
+    "report-service-5b4f75bfcb-bjrs5": 4217,
+    "report-service-5b4f75bfcb-4b4gc": 4177,
+    "report-service-5b4f75bfcb-wngfk": 1606
+  },
+  "attempts": {
+    "1": 10000
+  },
+  "submission_seconds": 7.325,
+  "observed_completion_seconds": 37.949,
+  "observed_jobs_per_second": 263.51,
+  "enqueue_p95_ms": 107.04,
+  "telemetry": {
+    "enqueue_latency": {
+      "min_ms": 2.54,
+      "p50_ms": 35.39,
+      "p90_ms": 86.65,
+      "p95_ms": 107.04,
+      "p99_ms": 150.47,
+      "max_ms": 294.93,
+      "mean_ms": 43.61,
+      "std_dev_ms": 32.46
+    },
+    "end_to_end_job_latency": {
+      "min_ms": 5585.96,
+      "p50_ms": 29918.95,
+      "p90_ms": 34357.25,
+      "p95_ms": 35417.26,
+      "p99_ms": 36736.86,
+      "max_ms": 37855.03,
+      "mean_ms": 29201.3,
+      "std_dev_ms": 4921.71
+    },
+    "poll_query_latency": {
+      "min_ms": 1.65,
+      "p50_ms": 5.05,
+      "p90_ms": 12.26,
+      "p95_ms": 16.29,
+      "p99_ms": 25.7,
+      "max_ms": 53.49,
+      "mean_ms": 6.6,
+      "std_dev_ms": 4.82
+    },
+    "total_http_requests": 48304
+  },
+  "resource_utilization": {}
+}

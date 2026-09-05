@@ -1,0 +1,68 @@
+
+>>> Running: Custom Benchmark Run (10000 jobs, 64 threads, burst)
+[-] Progress: 512/10000 completed (5.1%) | Pending: 9488 | Elapsed: 10.7s | Speed: 47.9 jobs/s[-] Progress: 1280/10000 completed (12.8%) | Pending: 8720 | Elapsed: 11.3s | Speed: 113.3 jobs/s[-] Progress: 2048/10000 completed (20.5%) | Pending: 7952 | Elapsed: 11.9s | Speed: 172.1 jobs/s[-] Progress: 2816/10000 completed (28.2%) | Pending: 7184 | Elapsed: 12.5s | Speed: 225.5 jobs/s[-] Progress: 3584/10000 completed (35.8%) | Pending: 6416 | Elapsed: 13.1s | Speed: 274.0 jobs/s[-] Progress: 4352/10000 completed (43.5%) | Pending: 5648 | Elapsed: 13.6s | Speed: 318.9 jobs/s[-] Progress: 5120/10000 completed (51.2%) | Pending: 4880 | Elapsed: 14.2s | Speed: 359.6 jobs/s[-] Progress: 5888/10000 completed (58.9%) | Pending: 4112 | Elapsed: 14.8s | Speed: 396.7 jobs/s[-] Progress: 6656/10000 completed (66.6%) | Pending: 3344 | Elapsed: 15.4s | Speed: 431.2 jobs/s[-] Progress: 7424/10000 completed (74.2%) | Pending: 2576 | Elapsed: 16.0s | Speed: 463.2 jobs/s[-] Progress: 8192/10000 completed (81.9%) | Pending: 1808 | Elapsed: 16.7s | Speed: 492.0 jobs/s[-] Progress: 8960/10000 completed (89.6%) | Pending: 1040 | Elapsed: 17.2s | Speed: 519.6 jobs/s[-] Progress: 9728/10000 completed (97.3%) | Pending: 272 | Elapsed: 17.8s | Speed: 545.4 jobs/s[✔] Finished in 18.06s (553.7 jobs/s)!
+
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ 📊 Custom Benchmark Run                                                                │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  Throughput:       553.7 jobs/s     │  Total Time:        18.06 s              │
+│  Enqueue Mean:     61.26 ms         │  Enqueue P95:      156.35 ms              │
+│  Enqueue P99:     217.60 ms         │  HTTP Requests:     20000                 │
+│  Attempts:      Att 1: 10000           │  Cluster RAM:    N/A                        │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+
+{
+  "title": "Custom Benchmark Run",
+  "jobs_completed": 10000,
+  "submitted_to": "http://report-service.reports.svc.cluster.local:8080",
+  "posts_by_api": {
+    "http://report-service.reports.svc.cluster.local:8080": 10000
+  },
+  "status_queries_by_api": {
+    "http://report-service.reports.svc.cluster.local:8080": 10000
+  },
+  "processed_by": {
+    "reports-app": 10000
+  },
+  "attempts": {
+    "1": 10000
+  },
+  "submission_seconds": 10.183,
+  "observed_completion_seconds": 18.06,
+  "observed_jobs_per_second": 553.7,
+  "enqueue_p95_ms": 156.35,
+  "telemetry": {
+    "enqueue_latency": {
+      "min_ms": 2.91,
+      "p50_ms": 50.19,
+      "p90_ms": 126.55,
+      "p95_ms": 156.35,
+      "p99_ms": 217.6,
+      "max_ms": 380.01,
+      "mean_ms": 61.26,
+      "std_dev_ms": 47.99
+    },
+    "end_to_end_job_latency": {
+      "min_ms": 175.7,
+      "p50_ms": 8943.35,
+      "p90_ms": 13967.71,
+      "p95_ms": 15062.51,
+      "p99_ms": 16628.84,
+      "max_ms": 17956.29,
+      "mean_ms": 8974.4,
+      "std_dev_ms": 3667.38
+    },
+    "poll_query_latency": {
+      "min_ms": 1.83,
+      "p50_ms": 4.89,
+      "p90_ms": 12.59,
+      "p95_ms": 16.67,
+      "p99_ms": 25.34,
+      "max_ms": 54.83,
+      "mean_ms": 6.54,
+      "std_dev_ms": 4.87
+    },
+    "total_http_requests": 20000
+  },
+  "resource_utilization": {}
+}

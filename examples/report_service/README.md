@@ -132,6 +132,11 @@ de todas as tentativas. Os testes deste exemplo não simulam esse crash.
 
 ## GHCR e deploy no k3s
 
+O parecer consolidado da execução no k3s está em
+[`PARECER_TECNICO_K3S.md`](PARECER_TECNICO_K3S.md), incluindo resultados,
+especificações, elasticidade, estimativas amortizadas por request e comparação
+com outros ecossistemas.
+
 O workflow [`report-service-image.yml`](../../.github/workflows/report-service-image.yml)
 roda os testes e publica a imagem no GHCR em:
 
