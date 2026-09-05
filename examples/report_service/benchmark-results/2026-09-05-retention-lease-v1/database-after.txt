@@ -1,0 +1,6 @@
+synthetic_expired_remaining=0
+completed=967170
+n_live_tup=967170
+n_dead_tup=109000
+last_autovacuum=2026-09-05T20:08:28.722683+00:00
+autovacuum_count=38
