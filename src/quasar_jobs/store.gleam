@@ -1,6 +1,7 @@
 //// Store port for durable state. Implementations provide atomic transitions.
 //// Resource ownership remains with the application that opened the Store.
 
+import gleam/list
 import quasar_jobs/job.{
   type ExecutionToken, type Job, type JobError, type JobId, type NewJob,
 }
@@ -13,13 +14,23 @@ pub type Error {
   StaleExecution
 }
 
+pub type Completion {
+  Completion(token: ExecutionToken, completed_at: Int)
+}
+
+pub type Failure {
+  Failure(token: ExecutionToken, error: JobError, available_at: Int)
+}
+
 pub opaque type Store {
   Store(
     insert: fn(NewJob, String, Int, Int) -> Result(JobId, Error),
     get: fn(JobId) -> Result(Job, Error),
     claim: fn(String, Int, String, Int, Int) -> Result(List(Job), Error),
     complete: fn(ExecutionToken, Int) -> Result(Job, Error),
+    complete_many: fn(List(Completion)) -> Result(List(Job), Error),
     fail: fn(ExecutionToken, JobError, Int) -> Result(Job, Error),
+    fail_many: fn(List(Failure)) -> Result(List(Job), Error),
     cancel: fn(JobId) -> Result(Job, Error),
     retry: fn(JobId, Int) -> Result(Job, Error),
     renew_lease: fn(ExecutionToken, Int) -> Result(Job, Error),
@@ -87,6 +98,13 @@ pub fn complete(
   store.complete(token, now)
 }
 
+pub fn complete_many(
+  store: Store,
+  completions: List(Completion),
+) -> Result(List(Job), Error) {
+  store.complete_many(completions)
+}
+
 pub fn fail(
   store: Store,
   token: ExecutionToken,
@@ -94,6 +112,33 @@ pub fn fail(
   available_at: Int,
 ) -> Result(Job, Error) {
   store.fail(token, error, available_at)
+}
+
+pub fn fail_many(
+  store: Store,
+  failures: List(Failure),
+) -> Result(List(Job), Error) {
+  store.fail_many(failures)
+}
+
+pub fn completion_token(completion: Completion) -> ExecutionToken {
+  completion.token
+}
+
+pub fn completion_time(completion: Completion) -> Int {
+  completion.completed_at
+}
+
+pub fn failure_token(failure: Failure) -> ExecutionToken {
+  failure.token
+}
+
+pub fn failure_error(failure: Failure) -> JobError {
+  failure.error
+}
+
+pub fn failure_available_at(failure: Failure) -> Int {
+  failure.available_at
 }
 
 pub fn renew_lease(
@@ -115,12 +160,48 @@ pub fn from_operations(
   renew_lease renew_lease: fn(ExecutionToken, Int) -> Result(Job, Error),
   close close: fn() -> Result(Nil, Error),
 ) -> Store {
+  from_operations_with_batch(
+    insert:,
+    get:,
+    claim:,
+    complete:,
+    complete_many: fn(items) {
+      list.try_map(items, fn(item) { complete(item.token, item.completed_at) })
+    },
+    fail:,
+    fail_many: fn(items) {
+      list.try_map(items, fn(item) {
+        fail(item.token, item.error, item.available_at)
+      })
+    },
+    cancel:,
+    retry:,
+    renew_lease:,
+    close:,
+  )
+}
+
+pub fn from_operations_with_batch(
+  insert insert: fn(NewJob, String, Int, Int) -> Result(JobId, Error),
+  get get: fn(JobId) -> Result(Job, Error),
+  claim claim: fn(String, Int, String, Int, Int) -> Result(List(Job), Error),
+  complete complete: fn(ExecutionToken, Int) -> Result(Job, Error),
+  complete_many complete_many: fn(List(Completion)) -> Result(List(Job), Error),
+  fail fail: fn(ExecutionToken, JobError, Int) -> Result(Job, Error),
+  fail_many fail_many: fn(List(Failure)) -> Result(List(Job), Error),
+  cancel cancel: fn(JobId) -> Result(Job, Error),
+  retry retry: fn(JobId, Int) -> Result(Job, Error),
+  renew_lease renew_lease: fn(ExecutionToken, Int) -> Result(Job, Error),
+  close close: fn() -> Result(Nil, Error),
+) -> Store {
   Store(
     insert:,
     get:,
     claim:,
     complete:,
+    complete_many:,
     fail:,
+    fail_many:,
     cancel:,
     retry:,
     renew_lease:,

@@ -3,10 +3,10 @@
 import gleam/int
 import gleam/option.{None, Some}
 import quasar_jobs/event.{
-  type Event, JobCompleted, JobCompletionPersisted, JobDiscarded,
-  JobPersistenceFailed, JobRetryScheduled, JobStarted, LeaseRenewalDeferred,
+  type Event, JobPersistenceFailed, JobStarted, LeaseRenewalDeferred,
   LeaseRenewed,
 }
+import quasar_jobs/internal/completion_buffer
 import quasar_jobs/internal/lease
 import quasar_jobs/job.{type Job}
 import quasar_jobs/store.{type Store}
@@ -17,6 +17,28 @@ pub fn execute(
   definition: Definition,
   lease_ms: Int,
   store: Store,
+  claimed_job: Job,
+  report: fn(Event) -> Nil,
+) -> Nil {
+  let assert Ok(started) = completion_buffer.start(store, report)
+  execute_buffered(
+    queue,
+    definition,
+    lease_ms,
+    store,
+    started.data,
+    claimed_job,
+    report,
+  )
+  completion_buffer.stop(started.data)
+}
+
+pub fn execute_buffered(
+  queue: String,
+  definition: Definition,
+  lease_ms: Int,
+  store: Store,
+  completions: completion_buffer.Buffer,
   claimed_job: Job,
   report: fn(Event) -> Nil,
 ) -> Nil {
@@ -35,6 +57,7 @@ pub fn execute(
         lease_ms,
         expires_at,
         store,
+        completions,
         claimed_job,
         report,
       )
@@ -59,6 +82,7 @@ pub fn execute(
             lease_ms,
             expires_at,
             store,
+            completions,
             updated,
             report,
           )
@@ -74,6 +98,7 @@ fn execute_owned(
   lease_ms,
   lease_expires_at,
   store,
+  completions,
   claimed_job,
   report,
 ) {
@@ -93,51 +118,26 @@ fn execute_owned(
     Error(_) -> Nil
   }
   case execution {
-    Ok(Ok(Nil)) -> {
-      let completion_started = monotonic_milliseconds()
-      case store.complete(store, token, system_milliseconds()) {
-        Ok(_) -> {
-          report(JobCompletionPersisted(
-            id,
-            queue,
-            monotonic_milliseconds() - completion_started,
-          ))
-          report(JobCompleted(id, queue))
-        }
-        Error(reason) ->
-          report(JobPersistenceFailed(id, queue, "complete", reason))
-      }
-    }
-    Ok(Error(message)) -> fail_job(queue, store, claimed_job, message, report)
-    Error(_) -> fail_job(queue, store, claimed_job, "handler crashed", report)
+    Ok(Ok(Nil)) ->
+      completion_buffer.submit(
+        completions,
+        completion_buffer.Complete(claimed_job),
+      )
+    Ok(Error(message)) -> fail_job(completions, claimed_job, message)
+    Error(_) -> fail_job(completions, claimed_job, "handler crashed")
   }
 }
 
 fn fail_job(
-  queue: String,
-  store: Store,
+  completions: completion_buffer.Buffer,
   claimed_job: Job,
   message: String,
-  report: fn(Event) -> Nil,
 ) -> Nil {
-  let assert Ok(token) = job.execution_token(claimed_job)
   let available_at = system_milliseconds() + backoff(job.attempt(claimed_job))
-  case
-    store.fail(
-      store,
-      token,
-      job.JobError("execution_failed", message),
-      available_at,
-    )
-  {
-    Ok(updated) ->
-      case job.status(updated) {
-        job.Discarded -> report(JobDiscarded(job.id(updated), queue))
-        _ -> report(JobRetryScheduled(job.id(updated), queue, available_at))
-      }
-    Error(reason) ->
-      report(JobPersistenceFailed(job.id(claimed_job), queue, "fail", reason))
-  }
+  completion_buffer.submit(
+    completions,
+    completion_buffer.Fail(claimed_job, message, available_at),
+  )
 }
 
 fn backoff(attempt: Int) -> Int {
@@ -156,6 +156,3 @@ fn run_safely(run: fn() -> output) -> Result(output, Nil)
 
 @external(erlang, "quasar_jobs_ffi", "system_milliseconds")
 fn system_milliseconds() -> Int
-
-@external(erlang, "quasar_jobs_ffi", "monotonic_milliseconds")
-fn monotonic_milliseconds() -> Int

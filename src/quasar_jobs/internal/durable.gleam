@@ -11,6 +11,7 @@ import quasar_jobs/error
 import quasar_jobs/event.{
   type Event, JobClaimed, QueueClaimCompleted, QueueClaimFailed,
 }
+import quasar_jobs/internal/completion_buffer
 import quasar_jobs/internal/job_executor
 import quasar_jobs/job.{type Job}
 import quasar_jobs/store.{type Store}
@@ -29,6 +30,7 @@ pub opaque type QueueConfig {
 
 pub type StartError {
   SchedulerStart(actor.StartError)
+  CompletionBufferStart(actor.StartError)
   PoolStart(worker_pool.StartError)
 }
 
@@ -36,6 +38,7 @@ pub opaque type QueueRuntime {
   QueueRuntime(
     scheduler: Subject(Message),
     pool: worker_pool.Pool(Job, Nil),
+    completions: completion_buffer.Buffer,
     timeout: Int,
   )
 }
@@ -131,17 +134,23 @@ pub fn start(
     actor.start(scheduler_builder)
     |> result.map_error(SchedulerStart),
   )
+  use completion_process <- result.try(
+    completion_buffer.start(store, report)
+    |> result.map_error(CompletionBufferStart),
+  )
+  let completions = completion_process.data
   let pool_config =
     worker_pool.each(
       size: config.concurrency,
       prefetch: config.prefetch,
       initial_state: fn(_) { Nil },
       handle_event: fn(state, claimed_job) {
-        job_executor.execute(
+        job_executor.execute_buffered(
           config.name,
           config.worker,
           config.lease_ms,
           store,
+          completions,
           claimed_job,
           report,
         )
@@ -156,12 +165,13 @@ pub fn start(
   {
     Error(error) -> {
       process.send(scheduler.data, StopScheduler(process.new_subject()))
+      completion_buffer.stop(completions)
       Error(PoolStart(error))
     }
     Ok(#(pool, attached_source)) -> {
       process.send(scheduler.data, AttachSource(attached_source))
       process.send_after(scheduler.data, config.poll_interval_ms, Tick)
-      Ok(QueueRuntime(scheduler.data, pool, shutdown_timeout))
+      Ok(QueueRuntime(scheduler.data, pool, completions, shutdown_timeout))
     }
   }
 }
@@ -175,6 +185,7 @@ pub fn stop(runtime: QueueRuntime) {
   process.send(runtime.scheduler, StopScheduler(reply))
   let stopped = process.receive(reply, within: runtime.timeout)
   let drained = worker_pool.stop(runtime.pool)
+  completion_buffer.stop(runtime.completions)
   case stopped, drained {
     Ok(_), Ok(_) -> Ok(Nil)
     _, _ -> Error(error.Unavailable)

@@ -21,7 +21,10 @@ Quasar request telemetry.
 
 Durable queues additionally emit `QueueClaimCompleted`, with requested and
 returned batch sizes plus claim duration, and `JobCompletionPersisted`, with
-the completion-store duration. `LeaseRenewalDeferred` means a fresh claim had
+the completion-batch duration. Results are flushed at 100 items or after 5 ms;
+`JobCompleted`, retry, and discard events are emitted only after persistence
+succeeds. A process crash before flush leaves the job executing so normal lease
+recovery can retry it. `LeaseRenewalDeferred` means a fresh claim had
 enough time remaining to avoid an immediate write. `LeaseRenewed` records a
 fenced renewal for delayed prefetch or a later heartbeat. Current execution can
 be derived from `JobStarted` minus completed, retried, discarded, or failed

@@ -1,10 +1,13 @@
 import gleam/erlang/process
+import gleam/int
+import gleam/list
 import gleam/otp/static_supervisor
 import gleam/otp/supervision
 import gleam/result
 import quasar_jobs as quasar
 import quasar_jobs/error
 import quasar_jobs/event
+import quasar_jobs/internal/completion_buffer
 import quasar_jobs/internal/job_executor
 import quasar_jobs/job
 import quasar_jobs/request_id
@@ -239,6 +242,57 @@ pub fn long_job_renews_lease_until_completion_test() {
   let assert Ok(completed) = store.get(database, id)
   assert job.status(completed) == job.Completed
   assert store.close(database) == Ok(Nil)
+}
+
+pub fn completion_buffer_flushes_at_one_hundred_results_test() {
+  let assert Ok(backing) = memory.new()
+  let batches = process.new_subject()
+  let observed =
+    store.from_operations_with_batch(
+      insert: fn(item, queue, at, now) {
+        store.insert(backing, item, queue, at, now)
+      },
+      get: store.get(backing, _),
+      claim: fn(queue, limit, owner, now, lease) {
+        store.claim(backing, queue, limit, owner, now, lease)
+      },
+      complete: fn(token, now) { store.complete(backing, token, now) },
+      complete_many: fn(items) {
+        process.send(batches, list.length(items))
+        store.complete_many(backing, items)
+      },
+      fail: fn(token, reason, at) { store.fail(backing, token, reason, at) },
+      fail_many: fn(items) { store.fail_many(backing, items) },
+      cancel: store.cancel(backing, _),
+      retry: fn(id, now) { store.retry(backing, id, now) },
+      renew_lease: fn(token, expiry) {
+        store.renew_lease(backing, token, expiry)
+      },
+      close: fn() { Ok(Nil) },
+    )
+  let jobs =
+    int.range(from: 1, to: 101, with: [], run: list.prepend)
+    |> list.map(fn(value) {
+      let assert Ok(_) =
+        store.insert(
+          backing,
+          job.new_job("worker", int.to_string(value), 0, 3),
+          "queue",
+          100,
+          100,
+        )
+      value
+    })
+  let assert 100 = list.length(jobs)
+  let assert Ok(claimed) = store.claim(backing, "queue", 100, "node", 100, 1000)
+  let assert Ok(buffer) = completion_buffer.start(observed, fn(_) { Nil })
+  list.each(claimed, fn(item) {
+    completion_buffer.submit(buffer.data, completion_buffer.Complete(item))
+  })
+
+  assert process.receive(batches, within: 1000) == Ok(100)
+  completion_buffer.stop(buffer.data)
+  assert store.close(backing) == Ok(Nil)
 }
 
 pub fn blocking_store_does_not_block_local_execution_or_shutdown_test() {

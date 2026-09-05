@@ -220,6 +220,52 @@ pub fn postgres_store_contract_test() {
   }
 }
 
+pub fn postgres_batch_completion_is_atomic_when_one_token_is_stale_test() {
+  case getenv("QUASAR_POSTGRES_URL") {
+    Error(_) -> Nil
+    Ok(url) -> {
+      let assert Ok(config) =
+        pog.url_config(process.new_name("quasar-batch-atomic"), url)
+      let assert Ok(started) = pog.start(config)
+      process.unlink(started.pid)
+      let assert Ok(Nil) = migrate_when_ready(started.data, 50)
+      let database = postgres_store.new(started.data)
+      let queue = "batch-atomic-" <> request_id.to_string(request_id.new())
+      let assert Ok(_) =
+        store.insert(
+          database,
+          job.new_job("worker", "first", 0, 3),
+          queue,
+          100,
+          100,
+        )
+      let assert Ok(second_id) =
+        store.insert(
+          database,
+          job.new_job("worker", "second", 0, 3),
+          queue,
+          100,
+          100,
+        )
+      let assert Ok([first, second]) =
+        store.claim(database, queue, 2, "node", 100, 1000)
+      let assert Ok(first_token) = job.execution_token(first)
+      let assert Ok(second_token) = job.execution_token(second)
+      let assert Ok(_) = store.complete(database, first_token, 101)
+
+      assert store.complete_many(database, [
+          store.Completion(first_token, 102),
+          store.Completion(second_token, 102),
+        ])
+        == Error(store.StaleExecution)
+      let assert Ok(still_executing) = store.get(database, second_id)
+      assert job.status(still_executing) == job.Executing
+      let assert Ok(_) = store.complete(database, second_token, 103)
+      process.kill(started.pid)
+    }
+  }
+}
+
 pub fn migrations_are_versioned_and_idempotent_test() {
   case getenv("QUASAR_POSTGRES_URL") {
     Error(_) -> Nil

@@ -26,6 +26,9 @@ depends on the Constellation 0.2 public API, never its private implementation.
   heartbeat. Fresh claims defer renewal until close to expiry; delayed prefetch
   renews ownership before invoking user code. ACK and renewals match a fenced
   token atomically.
+- `internal/completion_buffer`: collects up to 100 execution results for at
+  most 5 ms. PostgreSQL persists each completion/failure group atomically;
+  lifecycle completion events are emitted only after that commit succeeds.
 - `internal/reporter`: asynchronous callback delivery, with panic containment.
 
 This applies single responsibility and dependency inversion to functional
@@ -85,10 +88,10 @@ truncate an existing database.
 ## Explicit limits
 
 Lease fencing protects persisted state, not external side effects. Durable
-handlers must remain idempotent. Retry backoff (1–60 seconds), polling (1 second)
-and lease duration (30 seconds) remain fixed MVP policies; no speculative
-strategy framework was added. The reporter is asynchronous but its mailbox is
-not bounded. Store errors preserve the portable contract, not driver diagnostics.
+handlers must remain idempotent. Retry backoff (1–60 seconds) and lease duration
+(30 seconds) remain fixed MVP policies; polling is configurable and remains the
+fallback for external wake signals. The reporter is asynchronous but its mailbox
+is not bounded. Store errors preserve the portable contract, not driver diagnostics.
 
 Constellation pool value constructors are imported from its public
 `worker_pool/types` module only inside Quasar's local adapter. Quasar's own

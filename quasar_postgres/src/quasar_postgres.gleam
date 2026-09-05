@@ -30,7 +30,7 @@ type Migration {
 /// The Pog pool remains application-owned and is not stopped when this Store
 /// closes. Run `migrate` once before starting Quasar.
 pub fn new(connection: Connection) -> Store {
-  store.from_operations(
+  store.from_operations_with_batch(
     insert: fn(new_job, queue, available_at, now) {
       insert(connection, new_job, queue, available_at, now)
     },
@@ -38,34 +38,12 @@ pub fn new(connection: Connection) -> Store {
     claim: fn(queue, limit, owner, now, lease_ms) {
       claim(connection, queue, limit, owner, now, lease_ms)
     },
-    complete: fn(id, now) {
-      update_one(
-        connection,
-        "UPDATE quasar_jobs q SET status = 'completed', completed_at = $1, finished_at = $1, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL WHERE q.id = $2 AND q.status = 'executing' AND q.lease_owner = $3 AND q.attempt = $4 RETURNING "
-          <> columns,
-        [
-          pog.int(now),
-          pog.int(job.id_value(job.token_id(id))),
-          pog.text(job.token_owner(id)),
-          pog.int(job.token_generation(id)),
-        ],
-      )
-    },
+    complete: fn(id, now) { complete_one(connection, id, now) },
+    complete_many: fn(completions) { complete_many(connection, completions) },
     fail: fn(id, error, available_at) {
-      update_one(
-        connection,
-        "UPDATE quasar_jobs q SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1, finished_at = CASE WHEN attempt >= max_attempts THEN (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = $2, error_message = $3 WHERE q.id = $4 AND q.status = 'executing' AND q.lease_owner = $5 AND q.attempt = $6 RETURNING "
-          <> columns,
-        [
-          pog.int(available_at),
-          pog.text(job.error_kind(error)),
-          pog.text(job.error_message(error)),
-          pog.int(job.id_value(job.token_id(id))),
-          pog.text(job.token_owner(id)),
-          pog.int(job.token_generation(id)),
-        ],
-      )
+      fail_one(connection, id, error, available_at)
     },
+    fail_many: fn(failures) { fail_many(connection, failures) },
     cancel: fn(id) {
       admin_update(
         connection,
@@ -283,6 +261,115 @@ fn claim(
     )
   })
   |> result.map_error(fn(_) { store.Unavailable })
+}
+
+fn complete_one(connection, token, completed_at) {
+  update_one(
+    connection,
+    "UPDATE quasar_jobs q SET status = 'completed', completed_at = $1, finished_at = $1, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL WHERE q.id = $2 AND q.status = 'executing' AND q.lease_owner = $3 AND q.attempt = $4 RETURNING "
+      <> columns,
+    [
+      pog.int(completed_at),
+      pog.int(job.id_value(job.token_id(token))),
+      pog.text(job.token_owner(token)),
+      pog.int(job.token_generation(token)),
+    ],
+  )
+}
+
+fn fail_one(connection, token, error, available_at) {
+  update_one(
+    connection,
+    "UPDATE quasar_jobs q SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1, finished_at = CASE WHEN attempt >= max_attempts THEN (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = $2, error_message = $3 WHERE q.id = $4 AND q.status = 'executing' AND q.lease_owner = $5 AND q.attempt = $6 RETURNING "
+      <> columns,
+    [
+      pog.int(available_at),
+      pog.text(job.error_kind(error)),
+      pog.text(job.error_message(error)),
+      pog.int(job.id_value(job.token_id(token))),
+      pog.text(job.token_owner(token)),
+      pog.int(job.token_generation(token)),
+    ],
+  )
+}
+
+fn complete_many(
+  connection: Connection,
+  completions: List(store.Completion),
+) -> Result(List(Job), store.Error) {
+  case completions {
+    [] -> Ok([])
+    completions ->
+      pog.transaction(connection, fn(tx) {
+        let tokens = list.map(completions, store.completion_token)
+        use updated <- result.try(
+          execute_jobs(
+            tx,
+            "WITH completion AS (SELECT * FROM unnest($1::bigint[], $2::text[], $3::integer[], $4::bigint[]) AS c(id, owner, generation, completed_at)) UPDATE quasar_jobs q SET status = 'completed', completed_at = c.completed_at, finished_at = c.completed_at, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL FROM completion c WHERE q.id = c.id AND q.status = 'executing' AND q.lease_owner = c.owner AND q.attempt = c.generation RETURNING "
+              <> columns,
+            [
+              pog.array(
+                pog.int,
+                list.map(tokens, fn(token) { job.id_value(job.token_id(token)) }),
+              ),
+              pog.array(pog.text, list.map(tokens, job.token_owner)),
+              pog.array(pog.int, list.map(tokens, job.token_generation)),
+              pog.array(pog.int, list.map(completions, store.completion_time)),
+            ],
+          ),
+        )
+        case list.length(updated) == list.length(completions) {
+          True -> Ok(updated)
+          False -> Error(store.StaleExecution)
+        }
+      })
+      |> transaction_result
+  }
+}
+
+fn fail_many(
+  connection: Connection,
+  failures: List(store.Failure),
+) -> Result(List(Job), store.Error) {
+  case failures {
+    [] -> Ok([])
+    failures ->
+      pog.transaction(connection, fn(tx) {
+        let tokens = list.map(failures, store.failure_token)
+        let errors = list.map(failures, store.failure_error)
+        use updated <- result.try(
+          execute_jobs(
+            tx,
+            "WITH failure AS (SELECT * FROM unnest($1::bigint[], $2::text[], $3::integer[], $4::bigint[], $5::text[], $6::text[]) AS f(id, owner, generation, available_at, error_kind, error_message)) UPDATE quasar_jobs q SET status = CASE WHEN q.attempt >= q.max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = f.available_at, finished_at = CASE WHEN q.attempt >= q.max_attempts THEN (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = f.error_kind, error_message = f.error_message FROM failure f WHERE q.id = f.id AND q.status = 'executing' AND q.lease_owner = f.owner AND q.attempt = f.generation RETURNING "
+              <> columns,
+            [
+              pog.array(
+                pog.int,
+                list.map(tokens, fn(token) { job.id_value(job.token_id(token)) }),
+              ),
+              pog.array(pog.text, list.map(tokens, job.token_owner)),
+              pog.array(pog.int, list.map(tokens, job.token_generation)),
+              pog.array(pog.int, list.map(failures, store.failure_available_at)),
+              pog.array(pog.text, list.map(errors, job.error_kind)),
+              pog.array(pog.text, list.map(errors, job.error_message)),
+            ],
+          ),
+        )
+        case list.length(updated) == list.length(failures) {
+          True -> Ok(updated)
+          False -> Error(store.StaleExecution)
+        }
+      })
+      |> transaction_result
+  }
+}
+
+fn transaction_result(result) {
+  case result {
+    Ok(value) -> Ok(value)
+    Error(pog.TransactionRolledBack(error)) -> Error(error)
+    Error(pog.TransactionQueryError(_)) -> Error(store.Unavailable)
+  }
 }
 
 fn update_one(
