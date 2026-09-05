@@ -48,6 +48,10 @@ spec:
               value: 0.0.0.0
             - name: PORT
               value: "8080"
+            - name: INSTANCE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: DB_POOL_SIZE
               value: "10"
             - name: WORKER_CONCURRENCY
