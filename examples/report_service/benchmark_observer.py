@@ -67,21 +67,24 @@ def collect_database(connection):
 
 
 def collect_kubernetes(namespace):
+    pod_state = command_json(
+        "kubectl", "-n", namespace, "get", "pods", "-l", "app.kubernetes.io/name=report-service", "-o", "json"
+    )
+    application_pods = {item["metadata"]["name"] for item in pod_state.get("items", [])}
     metrics = command_json(
         "kubectl", "get", "--raw", f"/apis/metrics.k8s.io/v1beta1/namespaces/{namespace}/pods"
     )
     pods = []
     for item in metrics.get("items", []):
         name = item["metadata"]["name"]
+        if name not in application_pods:
+            continue
         cpu = sum(cpu_cores(c["usage"]["cpu"]) for c in item.get("containers", []))
         memory = sum(memory_bytes(c["usage"]["memory"]) for c in item.get("containers", []))
         pods.append({"name": name, "cpu_cores": round(cpu, 6), "memory_bytes": memory})
 
     hpa = command_json("kubectl", "-n", namespace, "get", "hpa", "report-service", "-o", "json")
     deployment = command_json("kubectl", "-n", namespace, "get", "deployment", "report-service", "-o", "json")
-    pod_state = command_json(
-        "kubectl", "-n", namespace, "get", "pods", "-l", "app.kubernetes.io/name=report-service", "-o", "json"
-    )
     restarts = 0
     ready = 0
     for pod in pod_state.get("items", []):
@@ -113,9 +116,15 @@ def main():
     parser.add_argument("--interval", type=float, default=5.0)
     parser.add_argument("--duration", type=float, default=3600.0)
     parser.add_argument("--label", default="benchmark-suite")
+    parser.add_argument(
+        "--source",
+        choices=["all", "kubernetes", "postgresql"],
+        default="all",
+        help="Telemetry source; split collection keeps PostgreSQL traffic inside the cluster.",
+    )
     args = parser.parse_args()
     database_url = os.environ.get("DATABASE_URL")
-    if not database_url:
+    if args.source in ("all", "postgresql") and not database_url:
         raise SystemExit("DATABASE_URL is required")
 
     started = time.monotonic()
@@ -128,19 +137,21 @@ def main():
             "timestamp_epoch_ms": int(time.time() * 1000),
             "elapsed_s": round(time.monotonic() - started, 3),
         }
-        try:
-            sample["kubernetes"] = collect_kubernetes(args.namespace)
-        except Exception as exc:
-            sample["kubernetes_error"] = f"{type(exc).__name__}: {exc}"
-        try:
-            if connection is None or connection.closed:
-                connection = psycopg.connect(database_url, connect_timeout=5, autocommit=True)
-            sample["postgresql"] = collect_database(connection)
-        except Exception as exc:
-            sample["postgresql_error"] = f"{type(exc).__name__}: {exc}"
-            if connection is not None:
-                connection.close()
-            connection = None
+        if args.source in ("all", "kubernetes"):
+            try:
+                sample["kubernetes"] = collect_kubernetes(args.namespace)
+            except Exception as exc:
+                sample["kubernetes_error"] = f"{type(exc).__name__}: {exc}"
+        if args.source in ("all", "postgresql"):
+            try:
+                if connection is None or connection.closed:
+                    connection = psycopg.connect(database_url, connect_timeout=5, autocommit=True)
+                sample["postgresql"] = collect_database(connection)
+            except Exception as exc:
+                sample["postgresql_error"] = f"{type(exc).__name__}: {exc}"
+                if connection is not None:
+                    connection.close()
+                connection = None
         print(json.dumps(sample, sort_keys=True), flush=True)
         sleep_for = args.interval - ((time.monotonic() - started) % args.interval)
         time.sleep(max(0.05, sleep_for))
