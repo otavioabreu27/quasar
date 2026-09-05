@@ -139,8 +139,10 @@ cascata, limpeza prévia ou arquivamento da informação de negócio.
 ## Durabilidade e falhas
 
 Os jobs são **at-least-once**: após uma falha, uma tentativa pode ser repetida
-quando a lease expirar. O worker usa `job_id` como chave primária e
-`ON CONFLICT DO NOTHING` para tornar a escrita deste relatório idempotente.
+quando a lease expirar. Este exemplo usa `quasar_postgres.transactional_worker`:
+a gravação do relatório e a conclusão cercada pelo token do job acontecem na
+mesma transação PostgreSQL. O `ON CONFLICT DO NOTHING` permanece como defesa
+adicional, mas não é necessário para cobrir uma queda entre efeito e ACK.
 Isso não dá exatamente-uma-vez a e-mails, pagamentos ou chamadas externas.
 Cada novo POST cria outro job; não há chave de idempotência HTTP neste exemplo.
 Um timeout HTTP também não prova que o enqueue deixou de acontecer.

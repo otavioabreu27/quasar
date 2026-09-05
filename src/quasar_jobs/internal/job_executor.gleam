@@ -3,8 +3,8 @@
 import gleam/int
 import gleam/option.{None, Some}
 import quasar_jobs/event.{
-  type Event, JobPersistenceFailed, JobStarted, LeaseRenewalDeferred,
-  LeaseRenewed,
+  type Event, JobCompleted, JobCompletionPersisted, JobPersistenceFailed,
+  JobStarted, LeaseRenewalDeferred, LeaseRenewed,
 }
 import quasar_jobs/internal/completion_buffer
 import quasar_jobs/internal/lease
@@ -108,7 +108,9 @@ fn execute_owned(
   let assert Ok(token) = job.execution_token(claimed_job)
   let heartbeat =
     lease.start(store, token, queue, lease_ms, lease_expires_at, report)
-  let context = worker.Context(job_id: id, attempt: attempt)
+  let context =
+    worker.Context(job_id: id, attempt: attempt, execution_token: token)
+  let execution_started = monotonic_milliseconds()
   let execution =
     run_safely(fn() {
       worker.run(definition, job.payload(claimed_job), context)
@@ -119,10 +121,21 @@ fn execute_owned(
   }
   case execution {
     Ok(Ok(Nil)) ->
-      completion_buffer.submit(
-        completions,
-        completion_buffer.Complete(claimed_job),
-      )
+      case worker.completion_mode(definition) {
+        worker.RuntimeManaged ->
+          completion_buffer.submit(
+            completions,
+            completion_buffer.Complete(claimed_job),
+          )
+        worker.WorkerManaged -> {
+          report(JobCompletionPersisted(
+            id,
+            queue,
+            monotonic_milliseconds() - execution_started,
+          ))
+          report(JobCompleted(id, queue))
+        }
+      }
     Ok(Error(message)) -> fail_job(completions, claimed_job, message)
     Error(_) -> fail_job(completions, claimed_job, "handler crashed")
   }
@@ -156,3 +169,6 @@ fn run_safely(run: fn() -> output) -> Result(output, Nil)
 
 @external(erlang, "quasar_jobs_ffi", "system_milliseconds")
 fn system_milliseconds() -> Int
+
+@external(erlang, "quasar_jobs_ffi", "monotonic_milliseconds")
+fn monotonic_milliseconds() -> Int

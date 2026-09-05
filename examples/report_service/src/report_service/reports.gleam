@@ -6,6 +6,7 @@ import gleam/result
 import pog
 import quasar_jobs/job
 import quasar_jobs/worker
+import quasar_postgres
 import report_service/database
 
 pub const queue = "reports"
@@ -29,17 +30,18 @@ pub fn worker(
   instance_id: String,
   simulated_work_ms: Int,
 ) -> worker.Worker(Int) {
-  worker.new(
+  quasar_postgres.transactional_worker(
+    connection,
     name: "reports.sum.v1",
     encode: int.to_string,
     decode: parse_size,
-    perform: fn(size, context) {
+    perform: fn(size, context, transaction) {
       case simulated_work_ms > 0 {
         True -> process.sleep(simulated_work_ms)
         False -> Nil
       }
       database.save(
-        connection,
+        transaction,
         job.id_value(context.job_id),
         size,
         total(size),

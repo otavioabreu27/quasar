@@ -199,6 +199,21 @@ fn wait_for_completed(runtime, id, attempts: Int) {
   }
 }
 
+fn wait_for_status(runtime, id, expected, attempts: Int) {
+  case quasar.get_job(runtime, id) {
+    Ok(stored) ->
+      case job.status(stored) == expected, attempts > 0 {
+        True, _ -> Ok(stored)
+        False, True -> {
+          process.sleep(10)
+          wait_for_status(runtime, id, expected, attempts - 1)
+        }
+        False, False -> Error(error.RuntimeUnavailable)
+      }
+    result -> result
+  }
+}
+
 @external(erlang, "quasar_jobs_test_ffi", "getenv")
 fn getenv(name: String) -> Result(String, Nil)
 
@@ -264,6 +279,86 @@ pub fn postgres_batch_completion_is_atomic_when_one_token_is_stale_test() {
       process.kill(started.pid)
     }
   }
+}
+
+pub fn transactional_worker_commits_effect_and_completion_together_test() {
+  case getenv("QUASAR_POSTGRES_URL") {
+    Error(_) -> Nil
+    Ok(url) -> run_transactional_worker_test(url)
+  }
+}
+
+fn run_transactional_worker_test(url: String) -> Nil {
+  let assert Ok(config) =
+    pog.url_config(process.new_name("quasar-transactional-worker"), url)
+    |> result.map(fn(config) { pog.pool_size(config, 1) })
+  let assert Ok(started) = pog.start(config)
+  process.unlink(started.pid)
+  let assert Ok(Nil) = migrate_when_ready(started.data, 50)
+  let assert Ok(_) =
+    pog.query(
+      "CREATE TEMP TABLE quasar_transactional_effects (job_id BIGINT PRIMARY KEY, value TEXT NOT NULL)",
+    )
+    |> pog.execute(on: started.data)
+  let queue = "transactional-" <> request_id.to_string(request_id.new())
+  let transactional =
+    postgres_store.transactional_worker(
+      started.data,
+      name: "postgres-transactional-worker",
+      encode: fn(value) { value },
+      decode: Ok,
+      perform: fn(value, context, transaction) {
+        use _ <- result.try(
+          pog.query(
+            "INSERT INTO quasar_transactional_effects (job_id, value) VALUES ($1, $2)",
+          )
+          |> pog.parameter(pog.int(job.id_value(context.job_id)))
+          |> pog.parameter(pog.text(value))
+          |> pog.execute(on: transaction)
+          |> result.map_error(fn(_) { "effect failed" }),
+        )
+        case value {
+          "rollback" -> Error("rollback requested")
+          _ -> Ok(Nil)
+        }
+      },
+    )
+  let assert Ok(runtime) =
+    quasar.new()
+    |> quasar.with_store(postgres_store.new(started.data))
+    |> quasar.queue(queue, transactional, 1)
+    |> quasar.start
+  let assert Ok(committed_id) =
+    quasar.enqueue(worker.job(transactional, "commit"), runtime, on: queue)
+  let rollback_job =
+    worker.job(transactional, "rollback") |> job.with_max_attempts(1)
+  let assert Ok(rolled_back_id) =
+    quasar.enqueue(rollback_job, runtime, on: queue)
+
+  let assert Ok(_) = wait_for_completed(runtime, committed_id, 300)
+  let assert Ok(discarded) =
+    wait_for_status(runtime, rolled_back_id, job.Discarded, 300)
+  assert job.status(discarded) == job.Discarded
+  assert count_transactional_effects(started.data, committed_id) == 1
+  assert count_transactional_effects(started.data, rolled_back_id) == 0
+  assert quasar.stop(runtime) == Ok(Nil)
+  process.kill(started.pid)
+}
+
+fn count_transactional_effects(connection, id) -> Int {
+  let decoder = {
+    use count <- decode.field(0, decode.int)
+    decode.success(count)
+  }
+  let query =
+    pog.query(
+      "SELECT count(*)::int FROM quasar_transactional_effects WHERE job_id = $1",
+    )
+    |> pog.parameter(pog.int(job.id_value(id)))
+    |> pog.returning(decoder)
+  let assert Ok(returned) = pog.execute(query, on: connection)
+  let assert [count] = returned.rows
+  count
 }
 
 pub fn migrations_are_versioned_and_idempotent_test() {

@@ -36,6 +36,12 @@ modules and injected functions. It does not introduce a class hierarchy or
 generic framework. The Store is the extension boundary; adapters implement its
 semantics, not just its function signatures.
 
+PostgreSQL can additionally build a transactional worker. Its callback receives
+the checked-out transaction and the fenced execution token is carried in the
+worker context. The adapter commits the business effect and job completion
+together; the generic completion buffer is bypassed only for that explicit
+worker mode.
+
 ## Capacity and lifecycle
 
 Local tasks capture a typed reply subject in an opaque closure and submit one

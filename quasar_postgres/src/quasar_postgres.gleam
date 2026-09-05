@@ -8,6 +8,7 @@ import pog.{type Connection, type QueryError, type Value}
 import quasar_jobs/job.{type Job, type JobId, type NewJob}
 import quasar_jobs/store.{type Store}
 import quasar_jobs/store/codec
+import quasar_jobs/worker
 
 const columns = "
 q.id, q.queue, q.worker, q.payload, q.status, q.priority, q.attempt,
@@ -23,6 +24,49 @@ pub type MigrationError {
 
 type Migration {
   Migration(version: Int, name: String, sql: String, online: Bool)
+}
+
+type TransactionalWorkerError {
+  BusinessError(String)
+  CompletionError(store.Error)
+}
+
+/// Builds a worker whose PostgreSQL business effect and fenced job completion
+/// commit in the same transaction.
+///
+/// This is intentionally PostgreSQL-specific. Use a regular `worker.new` when
+/// effects live outside this database and make those effects idempotent.
+pub fn transactional_worker(
+  connection: Connection,
+  name name: String,
+  encode encode: fn(input) -> String,
+  decode decode: fn(String) -> Result(input, String),
+  perform perform: fn(input, worker.Context, Connection) -> Result(Nil, String),
+) -> worker.Worker(input) {
+  worker.new(name:, encode:, decode:, perform: fn(input, context) {
+    case
+      pog.transaction(connection, fn(transaction) {
+        use _ <- result.try(
+          perform(input, context, transaction)
+          |> result.map_error(BusinessError),
+        )
+        complete_one(
+          transaction,
+          context.execution_token,
+          system_milliseconds(),
+        )
+        |> result.map_error(CompletionError)
+      })
+    {
+      Ok(_) -> Ok(Nil)
+      Error(pog.TransactionRolledBack(BusinessError(message))) -> Error(message)
+      Error(pog.TransactionRolledBack(CompletionError(_))) ->
+        Error("could not persist transactional job completion")
+      Error(pog.TransactionQueryError(_)) ->
+        Error("PostgreSQL transaction failed")
+    }
+  })
+  |> worker.with_managed_completion
 }
 
 /// Builds a Store backed by an existing Pog connection pool.
@@ -446,3 +490,6 @@ fn admin_update(
     outcome -> outcome
   }
 }
+
+@external(erlang, "quasar_jobs_ffi", "system_milliseconds")
+fn system_milliseconds() -> Int
