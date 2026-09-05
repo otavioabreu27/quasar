@@ -11,9 +11,9 @@ gleam_json = ">= 3.1.0 and < 4.0.0"
 envoy = ">= 1.2.0 and < 2.0.0"
 mist = ">= 6.0.3 and < 7.0.0"
 pog = ">= 4.1.0 and < 5.0.0"
-quasar_jobs = ">= 0.1.0 and < 0.2.0"
-quasar_mist = ">= 0.1.0 and < 0.2.0"
-quasar_postgres = ">= 0.1.0 and < 0.2.0"
+quasar_jobs = { path = "../.." }
+quasar_mist = { path = "../../quasar_mist" }
+quasar_postgres = { path = "../../quasar_postgres" }
 
 [dev_dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"

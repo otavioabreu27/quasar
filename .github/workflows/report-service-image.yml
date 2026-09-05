@@ -5,10 +5,18 @@ on:
     branches: [main]
     paths:
       - "examples/report_service/**"
+      - "src/**"
+      - "gleam.toml"
+      - "quasar_mist/**"
+      - "quasar_postgres/**"
       - ".github/workflows/report-service-image.yml"
   pull_request:
     paths:
       - "examples/report_service/**"
+      - "src/**"
+      - "gleam.toml"
+      - "quasar_mist/**"
+      - "quasar_postgres/**"
       - ".github/workflows/report-service-image.yml"
   workflow_dispatch:
 
@@ -65,7 +73,7 @@ jobs:
       - name: Build and publish image
         uses: docker/build-push-action@v6
         with:
-          context: examples/report_service
+          context: .
           file: examples/report_service/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}

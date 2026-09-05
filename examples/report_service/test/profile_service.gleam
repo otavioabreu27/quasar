@@ -7,6 +7,7 @@ import gleam/io
 import gleam/result
 import mist
 import pog
+import profile_metrics
 import quasar_jobs as quasar
 import quasar_postgres
 import report_service/api
@@ -31,6 +32,7 @@ pub fn main() {
   }
   let worker =
     reports.worker(db.data, config.instance_id, config.simulated_work_ms)
+  let runtime_metrics = profile_metrics.start()
   let assert Ok(runtime) =
     quasar.new()
     |> quasar.with_store(quasar_postgres.new(db.data))
@@ -46,6 +48,7 @@ pub fn main() {
       concurrency: workers,
       prefetch: prefetch,
     )
+    |> quasar.with_reporter(runtime_metrics)
     |> quasar.start
   let assert Ok(_) =
     api.handler(runtime, db.data, worker)

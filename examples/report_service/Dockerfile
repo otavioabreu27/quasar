@@ -3,17 +3,24 @@
 # ==========================================
 FROM ghcr.io/gleam-lang/gleam:v1.18.1-erlang-alpine AS builder
 
-WORKDIR /build
+WORKDIR /build/examples/report_service
 
 # Install build dependencies required for compiling Erlang/C dependencies
 RUN apk add --no-cache git build-base rebar3
 
 # Download dependencies first for optimal Docker layer caching
-COPY gleam.toml manifest.toml ./
+COPY gleam.toml /build/gleam.toml
+COPY src /build/src
+COPY quasar_mist/gleam.toml /build/quasar_mist/gleam.toml
+COPY quasar_mist/src /build/quasar_mist/src
+COPY quasar_postgres/gleam.toml /build/quasar_postgres/gleam.toml
+COPY quasar_postgres/src /build/quasar_postgres/src
+COPY quasar_postgres/priv /build/quasar_postgres/priv
+COPY examples/report_service/gleam.toml examples/report_service/manifest.toml ./
 RUN gleam deps download
 
 # Copy application source code
-COPY src src
+COPY examples/report_service/src src
 
 # Export production Erlang shipment bundle
 RUN gleam export erlang-shipment
@@ -31,7 +38,7 @@ RUN apk add --no-cache dumb-init ca-certificates ncurses-libs libstdc++ openssl 
     && adduser -u 10001 -S -G gleam -h /app gleam
 
 # Copy shipment artifacts from builder
-COPY --from=builder --chown=gleam:gleam /build/build/erlang-shipment /app
+COPY --from=builder --chown=gleam:gleam /build/examples/report_service/build/erlang-shipment /app
 
 # Switch to non-root user
 USER gleam

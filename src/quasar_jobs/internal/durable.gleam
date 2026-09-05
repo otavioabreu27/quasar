@@ -8,7 +8,9 @@ import gleam/option.{type Option, None, Some}
 import gleam/otp/actor
 import gleam/result
 import quasar_jobs/error
-import quasar_jobs/event.{type Event, JobClaimed, QueueClaimFailed}
+import quasar_jobs/event.{
+  type Event, JobClaimed, QueueClaimCompleted, QueueClaimFailed,
+}
 import quasar_jobs/internal/job_executor
 import quasar_jobs/job.{type Job}
 import quasar_jobs/store.{type Store}
@@ -246,6 +248,7 @@ fn supply_pending(
   case pending {
     [] -> Ok(list.reverse(kept))
     [grant, ..rest] -> {
+      let claim_started = monotonic_milliseconds()
       use jobs <- result.try(store.claim(
         state.store,
         state.config.name,
@@ -253,6 +256,12 @@ fn supply_pending(
         state.config.name,
         system_milliseconds(),
         state.config.lease_ms,
+      ))
+      state.report(QueueClaimCompleted(
+        state.config.name,
+        grant.remaining,
+        list.length(jobs),
+        monotonic_milliseconds() - claim_started,
       ))
       list.each(jobs, fn(item) {
         state.report(JobClaimed(
@@ -284,3 +293,6 @@ fn supply_pending(
 
 @external(erlang, "quasar_jobs_ffi", "system_milliseconds")
 fn system_milliseconds() -> Int
+
+@external(erlang, "quasar_jobs_ffi", "monotonic_milliseconds")
+fn monotonic_milliseconds() -> Int

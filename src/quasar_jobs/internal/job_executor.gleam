@@ -2,8 +2,8 @@
 
 import gleam/int
 import quasar_jobs/event.{
-  type Event, JobCompleted, JobDiscarded, JobPersistenceFailed,
-  JobRetryScheduled, JobStarted,
+  type Event, JobCompleted, JobCompletionPersisted, JobDiscarded,
+  JobPersistenceFailed, JobRetryScheduled, JobStarted, LeaseRenewed,
 }
 import quasar_jobs/internal/lease
 import quasar_jobs/job.{type Job}
@@ -21,11 +21,14 @@ pub fn execute(
   let assert Ok(token) = job.execution_token(claimed_job)
   // Prefetched work may have waited beyond its lease. Check ownership before
   // invoking user code; fencing still cannot prevent duplicate external effects.
-  case store.renew_lease(store, token, system_milliseconds() + lease_ms) {
+  let expires_at = system_milliseconds() + lease_ms
+  case store.renew_lease(store, token, expires_at) {
     Error(reason) ->
       report(JobPersistenceFailed(job.id(claimed_job), queue, "begin", reason))
-    Ok(_) ->
+    Ok(_) -> {
+      report(LeaseRenewed(job.id(claimed_job), queue, expires_at))
       execute_owned(queue, definition, lease_ms, store, claimed_job, report)
+    }
   }
 }
 
@@ -45,12 +48,21 @@ fn execute_owned(queue, definition, lease_ms, store, claimed_job, report) {
     Error(_) -> Nil
   }
   case execution {
-    Ok(Ok(Nil)) ->
+    Ok(Ok(Nil)) -> {
+      let completion_started = monotonic_milliseconds()
       case store.complete(store, token, system_milliseconds()) {
-        Ok(_) -> report(JobCompleted(id, queue))
+        Ok(_) -> {
+          report(JobCompletionPersisted(
+            id,
+            queue,
+            monotonic_milliseconds() - completion_started,
+          ))
+          report(JobCompleted(id, queue))
+        }
         Error(reason) ->
           report(JobPersistenceFailed(id, queue, "complete", reason))
       }
+    }
     Ok(Error(message)) -> fail_job(queue, store, claimed_job, message, report)
     Error(_) -> fail_job(queue, store, claimed_job, "handler crashed", report)
   }
@@ -99,3 +111,6 @@ fn run_safely(run: fn() -> output) -> Result(output, Nil)
 
 @external(erlang, "quasar_jobs_ffi", "system_milliseconds")
 fn system_milliseconds() -> Int
+
+@external(erlang, "quasar_jobs_ffi", "monotonic_milliseconds")
+fn monotonic_milliseconds() -> Int

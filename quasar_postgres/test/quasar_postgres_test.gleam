@@ -5,6 +5,7 @@ pub fn main() {
   gleeunit.main()
 }
 
+import gleam/dynamic/decode
 import gleam/erlang/process
 import gleam/int
 import gleam/list
@@ -136,6 +137,32 @@ pub fn postgres_store_contract_test() {
       let queue = request_id.to_string(request_id.new())
       store_contract.fencing(database, queue <> "-fencing")
       store_contract.validation_and_exhaustion(database, queue <> "-validation")
+      process.kill(started.pid)
+    }
+  }
+}
+
+pub fn migrations_are_versioned_and_idempotent_test() {
+  case getenv("QUASAR_POSTGRES_URL") {
+    Error(_) -> Nil
+    Ok(url) -> {
+      let assert Ok(config) =
+        pog.url_config(process.new_name("quasar-migrations"), url)
+      let assert Ok(started) = pog.start(config)
+      process.unlink(started.pid)
+      let assert Ok(Nil) = migrate_when_ready(started.data, 50)
+      assert postgres_store.migrate(started.data) == Ok(Nil)
+      let decoder = {
+        use count <- decode.field(0, decode.int)
+        decode.success(count)
+      }
+      let query =
+        pog.query(
+          "SELECT count(*) FROM quasar_jobs_migrations WHERE (version, name) IN ((1, 'create_quasar_jobs'), (2, 'create_quasar_jobs_fetch'), (3, 'create_quasar_jobs_leases'))",
+        )
+        |> pog.returning(decoder)
+      let assert Ok(returned) = pog.execute(query, on: started.data)
+      assert returned.rows == [3]
       process.kill(started.pid)
     }
   }

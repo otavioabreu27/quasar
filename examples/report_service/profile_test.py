@@ -31,6 +31,7 @@ class Instance:
     def __init__(self, port, database_url, workers, connections, trace):
         self.port = port
         self.latest = {}
+        self.runtime_metrics = {}
         self.lines = []
         env = dict(os.environ, DATABASE_URL=database_url, HOST="127.0.0.1",
                    PORT=str(port), INSTANCE_ID=f"profile-{port}",
@@ -48,6 +49,8 @@ class Instance:
         for line in self.process.stdout:
             if line.startswith("PROFILE "):
                 self.latest = json.loads(line[len("PROFILE "):])
+            elif line.startswith("RUNTIME_METRICS "):
+                self.runtime_metrics = json.loads(line[len("RUNTIME_METRICS "):])
             else:
                 self.lines.append(line.rstrip())
                 self.lines = self.lines[-20:]
@@ -60,7 +63,10 @@ class Instance:
             try:
                 if call(f"http://127.0.0.1:{self.port}/health/ready")[0] == 200:
                     return
-            except OSError:
+            except Exception:
+                # Connection libraries wrap startup refusal in different
+                # exception types. The process status and deadline below are
+                # the authoritative failure checks during readiness.
                 pass
             time.sleep(.1)
         raise TimeoutError("Instance not ready: " + "\n".join(self.lines))
@@ -116,6 +122,40 @@ def merge_trace(before, after):
         item["mean_ms"] = round(item["total_us"] / max(1, item["count"]) / 1000, 3)
         item["summed_duration_ms"] = round(item.pop("total_us") / 1000, 3)
     return totals
+
+
+def merge_runtime(before, after):
+    """Merge cumulative reporter snapshots and calculate latency percentiles."""
+    counters = ["claims", "claim_requested", "claim_returned", "empty_claims",
+                "jobs_started", "jobs_completed", "lease_renewals",
+                "persistence_failures", "claim_failures"]
+    merged = {key: 0 for key in counters}
+    merged["jobs_executing"] = sum(item.get("jobs_executing", 0) for item in after)
+    merged["summed_peak_jobs_executing"] = sum(
+        item.get("jobs_executing_peak", 0) for item in after)
+    for old, new in zip(before, after):
+        for key in counters:
+            merged[key] += new.get(key, 0) - old.get(key, 0)
+    for metric in ["claim_duration_ms", "completion_duration_ms"]:
+        histogram = Counter()
+        for old, new in zip(before, after):
+            for bucket, count in new.get(metric, {}).items():
+                histogram[int(bucket)] += count - old.get(metric, {}).get(bucket, 0)
+        total = sum(histogram.values())
+        cumulative = 0
+        p95 = None
+        weighted = sum(bucket * count for bucket, count in histogram.items())
+        for bucket, count in sorted(histogram.items()):
+            cumulative += count
+            if total and cumulative >= math.ceil(total * .95):
+                p95 = bucket
+                break
+        merged[metric] = {
+            "count": total,
+            "mean_ms": round(weighted / total, 3) if total else None,
+            "p95_upper_ms": p95,
+        }
+    return merged
 
 
 def main():
@@ -196,6 +236,7 @@ def main():
                 print(f"Running {name}, repetition {repetition + 1}...", flush=True)
                 sql("SELECT pg_stat_statements_reset()")  # Only the disposable DB.
                 before = [i.latest for i in instances]
+                runtime_before = [i.runtime_metrics for i in instances]
                 waits = Counter()
                 sample_count = []
                 sample_errors = []
@@ -255,6 +296,8 @@ def main():
                 assert valid == args.jobs, "missing or incorrect business results"
                 time.sleep(1)  # Allow tracer snapshots to catch up; excluded from timing.
                 trace_metrics = merge_trace(before, [i.latest for i in instances]) if trace else {}
+                runtime_metrics = merge_runtime(
+                    runtime_before, [i.runtime_metrics for i in instances])
                 if trace:
                     assert trace_metrics["worker_execute"]["count"] == args.jobs, trace_metrics
                 latencies = sorted(r[1] for r in submitted)
@@ -264,7 +307,8 @@ def main():
                               submission_seconds=round(submission_time,3),
                               aggregate_observed_seconds=round(observed,3),
                               batch=batch, processed_by=distribution,
-                              trace=trace_metrics, sql=sql_metrics,
+                              trace=trace_metrics, runtime=runtime_metrics,
+                              sql=sql_metrics,
                               pg_wait_samples=len(sample_count),
                               pg_backend_state_observations=dict(waits))
                 results.append(result)

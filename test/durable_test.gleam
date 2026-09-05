@@ -1,8 +1,10 @@
 import gleam/erlang/process
 import gleam/int
+import gleam/list
 import gleam/result
 import quasar_jobs as quasar
 import quasar_jobs/error
+import quasar_jobs/event
 import quasar_jobs/job
 import quasar_jobs/store
 import quasar_jobs/store/memory
@@ -50,6 +52,56 @@ pub fn enqueue_runs_a_typed_job_to_completion_test() {
   assert job.attempt(stored) == 1
   assert quasar.stop(runtime) == Ok(Nil)
   assert store.close(memory) == Ok(Nil)
+}
+
+pub fn durable_reporter_exposes_claim_lease_and_completion_metrics_test() {
+  let reports = process.new_subject()
+  let durable_worker = int_worker(fn(_, _) { Ok(Nil) })
+  let assert Ok(memory) = memory.new()
+  let assert Ok(runtime) =
+    quasar.new()
+    |> quasar.with_store(memory)
+    |> quasar.queue(
+      name: "metrics",
+      worker: durable_worker,
+      concurrency: 1,
+      prefetch: 1,
+    )
+    |> quasar.with_reporter(fn(item) { process.send(reports, item) })
+    |> quasar.start
+  let assert Ok(_) =
+    worker.job(durable_worker, 1) |> quasar.enqueue(runtime, on: "metrics")
+  let events = receive_until_completed(reports, [], 20)
+  assert list.any(events, fn(item) {
+    case item {
+      event.QueueClaimCompleted("metrics", 1, 1, duration) -> duration >= 0
+      _ -> False
+    }
+  })
+  assert list.any(events, fn(item) {
+    case item {
+      event.LeaseRenewed(_, "metrics", _) -> True
+      _ -> False
+    }
+  })
+  assert list.any(events, fn(item) {
+    case item {
+      event.JobCompletionPersisted(_, "metrics", duration) -> duration >= 0
+      _ -> False
+    }
+  })
+  assert quasar.stop(runtime) == Ok(Nil)
+  assert store.close(memory) == Ok(Nil)
+}
+
+fn receive_until_completed(subject, collected, remaining: Int) {
+  let assert True = remaining > 0
+  let assert Ok(item) = process.receive(subject, within: 1000)
+  let next = [item, ..collected]
+  case item {
+    event.JobCompleted(_, _) -> next
+    _ -> receive_until_completed(subject, next, remaining - 1)
+  }
 }
 
 pub fn failed_job_retries_with_backoff_test() {

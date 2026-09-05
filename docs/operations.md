@@ -19,6 +19,12 @@ bounded: reporters should remain inexpensive or hand off to a bounded sink.
 Mist passes the same request ID into handler headers, response headers and
 Quasar request telemetry.
 
+Durable queues additionally emit `QueueClaimCompleted`, with requested and
+returned batch sizes plus claim duration, and `JobCompletionPersisted`, with
+the completion-store duration. `LeaseRenewed` includes the ownership check made
+immediately before execution and later heartbeats. Current execution can be
+derived from `JobStarted` minus completed, retried, discarded, or failed jobs.
+
 ## Shutdown
 
 `stop` stops durable schedulers from claiming new rows, gracefully drains

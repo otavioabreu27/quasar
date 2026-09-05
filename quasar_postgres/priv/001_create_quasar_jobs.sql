@@ -19,8 +19,3 @@ CREATE TABLE IF NOT EXISTS quasar_jobs (
   error_kind TEXT,
   error_message TEXT
 );
-
-CREATE INDEX IF NOT EXISTS quasar_jobs_fetch
-  ON quasar_jobs (queue, status, available_at, priority DESC, id);
-CREATE INDEX IF NOT EXISTS quasar_jobs_leases
-  ON quasar_jobs (status, lease_expires_at);

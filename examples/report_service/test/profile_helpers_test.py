@@ -1,6 +1,6 @@
 import unittest
 
-from profile_test import merge_trace
+from profile_test import merge_runtime, merge_trace
 
 
 class TraceAggregationTest(unittest.TestCase):
@@ -36,3 +36,31 @@ class TraceAggregationTest(unittest.TestCase):
         }}]
         with self.assertRaises(AssertionError):
             merge_trace(before, after)
+
+
+class RuntimeAggregationTest(unittest.TestCase):
+    def test_merges_event_deltas_and_latency_histograms(self):
+        before = [{
+            "claims": 2, "claim_requested": 4, "claim_returned": 3,
+            "empty_claims": 0, "jobs_started": 3, "jobs_completed": 3,
+            "lease_renewals": 3, "persistence_failures": 0,
+            "claim_failures": 0, "jobs_executing": 0,
+            "jobs_executing_peak": 2,
+            "claim_duration_ms": {"1": 2},
+            "completion_duration_ms": {"2": 3},
+        }]
+        after = [{
+            "claims": 5, "claim_requested": 10, "claim_returned": 7,
+            "empty_claims": 1, "jobs_started": 7, "jobs_completed": 7,
+            "lease_renewals": 7, "persistence_failures": 0,
+            "claim_failures": 0, "jobs_executing": 0,
+            "jobs_executing_peak": 4,
+            "claim_duration_ms": {"1": 2, "3": 3},
+            "completion_duration_ms": {"2": 3, "4": 4},
+        }]
+        result = merge_runtime(before, after)
+        self.assertEqual(result["claims"], 3)
+        self.assertEqual(result["claim_returned"], 4)
+        self.assertEqual(result["empty_claims"], 1)
+        self.assertEqual(result["claim_duration_ms"]["mean_ms"], 3)
+        self.assertEqual(result["completion_duration_ms"]["p95_upper_ms"], 4)

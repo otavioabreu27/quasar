@@ -22,9 +22,16 @@ pub type Event {
   RuntimeStopping
   RuntimeStopped
   JobInserted(JobId, queue: String)
+  QueueClaimCompleted(
+    queue: String,
+    requested: Int,
+    returned: Int,
+    duration_ms: Int,
+  )
   JobClaimed(JobId, queue: String, attempt: Int)
   JobStarted(JobId, queue: String, attempt: Int)
   JobCompleted(JobId, queue: String)
+  JobCompletionPersisted(JobId, queue: String, duration_ms: Int)
   JobRetryScheduled(JobId, queue: String, available_at: Int)
   JobDiscarded(JobId, queue: String)
   LeaseRenewed(JobId, queue: String, expires_at: Int)

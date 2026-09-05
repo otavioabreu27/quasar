@@ -21,6 +21,10 @@ pub type MigrationError {
   Database(QueryError)
 }
 
+type Migration {
+  Migration(version: Int, name: String, sql: String)
+}
+
 /// Builds a Store backed by an existing Pog connection pool.
 ///
 /// The Pog pool remains application-owned and is not stopped when this Store
@@ -99,18 +103,83 @@ pub fn new(connection: Connection) -> Store {
   )
 }
 
-/// Applies the version-one PostgreSQL schema idempotently.
+/// Applies all pending packaged migrations in version order.
+///
+/// The migration history and an advisory transaction lock make concurrent
+/// startup safe when multiple application instances share one database.
 pub fn migrate(connection: Connection) -> Result(Nil, MigrationError) {
-  use sql <- result.try(
-    migration_sql() |> result.map_error(fn(_) { MigrationUnavailable }),
+  use packaged <- result.try(
+    migration_files() |> result.map_error(fn(_) { MigrationUnavailable }),
   )
-  sql
-  |> string.split(";")
-  |> list.map(string.trim)
-  |> list.filter(fn(statement) { statement != "" })
-  |> list.try_each(fn(statement) {
-    execute_nil(connection, statement, []) |> result.map_error(Database)
+  let migrations =
+    list.map(packaged, fn(item) { Migration(item.0, item.1, item.2) })
+  case pog.transaction(connection, fn(tx) { migrate_locked(tx, migrations) }) {
+    Ok(Nil) -> Ok(Nil)
+    Error(pog.TransactionQueryError(error)) -> Error(Database(error))
+    Error(pog.TransactionRolledBack(error)) -> Error(error)
+  }
+}
+
+fn migrate_locked(connection: Connection, migrations: List(Migration)) {
+  use _ <- result.try(
+    acquire_migration_lock(connection) |> result.map_error(Database),
+  )
+  use _ <- result.try(
+    execute_nil(
+      connection,
+      "CREATE TABLE IF NOT EXISTS quasar_jobs_migrations (version INTEGER PRIMARY KEY, name TEXT NOT NULL, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())",
+      [],
+    )
+    |> result.map_error(Database),
+  )
+  use applied <- result.try(
+    applied_migration_versions(connection) |> result.map_error(Database),
+  )
+  list.try_each(migrations, fn(migration) {
+    case list.contains(applied, migration.version) {
+      True -> Ok(Nil)
+      False -> apply_migration(connection, migration)
+    }
   })
+}
+
+fn acquire_migration_lock(connection: Connection) -> Result(Nil, QueryError) {
+  // PostgreSQL's advisory lock returns void. Cast it so Pog can decode the row.
+  let decoder = {
+    use _ <- decode.field(0, decode.string)
+    decode.success(Nil)
+  }
+  let query =
+    pog.query("SELECT pg_advisory_xact_lock(1903527851)::text")
+    |> pog.returning(decoder)
+  pog.execute(query, on: connection) |> result.replace(Nil)
+}
+
+fn applied_migration_versions(
+  connection: Connection,
+) -> Result(List(Int), QueryError) {
+  let decoder = {
+    use version <- decode.field(0, decode.int)
+    decode.success(version)
+  }
+  let query =
+    pog.query("SELECT version FROM quasar_jobs_migrations ORDER BY version")
+    |> pog.returning(decoder)
+  pog.execute(query, on: connection)
+  |> result.map(fn(returned) { returned.rows })
+}
+
+fn apply_migration(connection: Connection, migration: Migration) {
+  use _ <- result.try(
+    execute_nil(connection, string.trim(migration.sql), [])
+    |> result.map_error(Database),
+  )
+  execute_nil(
+    connection,
+    "INSERT INTO quasar_jobs_migrations (version, name) VALUES ($1, $2)",
+    [pog.int(migration.version), pog.text(migration.name)],
+  )
+  |> result.map_error(Database)
 }
 
 fn insert(
@@ -239,8 +308,8 @@ fn first(items: List(Job)) -> Result(Job, store.Error) {
   list.first(items) |> result.map_error(fn(_) { store.NotFound })
 }
 
-@external(erlang, "quasar_postgres_ffi", "migration_sql")
-fn migration_sql() -> Result(String, Nil)
+@external(erlang, "quasar_postgres_ffi", "migration_files")
+fn migration_files() -> Result(List(#(Int, String, String)), Nil)
 
 // Administrative commands are not execution acknowledgements. A failed
 // predicate reports the observed state (or NotFound), never a stale lease.
