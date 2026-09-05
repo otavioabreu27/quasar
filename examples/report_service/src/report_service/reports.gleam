@@ -51,3 +51,31 @@ pub fn worker(
     },
   )
 }
+
+/// Explicit benchmark alternative: idempotent business INSERT, then a runtime
+/// buffered completion. Unlike transactional mode these are separate commits.
+pub fn buffered_worker(
+  connection: pog.Connection,
+  instance_id: String,
+  simulated_work_ms: Int,
+) {
+  worker.new(
+    name: "reports.sum.v1",
+    encode: int.to_string,
+    decode: parse_size,
+    perform: fn(size, context) {
+      case simulated_work_ms > 0 {
+        True -> process.sleep(simulated_work_ms)
+        False -> Nil
+      }
+      database.save(
+        connection,
+        job.id_value(context.job_id),
+        size,
+        total(size),
+        instance_id,
+      )
+      |> result.map_error(fn(_) { "could not persist report" })
+    },
+  )
+}

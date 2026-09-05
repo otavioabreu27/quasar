@@ -9,17 +9,25 @@ import gleam/option
 import mist
 import pog
 import quasar_jobs as quasar
-import quasar_jobs/error
 import quasar_jobs/job
-import quasar_jobs/store
 import quasar_jobs/worker
 import quasar_mist
 import report_service/database
+import report_service/metrics
 import report_service/reports
 
 pub fn handler(
   runtime: quasar.Runtime,
   connection: pog.Connection,
+  report_worker: worker.Worker(Int),
+) {
+  handler_with_readiness(runtime, connection, connection, report_worker)
+}
+
+pub fn handler_with_readiness(
+  runtime: quasar.Runtime,
+  connection: pog.Connection,
+  readiness: pog.Connection,
   report_worker: worker.Worker(Int),
 ) {
   let managed =
@@ -29,6 +37,17 @@ pub fn handler(
     // Liveness must not wait for the database or a saturated execution pool.
     case req.method, request.path_segments(req) {
       http.Get, ["health", "live"] -> message(200, "alive")
+      http.Get, ["health", "ready"] ->
+        case database.ready(readiness) {
+          True -> message(200, "ready")
+          False -> message(503, "database unavailable")
+        }
+      http.Get, ["internal", "metrics"] ->
+        response.new(200)
+        |> response.set_header("content-type", "application/json")
+        |> response.set_body(
+          mist.Bytes(bytes_tree.from_string(metrics.snapshot())),
+        )
       _, _ -> managed(req)
     }
   }
@@ -70,7 +89,7 @@ fn route(
       }
     http.Get, ["jobs", id] ->
       case int.parse(id) {
-        Ok(id) if id > 0 -> get_job(runtime, connection, id)
+        Ok(id) if id > 0 -> get_job(connection, id)
         _ -> message(400, "invalid job id")
       }
     _, _ -> message(404, "route not found")
@@ -108,43 +127,30 @@ fn enqueue_batch(runtime, report_worker, size_text, count_text) {
   }
 }
 
-fn get_job(runtime, connection, id) {
-  case quasar.get_job(runtime, job.new_id(id)) {
-    Error(error.StoreFailure(store.NotFound)) -> message(404, "job not found")
-    Error(_) -> message(503, "job store unavailable")
-    Ok(item) ->
-      case job.queue(item) == reports.queue {
-        False -> message(404, "job not found")
-        True ->
-          case database.get_report(connection, id) {
-            Error(_) -> message(503, "report store unavailable")
-            Ok(report) ->
-              json_response(
-                200,
-                json.object([
-                  #("job_id", json.string(job.id_to_string(job.id(item)))),
-                  #("status", json.string(status_name(job.status(item)))),
-                  #("attempt", json.int(job.attempt(item))),
-                  #("inserted_at", json.int(job.inserted_at(item))),
-                  #(
-                    "completed_at",
-                    json.nullable(job.completed_at(item), json.int),
-                  ),
-                  #(
-                    "total",
-                    json.nullable(option.map(report, fn(r) { r.0 }), json.int),
-                  ),
-                  #(
-                    "processed_by",
-                    json.nullable(
-                      option.map(report, fn(r) { r.1 }),
-                      json.string,
-                    ),
-                  ),
-                ]),
-              )
-          }
-      }
+fn get_job(connection, id) {
+  case database.get_job_view(connection, id, reports.queue) {
+    Error(reason) ->
+      json_response(
+        503,
+        json.object([
+          #("message", json.string("job store unavailable")),
+          #("code", json.string(database.error_code(reason))),
+        ]),
+      )
+    Ok(option.None) -> message(404, "job not found")
+    Ok(option.Some(item)) ->
+      json_response(
+        200,
+        json.object([
+          #("job_id", json.string(int.to_string(id))),
+          #("status", json.string(item.status)),
+          #("attempt", json.int(item.attempt)),
+          #("inserted_at", json.int(item.inserted_at)),
+          #("completed_at", json.nullable(item.completed_at, json.int)),
+          #("total", json.nullable(item.total, json.int)),
+          #("processed_by", json.nullable(item.processed_by, json.string)),
+        ]),
+      )
   }
 }
 

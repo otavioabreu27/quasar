@@ -9,6 +9,10 @@ pub type Config {
     port: Int,
     instance_id: String,
     db_pool_size: Int,
+    db_worker_pool_size: Int,
+    db_control_pool_size: Int,
+    reaper_interval_ms: Int,
+    completion_mode: String,
     worker_concurrency: Int,
     worker_prefetch: Int,
     queue_poll_interval_ms: Int,
@@ -38,7 +42,7 @@ pub fn load() -> Result(Config, String) {
   )
   use db_pool_size <- result.try(
     envoy.get("DB_POOL_SIZE")
-    |> result.unwrap("20")
+    |> result.unwrap("3")
     |> int.parse
     |> result.map_error(fn(_) { "DB_POOL_SIZE must be an integer" }),
   )
@@ -48,6 +52,17 @@ pub fn load() -> Result(Config, String) {
     |> int.parse
     |> result.map_error(fn(_) { "WORKER_CONCURRENCY must be an integer" }),
   )
+  use db_worker_pool_size <- result.try(positive_env("DB_WORKER_POOL_SIZE", "4"))
+  use db_control_pool_size <- result.try(positive_env(
+    "DB_CONTROL_POOL_SIZE",
+    "1",
+  ))
+  use reaper_interval_ms <- result.try(positive_env(
+    "REAPER_INTERVAL_MS",
+    "1000",
+  ))
+  let completion_mode =
+    envoy.get("COMPLETION_MODE") |> result.unwrap("transactional")
   use worker_prefetch <- result.try(
     envoy.get("WORKER_PREFETCH")
     |> result.unwrap("1")
@@ -116,6 +131,7 @@ pub fn load() -> Result(Config, String) {
     && http_pool_prefetch > 0
     && http_buffer_capacity > 0
     && simulated_work_ms >= 0
+    && { completion_mode == "transactional" || completion_mode == "buffered" }
   {
     False ->
       Error(
@@ -129,6 +145,10 @@ pub fn load() -> Result(Config, String) {
         instance_id: envoy.get("INSTANCE_ID")
           |> result.unwrap("reports-" <> int.to_string(port)),
         db_pool_size:,
+        db_worker_pool_size:,
+        db_control_pool_size:,
+        reaper_interval_ms:,
+        completion_mode:,
         worker_concurrency:,
         worker_prefetch:,
         queue_poll_interval_ms:,

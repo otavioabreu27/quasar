@@ -53,7 +53,15 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: DB_POOL_SIZE
-              value: "8"
+              value: "3"
+            - name: DB_WORKER_POOL_SIZE
+              value: "4"
+            - name: DB_CONTROL_POOL_SIZE
+              value: "1"
+            - name: REAPER_INTERVAL_MS
+              value: "1000"
+            - name: COMPLETION_MODE
+              value: transactional
             - name: WORKER_CONCURRENCY
               value: "8"
             - name: WORKER_PREFETCH

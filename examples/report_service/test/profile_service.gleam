@@ -10,6 +10,7 @@ import pog
 import profile_metrics
 import quasar_jobs as quasar
 import quasar_postgres
+import quasar_postgres/reaper
 import report_service/api
 import report_service/config
 import report_service/database
@@ -26,6 +27,7 @@ pub fn main() {
   let assert Ok(Nil) = wait_for_database(db.data, 50)
   let assert Ok(Nil) = quasar_postgres.migrate(db.data)
   let assert Ok(Nil) = database.migrate(db.data)
+  let assert Ok(_) = reaper.start(db.data, 1000, fn(_) { Nil })
   case envoy.get("PROFILE_TRACE") {
     Ok("1") -> start_trace()
     _ -> Nil

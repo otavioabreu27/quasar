@@ -99,3 +99,61 @@ pub fn ready(connection: pog.Connection) -> Bool {
     Error(_) -> False
   }
 }
+
+pub type JobView {
+  JobView(
+    status: String,
+    attempt: Int,
+    inserted_at: Int,
+    completed_at: Option(Int),
+    total: Option(Int),
+    processed_by: Option(String),
+  )
+}
+
+/// A single snapshot avoids both a second pool checkout and inconsistent reads
+/// between job state and business result during transactional completion.
+pub fn get_job_view(connection: pog.Connection, id: Int, queue: String) {
+  let decoder = {
+    use status <- decode.field(0, decode.string)
+    use attempt <- decode.field(1, decode.int)
+    use inserted <- decode.field(2, decode.int)
+    use completed <- decode.field(3, decode.optional(decode.int))
+    use total <- decode.field(4, decode.optional(decode.int))
+    use instance <- decode.field(5, decode.optional(decode.string))
+    decode.success(JobView(
+      status,
+      attempt,
+      inserted,
+      completed,
+      total,
+      instance,
+    ))
+  }
+  pog.query(
+    "SELECT q.status, q.attempt, q.inserted_at, q.completed_at, r.total, r.processed_by
+    FROM quasar_jobs q LEFT JOIN example_reports r ON r.job_id = q.id
+    WHERE q.id = $1 AND q.queue = $2",
+  )
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.text(queue))
+  |> pog.returning(decoder)
+  |> pog.execute(on: connection)
+  |> result.map(fn(returned) {
+    case returned.rows {
+      [item] -> Some(item)
+      _ -> None
+    }
+  })
+}
+
+/// Classification deliberately excludes driver messages and SQL parameters.
+pub fn error_code(reason: pog.QueryError) -> String {
+  case reason {
+    pog.QueryTimeout -> "database_timeout"
+    pog.ConnectionUnavailable -> "database_connection_unavailable"
+    pog.PostgresqlError(_, _, _) -> "database_query_error"
+    pog.ConstraintViolated(_, _, _) -> "database_constraint"
+    _ -> "database_protocol_error"
+  }
+}
