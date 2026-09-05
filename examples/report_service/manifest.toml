@@ -28,9 +28,9 @@ packages = [
   { name = "pg_types", version = "0.6.0", build_tools = ["rebar3"], requirements = [], otp_app = "pg_types", source = "hex", outer_checksum = "9949A4849DD13408FA249AB7B745E0D2DFDB9532AEE2B9722326E33CD082A778" },
   { name = "pgo", version = "0.20.0", build_tools = ["rebar3"], requirements = ["backoff", "opentelemetry_api", "pg_types"], otp_app = "pgo", source = "hex", outer_checksum = "2F11E6649CEB38E569EF56B16BE1D04874AE5B11A02867080A2817CE423C683B" },
   { name = "pog", version = "4.1.0", build_tools = ["gleam"], requirements = ["exception", "gleam_erlang", "gleam_otp", "gleam_stdlib", "gleam_time", "pgo"], otp_app = "pog", source = "hex", outer_checksum = "E4AFBA39A5FAA2E77291836C9683ADE882E65A06AB28CA7D61AE7A3AD61EBBD5" },
-  { name = "quasar_jobs", version = "0.1.0", build_tools = ["gleam"], requirements = ["constellation", "gleam_erlang", "gleam_otp", "gleam_stdlib"], source = "local", path = "../.." },
-  { name = "quasar_mist", version = "0.1.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_http", "gleam_stdlib", "mist", "quasar_jobs"], source = "local", path = "../../quasar_mist" },
-  { name = "quasar_postgres", version = "0.1.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_otp", "gleam_stdlib", "pog", "quasar_jobs"], source = "local", path = "../../quasar_postgres" },
+  { name = "quasar_jobs", version = "0.2.0", build_tools = ["gleam"], requirements = ["constellation", "gleam_erlang", "gleam_otp", "gleam_stdlib"], source = "local", path = "../.." },
+  { name = "quasar_mist", version = "0.2.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_http", "gleam_stdlib", "mist", "quasar_jobs"], source = "local", path = "../../quasar_mist" },
+  { name = "quasar_postgres", version = "0.2.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_otp", "gleam_stdlib", "pog", "quasar_jobs"], source = "local", path = "../../quasar_postgres" },
 ]
 
 [requirements]
