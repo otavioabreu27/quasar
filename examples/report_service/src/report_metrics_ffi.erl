@@ -6,7 +6,7 @@ start() ->
     ets:insert(?MODULE, {started_epoch_ms, erlang:system_time(millisecond)}),
     ets:insert(?MODULE, [{K, 0} || K <- [claims, claim_requested, claim_returned, empty_claims,
         claim_failures, jobs_started, jobs_completed, lease_renewals, persistence_failures,
-        reaper_batches, reaped_jobs, reaper_failures, http_rejections]]),
+        reaper_batches, reaped_jobs, reaper_failures, http_rejections, wakes_received, wakes_coalesced]]),
     case os:getenv("BENCHMARK_POOL_TRACE") of
         "1" -> start_pool_trace();
         _ -> nil
@@ -27,12 +27,15 @@ start_pool_trace() ->
 pool_trace_loop(Pending) ->
     receive
         {trace_ts, Pid, call, {pgo_pool, checkout, 2}, At} ->
-            pool_trace_loop(Pending#{Pid => At});
+            Next = Pending#{Pid => At},
+            ets:insert(?MODULE, {pool_checkouts_inflight, map_size(Next)}),
+            pool_trace_loop(Next);
         {trace_ts, Pid, Kind, {pgo_pool, checkout, 2}, _Ignored, At}
           when Kind =:= return_from; Kind =:= exception_from ->
             case maps:take(Pid, Pending) of
                 error -> pool_trace_loop(Pending);
                 {Start, Rest} ->
+                    ets:insert(?MODULE, {pool_checkouts_inflight, map_size(Rest)}),
                     hist(<<"pool_checkout">>, erlang:convert_time_unit(At - Start, native, millisecond)),
                     add(pool_checkout_count, 1),
                     case Kind of exception_from -> add(pool_checkout_failures, 1); _ -> nil end,

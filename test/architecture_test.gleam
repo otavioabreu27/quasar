@@ -294,6 +294,26 @@ pub fn expired_unreaped_prefetch_never_starts_handler_test() {
   assert store.close(database) == Ok(Nil)
 }
 
+pub fn independent_lease_deadline_stops_handler_without_renewal_response_test() {
+  let performed = process.new_subject()
+  // No extension arrives (as when a heartbeat is stuck checking out a pool).
+  let assert Error(_) =
+    run_fenced(
+      fn(_extended) {
+        process.sleep(200)
+        process.send(performed, Nil)
+      },
+      system_milliseconds() + 30,
+    )
+  assert process.receive(performed, within: 250) == Error(Nil)
+}
+
+@external(erlang, "quasar_jobs_ffi", "run_fenced")
+fn run_fenced(
+  run: fn(fn(Int) -> Nil) -> output,
+  expires_at: Int,
+) -> Result(output, Nil)
+
 pub fn completion_buffer_flushes_at_one_hundred_results_test() {
   let assert Ok(backing) = memory.new()
   let batches = process.new_subject()

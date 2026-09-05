@@ -52,6 +52,8 @@ def statistics(values):
 class TrackedJob:
     job_id: str
     accepted_monotonic: float
+    scheduled_monotonic: float
+    stage: int
     polls: int = 0
 
 
@@ -92,6 +94,14 @@ class Benchmark:
         self.submission_finished = threading.Event()
         self.stop_polling = threading.Event()
         self.drain_timed_out = False
+        self.attempted_requests = 0
+        self.dropped = Counter()
+        self.invalid_results = 0
+        self.error_samples = []
+        self.phases = [dict(scheduled=math.floor(d * r), attempted=0, accepted=0,
+                            completed=0, submit_errors=0, dropped=0,
+                            enqueue_ms=[], schedule_lag_ms=[], e2e_ms=[], server_e2e_ms=[])
+                       for d, r in args.parsed_stages]
 
     def request_json(self, method, path):
         response = self.http.request(method, self.base_url + path)
@@ -99,6 +109,8 @@ class Benchmark:
             payload = json.loads(response.data.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError):
             payload = {"invalid_json": response.data[:200].decode("utf-8", "replace")}
+        if not isinstance(payload, dict):
+            payload = {"invalid_json_object": True}
         return response.status, payload
 
     def verify_ready(self):
@@ -106,32 +118,61 @@ class Benchmark:
         if status != 200:
             raise SystemExit(f"service is not ready: HTTP {status}: {body}")
 
-    def submit(self, sequence, scheduled_at):
+    def submit(self, sequence, scheduled_at, stage):
         actual_start = time.monotonic()
+        lag_ms = max(0.0, (actual_start - scheduled_at) * 1000)
+        if lag_ms > self.args.max_schedule_lag_ms:
+            self.record_drop(stage, "executor_late")
+            return
+        with self.lock:
+            self.attempted_requests += 1
+            self.phases[stage]["attempted"] += 1
+            self.schedule_lag_ms.append(lag_ms)
+            self.phases[stage]["schedule_lag_ms"].append(lag_ms)
         before = actual_start
         try:
-            status, body = self.request_json("POST", f"/reports/{self.args.work_size}")
+            path = (f"/reports/{self.args.work_size}" if self.args.batch_size == 1 else
+                    f"/reports/batch/{self.args.work_size}/{self.args.batch_size}")
+            status, body = self.request_json("POST", path)
             latency_ms = (time.monotonic() - before) * 1000
         except Exception as exc:  # record transport errors without aborting the run
             with self.lock:
                 self.submit_errors[type(exc).__name__] += 1
+                self.phases[stage]["submit_errors"] += 1
             return
 
         with self.lock:
             self.enqueue_ms.append(latency_ms)
-            self.schedule_lag_ms.append(max(0.0, (actual_start - scheduled_at) * 1000))
-            if status != 202 or "job_id" not in body:
+            self.phases[stage]["enqueue_ms"].append(latency_ms)
+            ids = ([body["job_id"]] if "job_id" in body else body.get("job_ids", []))
+            if status != 202 or not isinstance(ids, list) or len(ids) != self.args.batch_size:
                 self.submit_errors[f"http_{status}"] += 1
+                self.phases[stage]["submit_errors"] += 1
+                if len(self.error_samples) < 20:
+                    self.error_samples.append(dict(stage=stage, status=status, code=body.get("code")))
                 return
-            job_id = str(body["job_id"])
-            if job_id in self.ids:
+            ids = [str(value) for value in ids]
+            if any(not value.isdecimal() or int(value) <= 0 for value in ids):
+                self.submit_errors["invalid_job_id"] += 1
+                self.phases[stage]["submit_errors"] += 1
+                return
+            if len(set(ids)) != len(ids) or any(value in self.ids for value in ids):
                 self.submit_errors["duplicate_job_id"] += 1
+                self.phases[stage]["submit_errors"] += 1
                 return
-            self.ids.add(job_id)
-            self.accepted += 1
-            self.pending += 1
+            self.ids.update(ids)
+            self.accepted += len(ids)
+            self.phases[stage]["accepted"] += len(ids)
+            self.pending += len(ids)
             self.max_pending = max(self.max_pending, self.pending)
-        self.schedule(TrackedJob(job_id, time.monotonic()), time.monotonic() + self.args.initial_poll_delay)
+        for job_id in ids:
+            self.schedule(TrackedJob(job_id, time.monotonic(), scheduled_at, stage),
+                          time.monotonic() + self.args.initial_poll_delay)
+
+    def record_drop(self, stage, reason):
+        with self.lock:
+            self.dropped[reason] += 1
+            self.phases[stage]["dropped"] += 1
 
     def schedule(self, job, due):
         with self.delayed_cv:
@@ -161,6 +202,8 @@ class Benchmark:
             except queue.Empty:
                 continue
             before = time.monotonic()
+            with self.lock:
+                self.total_polls += 1
             try:
                 status, body = self.request_json("GET", "/jobs/" + job.job_id)
                 latency_ms = (time.monotonic() - before) * 1000
@@ -172,7 +215,6 @@ class Benchmark:
 
             job.polls += 1
             with self.lock:
-                self.total_polls += 1
                 self.poll_ms.append(latency_ms)
             if status != 200:
                 with self.lock:
@@ -190,14 +232,20 @@ class Benchmark:
                 self.statuses[state] += 1
                 self.pending -= 1
                 if state == "completed":
+                    if (body.get("total") != self.args.work_size * (self.args.work_size + 1) // 2
+                            or not body.get("processed_by") or str(body.get("job_id")) != job.job_id):
+                        self.invalid_results += 1
                     self.completed += 1
+                    self.phases[job.stage]["completed"] += 1
+                    self.phases[job.stage]["e2e_ms"].append((now - job.scheduled_monotonic) * 1000)
                     self.attempts[str(body.get("attempt"))] += 1
                     self.processed_by[str(body.get("processed_by"))] += 1
                     inserted = body.get("inserted_at")
                     completed = body.get("completed_at")
                     if isinstance(inserted, int) and isinstance(completed, int):
                         self.e2e_server_ms.append(float(completed - inserted))
-                    self.e2e_observed_ms.append((now - job.accepted_monotonic) * 1000)
+                        self.phases[job.stage]["server_e2e_ms"].append(float(completed - inserted))
+                    self.e2e_observed_ms.append((now - job.scheduled_monotonic) * 1000)
                 else:
                     self.terminal_failures += 1
 
@@ -213,6 +261,8 @@ class Benchmark:
                 "pending": self.pending,
                 "submit_errors": sum(self.submit_errors.values()),
                 "poll_errors": sum(self.poll_errors.values()),
+                "generator_dropped_requests": sum(self.dropped.values()),
+                "attempted_requests": self.attempted_requests,
                 "completion_rate_jobs_s": round(self.completed / max(now - self.start, 0.001), 3),
             }
 
@@ -232,30 +282,40 @@ class Benchmark:
         for worker in pollers:
             worker.start()
 
+        # Thread startup is not an offered-load failure. Start the schedule
+        # only once producer/poll infrastructure exists.
+        started_epoch_ms = int(time.time() * 1000)
+        self.start = time.monotonic()
+
         stages = self.args.parsed_stages
         schedule = []
         stage_offset = 0.0
         sequence = 0
-        for stage_duration, stage_rate in stages:
+        for stage_index, (stage_duration, stage_rate) in enumerate(stages):
             stage_jobs = math.floor(stage_duration * stage_rate)
             for stage_sequence in range(stage_jobs):
-                schedule.append((sequence, self.start + stage_offset + (stage_sequence / stage_rate)))
+                schedule.append((sequence, self.start + stage_offset + (stage_sequence / stage_rate), stage_index))
                 sequence += 1
             stage_offset += stage_duration
         total_scheduled = len(schedule)
-        max_submit_backlog = self.args.submit_workers * 4
+        max_submit_backlog = self.args.submit_workers
         submit_slots = threading.Semaphore(max_submit_backlog)
 
         def release_slot(future):
             submit_slots.release()
 
         with ThreadPoolExecutor(max_workers=self.args.submit_workers) as executor:
-            for sequence, scheduled_at in schedule:
+            for sequence, scheduled_at, stage_index in schedule:
                 delay = scheduled_at - time.monotonic()
                 if delay > 0:
                     time.sleep(delay)
-                submit_slots.acquire()
-                future = executor.submit(self.submit, sequence, scheduled_at)
+                if (time.monotonic() - scheduled_at) * 1000 > self.args.max_schedule_lag_ms:
+                    self.record_drop(stage_index, "scheduler_late")
+                    continue
+                if not submit_slots.acquire(blocking=False):
+                    self.record_drop(stage_index, "submit_capacity")
+                    continue
+                future = executor.submit(self.submit, sequence, scheduled_at, stage_index)
                 future.add_done_callback(release_slot)
 
         self.stop_submitting = time.monotonic()
@@ -283,16 +343,27 @@ class Benchmark:
         with self.lock:
             result = {
                 "type": "summary",
-                "schema_version": 2,
+                "schema_version": 3,
+                "rate_unit": "http_requests_per_second",
+                "batch_size": self.args.batch_size,
+                "scheduled_jobs": total_scheduled * self.args.batch_size,
+                "attempted_requests": self.attempted_requests,
+                "generator_dropped": dict(self.dropped),
+                "invalid_results": self.invalid_results,
+                "error_samples": self.error_samples,
+                "accepted_ids": sorted(self.ids, key=int),
+                "phases": [dict(index=i, duration_s=stages[i][0], rate_requests_s=stages[i][1],
+                                 **{k: statistics(v) if isinstance(v, list) else v for k, v in p.items()})
+                           for i, p in enumerate(self.phases)],
                 "started_epoch_ms": started_epoch_ms,
                 "finished_epoch_ms": int(time.time() * 1000),
                 "scenario": self.args.scenario,
                 "url": self.base_url,
                 "work_size": self.args.work_size,
-                "configured_rate_jobs_s": self.args.rate,
+                "configured_rate_requests_s": self.args.rate,
                 "configured_duration_s": self.args.duration,
                 "configured_stages": [
-                    {"duration_s": duration, "rate_jobs_s": rate}
+                    {"duration_s": duration, "rate_requests_s": rate, "rate_jobs_s": rate * self.args.batch_size}
                     for duration, rate in stages
                 ],
                 "scheduled": total_scheduled,
@@ -312,9 +383,9 @@ class Benchmark:
                 "attempts": dict(self.attempts),
                 "processed_by": dict(self.processed_by),
                 "http": {
-                    "post_requests": len(self.enqueue_ms),
+                    "post_requests": self.attempted_requests,
                     "poll_requests": self.total_polls,
-                    "total_requests": len(self.enqueue_ms) + self.total_polls,
+                    "total_requests": self.attempted_requests + self.total_polls,
                 },
                 "latency": {
                     "enqueue": statistics(self.enqueue_ms),
@@ -325,7 +396,8 @@ class Benchmark:
                 },
             }
         print(json.dumps(result, sort_keys=True), flush=True)
-        return 0 if not self.drain_timed_out and not self.submit_errors and not self.terminal_failures else 2
+        return 0 if not (self.drain_timed_out or self.submit_errors or self.poll_errors
+                         or self.terminal_failures or self.dropped or self.invalid_results) else 2
 
 
 def parse_args():
@@ -339,6 +411,8 @@ def parse_args():
         help="Comma-separated DURATION:RATE stages; overrides --duration and --rate",
     )
     parser.add_argument("--work-size", type=int, default=1_000_000)
+    parser.add_argument("--batch-size", type=int, default=1, help="Jobs per HTTP request; --rate always means requests/s")
+    parser.add_argument("--max-schedule-lag-ms", type=float, default=50.0)
     parser.add_argument("--submit-workers", type=int, default=64)
     parser.add_argument("--poll-workers", type=int, default=64)
     parser.add_argument("--initial-poll-delay", type=float, default=0.05)
@@ -348,6 +422,8 @@ def parse_args():
     parser.add_argument("--connect-timeout", type=float, default=3.0)
     parser.add_argument("--read-timeout", type=float, default=10.0)
     args = parser.parse_args()
+    if not 1 <= args.batch_size <= 1000 or args.max_schedule_lag_ms <= 0:
+        parser.error("batch-size must be 1..1000 and max-schedule-lag-ms must be positive")
     if args.duration <= 0 or args.rate <= 0:
         parser.error("duration and rate must be positive")
     if args.submit_workers <= 0 or args.poll_workers <= 0:
