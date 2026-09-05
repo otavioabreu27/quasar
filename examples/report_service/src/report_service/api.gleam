@@ -91,6 +91,11 @@ fn get_job(runtime, connection, id) {
                   #("job_id", json.string(job.id_to_string(job.id(item)))),
                   #("status", json.string(status_name(job.status(item)))),
                   #("attempt", json.int(job.attempt(item))),
+                  #("inserted_at", json.int(job.inserted_at(item))),
+                  #(
+                    "completed_at",
+                    json.nullable(job.completed_at(item), json.int),
+                  ),
                   #(
                     "total",
                     json.nullable(option.map(report, fn(r) { r.0 }), json.int),
