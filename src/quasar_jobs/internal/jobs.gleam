@@ -40,6 +40,42 @@ pub fn enqueue(
   Ok(id)
 }
 
+pub fn enqueue_many(
+  owner: runtime.Runtime,
+  new_jobs: List(job.NewJob),
+  queue: String,
+  at: Int,
+) -> Result(List(job.JobId), JobError) {
+  use access <- result.try(access(owner))
+  use config <- result.try(
+    list.find(access.configs, fn(config) { durable.name(config) == queue })
+    |> result.map_error(fn(_) { QueueNotFound }),
+  )
+  use _ <- result.try(
+    case
+      list.all(new_jobs, fn(item) {
+        durable.worker_name(config) == job.worker_name(item)
+      })
+    {
+      True -> Ok(Nil)
+      False -> Error(WorkerQueueMismatch)
+    },
+  )
+  use ids <- result.try(
+    store.insert_many(access.store, new_jobs, queue, at, now())
+    |> result.map_error(StoreFailure),
+  )
+  use _ <- result.try(case list.length(ids) == list.length(new_jobs) {
+    True -> Ok(Nil)
+    False -> Error(StoreFailure(store.Unavailable))
+  })
+  list.each(ids, fn(id) {
+    reporter.emit(access.reporter, event.JobInserted(id, queue))
+  })
+  wake_local(access, queue)
+  Ok(ids)
+}
+
 pub fn get(owner, id) {
   use access <- result.try(access(owner))
   store.get(access.store, id) |> result.map_error(StoreFailure)

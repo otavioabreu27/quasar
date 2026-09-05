@@ -74,9 +74,12 @@ pub fn transactional_worker(
 /// The Pog pool remains application-owned and is not stopped when this Store
 /// closes. Run `migrate` once before starting Quasar.
 pub fn new(connection: Connection) -> Store {
-  store.from_operations_with_batch(
+  store.from_operations_with_all_batches(
     insert: fn(new_job, queue, available_at, now) {
       insert(connection, new_job, queue, available_at, now)
+    },
+    insert_many: fn(jobs, queue, available_at, now) {
+      insert_many(connection, jobs, queue, available_at, now)
     },
     get: fn(id) { get(connection, id) },
     claim: fn(queue, limit, owner, now, lease_ms) {
@@ -260,6 +263,58 @@ fn insert(
   case returned.rows {
     [id] -> Ok(job.new_id(id))
     _ -> Error(store.Unavailable)
+  }
+}
+
+fn insert_many(
+  connection: Connection,
+  jobs: List(NewJob),
+  queue: String,
+  available_at: Int,
+  now: Int,
+) -> Result(List(JobId), store.Error) {
+  case jobs {
+    [] -> Ok([])
+    jobs -> {
+      let status = case available_at > now {
+        True -> "scheduled"
+        False -> "available"
+      }
+      let id_decoder = {
+        use id <- decode.field(0, decode.int)
+        decode.success(job.new_id(id))
+      }
+      let query =
+        pog.query(
+          "WITH input AS (SELECT * FROM unnest($2::text[], $3::text[], $4::integer[], $5::integer[]) WITH ORDINALITY AS i(worker, payload, priority, max_attempts, ordinal)), inserted AS (INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) SELECT $1, worker, payload, $6, priority, 0, max_attempts, $7, $8 FROM input ORDER BY ordinal RETURNING id), notified AS (SELECT pg_notify('quasar_jobs', $1) FROM inserted LIMIT 1) SELECT id FROM inserted WHERE (SELECT count(*) FROM notified) >= 0 ORDER BY id",
+        )
+        |> pog.parameter(pog.text(queue))
+        |> pog.parameter(pog.array(pog.text, list.map(jobs, job.worker_name)))
+        |> pog.parameter(pog.array(
+          pog.text,
+          list.map(jobs, job.encoded_payload),
+        ))
+        |> pog.parameter(pog.array(
+          pog.int,
+          list.map(jobs, job.new_job_priority),
+        ))
+        |> pog.parameter(pog.array(
+          pog.int,
+          list.map(jobs, job.new_job_max_attempts),
+        ))
+        |> pog.parameter(pog.text(status))
+        |> pog.parameter(pog.int(available_at))
+        |> pog.parameter(pog.int(now))
+        |> pog.returning(id_decoder)
+      use returned <- result.try(
+        pog.execute(query, on: connection)
+        |> result.map_error(fn(_) { store.Unavailable }),
+      )
+      case list.length(returned.rows) == list.length(jobs) {
+        True -> Ok(returned.rows)
+        False -> Error(store.Unavailable)
+      }
+    }
   }
 }
 

@@ -115,6 +115,10 @@ docker compose exec postgres psql -U reports -d reports -c \
   'SELECT status, attempt, count(*) FROM quasar_jobs GROUP BY status, attempt;'
 ```
 
+Para produtores em lote, `POST /reports/batch/:size/:count` insere de 1 a 1.000
+jobs atomicamente por chamada usando `quasar.enqueue_many`. Requisições isoladas
+continuam usando `POST /reports/:size` sem aguardar formação de lote.
+
 ## Retenção
 
 O serviço habilita retenção por estado terminal: `completed` por 7 dias e

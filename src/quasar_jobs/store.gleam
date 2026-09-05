@@ -2,6 +2,7 @@
 //// Resource ownership remains with the application that opened the Store.
 
 import gleam/list
+import gleam/result
 import quasar_jobs/job.{
   type ExecutionToken, type Job, type JobError, type JobId, type NewJob,
 }
@@ -25,6 +26,8 @@ pub type Failure {
 pub opaque type Store {
   Store(
     insert: fn(NewJob, String, Int, Int) -> Result(JobId, Error),
+    insert_many: fn(List(NewJob), String, Int, Int) ->
+      Result(List(JobId), Error),
     get: fn(JobId) -> Result(Job, Error),
     claim: fn(String, Int, String, Int, Int) -> Result(List(Job), Error),
     complete: fn(ExecutionToken, Int) -> Result(Job, Error),
@@ -69,6 +72,21 @@ pub fn insert(
     Error(error) -> Error(InvalidTransition(error))
     Ok(Nil) -> store.insert(new_job, queue, available_at, now)
   }
+}
+
+pub fn insert_many(
+  store: Store,
+  jobs: List(NewJob),
+  queue: String,
+  available_at: Int,
+  now: Int,
+) -> Result(List(JobId), Error) {
+  use _ <- result.try(
+    list.try_each(jobs, fn(item) {
+      job.validate(item) |> result.map_error(InvalidTransition)
+    }),
+  )
+  store.insert_many(jobs, queue, available_at, now)
 }
 
 /// The owner argument is a diagnostic prefix. Each call adds a fresh nonce;
@@ -194,8 +212,42 @@ pub fn from_operations_with_batch(
   renew_lease renew_lease: fn(ExecutionToken, Int) -> Result(Job, Error),
   close close: fn() -> Result(Nil, Error),
 ) -> Store {
+  from_operations_with_all_batches(
+    insert:,
+    insert_many: fn(items, queue, available_at, now) {
+      list.try_map(items, fn(item) { insert(item, queue, available_at, now) })
+    },
+    get:,
+    claim:,
+    complete:,
+    complete_many:,
+    fail:,
+    fail_many:,
+    cancel:,
+    retry:,
+    renew_lease:,
+    close:,
+  )
+}
+
+pub fn from_operations_with_all_batches(
+  insert insert: fn(NewJob, String, Int, Int) -> Result(JobId, Error),
+  insert_many insert_many: fn(List(NewJob), String, Int, Int) ->
+    Result(List(JobId), Error),
+  get get: fn(JobId) -> Result(Job, Error),
+  claim claim: fn(String, Int, String, Int, Int) -> Result(List(Job), Error),
+  complete complete: fn(ExecutionToken, Int) -> Result(Job, Error),
+  complete_many complete_many: fn(List(Completion)) -> Result(List(Job), Error),
+  fail fail: fn(ExecutionToken, JobError, Int) -> Result(Job, Error),
+  fail_many fail_many: fn(List(Failure)) -> Result(List(Job), Error),
+  cancel cancel: fn(JobId) -> Result(Job, Error),
+  retry retry: fn(JobId, Int) -> Result(Job, Error),
+  renew_lease renew_lease: fn(ExecutionToken, Int) -> Result(Job, Error),
+  close close: fn() -> Result(Nil, Error),
+) -> Store {
   Store(
     insert:,
+    insert_many:,
     get:,
     claim:,
     complete:,

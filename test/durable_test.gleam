@@ -54,6 +54,42 @@ pub fn enqueue_runs_a_typed_job_to_completion_test() {
   assert store.close(memory) == Ok(Nil)
 }
 
+pub fn enqueue_many_persists_every_job_and_returns_every_id_test() {
+  let completed = process.new_subject()
+  let durable_worker =
+    int_worker(fn(value, _) {
+      process.send(completed, value)
+      Ok(Nil)
+    })
+  let #(runtime, memory) = durable_runtime(durable_worker)
+  let jobs =
+    int.range(from: 1, to: 21, with: [], run: list.prepend)
+    |> list.map(fn(value) { worker.job(durable_worker, value) })
+  let assert Ok(ids) = quasar.enqueue_many(jobs, runtime, on: "jobs")
+
+  assert list.length(ids) == 20
+  let values = receive_values(completed, 20, []) |> list.sort(int.compare)
+  let expected =
+    int.range(from: 1, to: 21, with: [], run: list.prepend)
+    |> list.sort(int.compare)
+  assert values == expected
+  list.each(ids, fn(id) {
+    let assert Ok(_) = wait_for_status(runtime, id, job.Completed, 100)
+  })
+  assert quasar.stop(runtime) == Ok(Nil)
+  assert store.close(memory) == Ok(Nil)
+}
+
+fn receive_values(subject, remaining: Int, values) {
+  case remaining {
+    0 -> values
+    _ -> {
+      let assert Ok(value) = process.receive(subject, within: 1000)
+      receive_values(subject, remaining - 1, [value, ..values])
+    }
+  }
+}
+
 pub fn durable_reporter_exposes_claim_lease_and_completion_metrics_test() {
   let reports = process.new_subject()
   let durable_worker = int_worker(fn(_, _) { Ok(Nil) })

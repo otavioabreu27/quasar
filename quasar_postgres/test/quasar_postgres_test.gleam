@@ -288,6 +288,63 @@ pub fn transactional_worker_commits_effect_and_completion_together_test() {
   }
 }
 
+pub fn postgres_enqueue_many_uses_one_atomic_insert_and_one_wake_test() {
+  case getenv("QUASAR_POSTGRES_URL") {
+    Error(_) -> Nil
+    Ok(url) -> run_enqueue_many_test(url)
+  }
+}
+
+fn run_enqueue_many_test(url: String) -> Nil {
+  let assert Ok(config) =
+    pog.url_config(process.new_name("quasar-enqueue-many"), url)
+    |> result.map(fn(config) { pog.pool_size(config, 2) })
+  let assert Ok(started) = pog.start(config)
+  process.unlink(started.pid)
+  let assert Ok(Nil) = migrate_when_ready(started.data, 50)
+  let database = postgres_store.new(started.data)
+  let queue = "enqueue-many-" <> request_id.to_string(request_id.new())
+  let notifications = process.new_subject()
+  let assert Ok(listener) =
+    postgres_listener.start(config, fn(received_queue) {
+      process.send(notifications, received_queue)
+    })
+  process.sleep(200)
+  let jobs =
+    int.range(from: 1, to: 101, with: [], run: list.prepend)
+    |> list.map(fn(value) {
+      job.new_job("batch-worker", int.to_string(value), 0, 3)
+    })
+  let assert Ok(ids) = store.insert_many(database, jobs, queue, 100, 100)
+  assert list.length(ids) == 100
+  assert set.size(set.from_list(ids)) == 100
+  assert count_queue_jobs(started.data, queue) == 100
+  assert process.receive(notifications, within: 1000) == Ok(queue)
+  assert process.receive(notifications, within: 50) == Error(Nil)
+
+  let invalid_queue = queue <> "-invalid"
+  assert store.insert_many(
+      database,
+      [
+        job.new_job("batch-worker", "valid", 0, 3),
+        job.new_job("batch-worker", "invalid", 0, 0),
+      ],
+      invalid_queue,
+      100,
+      100,
+    )
+    == Error(
+      store.InvalidTransition(job.InvalidJob("max_attempts must be positive")),
+    )
+  assert count_queue_jobs(started.data, invalid_queue) == 0
+  let delete =
+    pog.query("DELETE FROM quasar_jobs WHERE queue = $1")
+    |> pog.parameter(pog.text(queue))
+  let assert Ok(_) = pog.execute(delete, on: started.data)
+  postgres_listener.stop(listener)
+  process.kill(started.pid)
+}
+
 fn run_transactional_worker_test(url: String) -> Nil {
   let assert Ok(config) =
     pog.url_config(process.new_name("quasar-transactional-worker"), url)

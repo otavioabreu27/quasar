@@ -20,6 +20,8 @@ depends on the Constellation 0.2 public API, never its private implementation.
   It knows nothing about durable queues or Stores.
 - `internal/jobs`: durable application commands and explicit queue routing.
   Store calls execute in the requesting process, outside the lifecycle actor.
+  `enqueue_many` remains explicit and adapters can persist it atomically without
+  adding latency to isolated enqueue calls.
 - `internal/durable`: demand grants, bounded claims and polling, one scheduler
   per queue. A slow Store can stall that queue, not local capability resolution.
 - `internal/job_executor` and `internal/lease`: one execution attempt and its

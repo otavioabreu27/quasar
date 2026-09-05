@@ -224,6 +224,19 @@ pub fn enqueue(
   jobs.enqueue(runtime, new_job, queue, jobs.now())
 }
 
+/// Atomically inserts several immediately available jobs into one queue.
+///
+/// Stores with native batching persist the list in one operation. Use the
+/// individual `enqueue` when delaying isolated requests is undesirable.
+pub fn enqueue_many(
+  new_jobs: List(job.NewJob),
+  runtime: Runtime,
+  on queue: String,
+) -> Result(List(job.JobId), JobOperationError) {
+  let Runtime(runtime) = runtime
+  jobs.enqueue_many(runtime, new_jobs, queue, jobs.now())
+}
+
 /// Inserts a durable job that becomes available at an epoch millisecond.
 pub fn schedule(
   new_job: job.NewJob,

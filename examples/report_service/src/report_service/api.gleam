@@ -4,6 +4,7 @@ import gleam/http/request
 import gleam/http/response
 import gleam/int
 import gleam/json
+import gleam/list
 import gleam/option
 import mist
 import pog
@@ -45,6 +46,8 @@ fn route(
         True -> message(200, "ready")
         False -> message(503, "database unavailable")
       }
+    http.Post, ["reports", "batch", size, count] ->
+      enqueue_batch(runtime, report_worker, size, count)
     http.Post, ["reports", size] ->
       case reports.parse_size(size) {
         Error(reason) -> message(400, reason)
@@ -71,6 +74,37 @@ fn route(
         _ -> message(400, "invalid job id")
       }
     _, _ -> message(404, "route not found")
+  }
+}
+
+fn enqueue_batch(runtime, report_worker, size_text, count_text) {
+  case reports.parse_size(size_text), int.parse(count_text) {
+    Error(reason), _ -> message(400, reason)
+    _, Error(_) -> message(400, "count must be an integer")
+    _, Ok(count) if count < 1 || count > 1000 ->
+      message(400, "count must be between 1 and 1000")
+    Ok(size), Ok(count) -> {
+      let new_job = worker.job(report_worker, size) |> job.with_max_attempts(5)
+      case
+        quasar.enqueue_many(
+          list.repeat(new_job, count),
+          runtime,
+          on: reports.queue,
+        )
+      {
+        Ok(ids) ->
+          json_response(
+            202,
+            json.object([
+              #(
+                "job_ids",
+                json.array(ids, fn(id) { json.string(job.id_to_string(id)) }),
+              ),
+            ]),
+          )
+        Error(_) -> message(503, "job store unavailable")
+      }
+    }
   }
 }
 
