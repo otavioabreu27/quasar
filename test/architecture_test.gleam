@@ -244,6 +244,56 @@ pub fn long_job_renews_lease_until_completion_test() {
   assert store.close(database) == Ok(Nil)
 }
 
+pub fn lost_heartbeat_cancels_user_code_before_its_late_effect_test() {
+  let assert Ok(database) = memory.new()
+  let now = system_milliseconds()
+  let assert Ok(id) =
+    store.insert(database, job.new_job("worker", "p", 0, 3), "queue", now, now)
+  let assert Ok([claimed]) = store.claim(database, "queue", 1, "node", now, 90)
+  let performed = process.new_subject()
+  let durable_worker =
+    worker.new("worker", fn(x) { x }, fn(x) { Ok(x) }, fn(_, _) {
+      // Cancel after starting, while the original claim still had a safe margin.
+      let assert Ok(_) = store.cancel(database, id)
+      process.sleep(200)
+      process.send(performed, Nil)
+      Ok(Nil)
+    })
+  job_executor.execute(
+    "queue",
+    worker.erase(durable_worker),
+    90,
+    database,
+    claimed,
+    fn(_) { Nil },
+  )
+  assert process.receive(performed, within: 250) == Error(Nil)
+  assert store.close(database) == Ok(Nil)
+}
+
+pub fn expired_unreaped_prefetch_never_starts_handler_test() {
+  let assert Ok(database) = memory.new()
+  let assert Ok(_) =
+    store.insert(database, job.new_job("worker", "p", 0, 3), "queue", 100, 100)
+  let assert Ok([claimed]) = store.claim(database, "queue", 1, "node", 100, 10)
+  let performed = process.new_subject()
+  let durable_worker =
+    worker.new("worker", fn(x) { x }, fn(x) { Ok(x) }, fn(_, _) {
+      process.send(performed, Nil)
+      Ok(Nil)
+    })
+  job_executor.execute(
+    "queue",
+    worker.erase(durable_worker),
+    30_000,
+    database,
+    claimed,
+    fn(_) { Nil },
+  )
+  assert process.receive(performed, within: 0) == Error(Nil)
+  assert store.close(database) == Ok(Nil)
+}
+
 pub fn completion_buffer_flushes_at_one_hundred_results_test() {
   let assert Ok(backing) = memory.new()
   let batches = process.new_subject()
@@ -291,6 +341,56 @@ pub fn completion_buffer_flushes_at_one_hundred_results_test() {
   })
 
   assert process.receive(batches, within: 1000) == Ok(100)
+  completion_buffer.stop(buffer.data)
+  assert store.close(backing) == Ok(Nil)
+}
+
+pub fn completion_buffer_retries_transient_failure_and_isolates_stale_token_test() {
+  let assert Ok(backing) = memory.new()
+  let assert Ok(fail_once) =
+    store.insert(backing, job.new_job("marker", "p", 0, 1), "marker", 100, 100)
+  let observed =
+    store.from_operations_with_batch(
+      insert: fn(item, queue, at, now) {
+        store.insert(backing, item, queue, at, now)
+      },
+      get: store.get(backing, _),
+      claim: fn(queue, limit, owner, now, lease) {
+        store.claim(backing, queue, limit, owner, now, lease)
+      },
+      complete: fn(token, now) { store.complete(backing, token, now) },
+      complete_many: fn(items) {
+        case store.cancel(backing, fail_once) {
+          Ok(_) -> Error(store.Unavailable)
+          Error(_) -> store.complete_many(backing, items)
+        }
+      },
+      fail: fn(token, reason, at) { store.fail(backing, token, reason, at) },
+      fail_many: fn(items) { store.fail_many(backing, items) },
+      cancel: store.cancel(backing, _),
+      retry: fn(id, now) { store.retry(backing, id, now) },
+      renew_lease: fn(token, expiry) {
+        store.renew_lease(backing, token, expiry)
+      },
+      close: fn() { Ok(Nil) },
+    )
+  let now = system_milliseconds()
+  let assert Ok(_) =
+    store.insert_many(
+      backing,
+      list.repeat(job.new_job("worker", "p", 0, 3), 2),
+      "queue",
+      now,
+      now,
+    )
+  let assert Ok([stale, valid]) =
+    store.claim(backing, "queue", 2, "node", now, 30_000)
+  let assert Ok(_) = store.cancel(backing, job.id(stale))
+  let assert Ok(buffer) = completion_buffer.start(observed, fn(_) { Nil })
+  completion_buffer.submit(buffer.data, completion_buffer.Complete(stale))
+  completion_buffer.submit_wait(buffer.data, completion_buffer.Complete(valid))
+  let assert Ok(done) = store.get(backing, job.id(valid))
+  assert job.status(done) == job.Completed
   completion_buffer.stop(buffer.data)
   assert store.close(backing) == Ok(Nil)
 }

@@ -36,7 +36,9 @@ pub fn start(
   lease_ms: Int,
   lease_expires_at: Int,
   report: fn(Event) -> Nil,
+  extended: fn(Int) -> Nil,
 ) -> Result(Subject(HeartbeatMessage), actor.StartError) {
+  let owner = process.self()
   let assert Ok(interval_base) = int.divide(lease_ms, 3)
   let margin = int.max(1, interval_base)
   let interval = int.max(1, lease_ms - margin)
@@ -64,6 +66,7 @@ pub fn start(
           let expires_at = system_milliseconds() + state.lease_ms
           case store.renew_lease(state.store, state.token, expires_at) {
             Ok(_) -> {
+              extended(expires_at)
               state.report(LeaseRenewed(
                 job.token_id(state.token),
                 state.queue,
@@ -81,6 +84,7 @@ pub fn start(
               ))
               // A fenced heartbeat cannot recover ownership. Stop writing for
               // this execution; its final acknowledgement will also be fenced.
+              process.kill(owner)
               actor.stop()
             }
           }

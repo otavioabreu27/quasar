@@ -2,6 +2,7 @@
 
 import gleam/erlang/process.{type Subject}
 import gleam/list
+import gleam/option.{type Option, None, Some}
 import gleam/otp/actor
 import quasar_jobs/event.{
   type Event, JobCompleted, JobCompletionPersisted, JobDiscarded,
@@ -27,7 +28,7 @@ type State {
   State(
     subject: Subject(Message),
     store: Store,
-    pending: List(Result),
+    pending: List(#(Result, Option(Subject(Nil)))),
     count: Int,
     flush_scheduled: Bool,
     report: fn(Event) -> Nil,
@@ -35,7 +36,7 @@ type State {
 }
 
 type Message {
-  Add(Result)
+  Add(Result, Option(Subject(Nil)))
   Flush
   Stop(Subject(Nil))
 }
@@ -52,7 +53,17 @@ pub fn start(store: Store, report: fn(Event) -> Nil) {
 }
 
 pub fn submit(buffer: Buffer, result: Result) -> Nil {
-  process.send(buffer.subject, Add(result))
+  process.send(buffer.subject, Add(result, None))
+}
+
+/// Keep worker capacity and its heartbeat until the bounded persistence attempt
+/// finishes. On exhaustion JobPersistenceFailed is emitted, never JobCompleted;
+/// the persisted claim remains recoverable by its lease (at-least-once).
+pub fn submit_wait(buffer: Buffer, result: Result) -> Nil {
+  let reply = process.new_subject()
+  process.send(buffer.subject, Add(result, Some(reply)))
+  let _ = process.receive(reply, within: 10_000)
+  Nil
 }
 
 pub fn stop(buffer: Buffer) -> Nil {
@@ -64,11 +75,11 @@ pub fn stop(buffer: Buffer) -> Nil {
 
 fn handle_message(state: State, message: Message) {
   case message {
-    Add(result) -> {
+    Add(result, reply) -> {
       let next =
         State(
           ..state,
-          pending: [result, ..state.pending],
+          pending: [#(result, reply), ..state.pending],
           count: state.count + 1,
         )
       case next.count >= max_batch_size {
@@ -99,9 +110,15 @@ fn flush(state: State) -> State {
   case state.pending {
     [] -> State(..state, flush_scheduled: False)
     pending -> {
-      let pending = list.reverse(pending)
-      persist_completions(state.store, pending, state.report)
-      persist_failures(state.store, pending, state.report)
+      let results = list.reverse(pending) |> list.map(fn(item) { item.0 })
+      persist_completions(state.store, results, state.report)
+      persist_failures(state.store, results, state.report)
+      list.each(pending, fn(item) {
+        case item.1 {
+          None -> Nil
+          Some(reply) -> process.send(reply, Nil)
+        }
+      })
       State(..state, pending: [], count: 0, flush_scheduled: False)
     }
   }
@@ -124,7 +141,10 @@ fn persist_completions(store: Store, pending: List(Result), report) -> Nil {
           let assert Ok(token) = job.execution_token(item)
           store.Completion(token, system_milliseconds())
         })
-      case store.complete_many(store, completions) {
+      let count = list.length(jobs)
+      case
+        retry_transient(fn() { store.complete_many(store, completions) }, 3)
+      {
         Ok(_) ->
           list.each(jobs, fn(item) {
             report(JobCompletionPersisted(
@@ -133,6 +153,10 @@ fn persist_completions(store: Store, pending: List(Result), report) -> Nil {
               monotonic_milliseconds() - started,
             ))
             report(JobCompleted(job.id(item), job.queue(item)))
+          })
+        Error(store.StaleExecution) if count > 1 ->
+          list.each(jobs, fn(item) {
+            persist_completions(store, [Complete(item)], report)
           })
         Error(reason) ->
           list.each(jobs, fn(item) {
@@ -169,7 +193,8 @@ fn persist_failures(store: Store, pending: List(Result), report) -> Nil {
             available_at,
           )
         })
-      case store.fail_many(store, operations) {
+      let count = list.length(failures)
+      case retry_transient(fn() { store.fail_many(store, operations) }, 3) {
         Ok(updated) ->
           list.each(updated, fn(item) {
             case job.status(item) {
@@ -183,6 +208,10 @@ fn persist_failures(store: Store, pending: List(Result), report) -> Nil {
                 ))
             }
           })
+        Error(store.StaleExecution) if count > 1 ->
+          list.each(failures, fn(item) {
+            persist_failures(store, [Fail(item.0, item.1, item.2)], report)
+          })
         Error(reason) ->
           list.each(failures, fn(item) {
             let #(claimed, _, _) = item
@@ -195,6 +224,16 @@ fn persist_failures(store: Store, pending: List(Result), report) -> Nil {
           })
       }
     }
+  }
+}
+
+fn retry_transient(run, remaining: Int) {
+  case run() {
+    Error(store.Unavailable) | Error(store.Timeout) if remaining > 0 -> {
+      process.sleep(20 * { 4 - remaining })
+      retry_transient(run, remaining - 1)
+    }
+    outcome -> outcome
   }
 }
 

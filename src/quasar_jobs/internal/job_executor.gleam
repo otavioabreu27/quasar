@@ -47,6 +47,20 @@ pub fn execute_buffered(
   let assert Ok(margin) = int.divide(lease_ms, 3)
   let renewal_margin = int.max(1, margin)
   case job.lease_expires_at(claimed_job) {
+    Some(expires_at) if expires_at <= now ->
+      report(JobPersistenceFailed(
+        job.id(claimed_job),
+        queue,
+        "begin",
+        store.StaleExecution,
+      ))
+    None ->
+      report(JobPersistenceFailed(
+        job.id(claimed_job),
+        queue,
+        "begin",
+        store.StaleExecution,
+      ))
     Some(expires_at) if expires_at - now > renewal_margin -> {
       // A fresh claim is still exclusively owned. Avoid a write and schedule
       // the heartbeat relative to its actual expiry instead.
@@ -62,7 +76,7 @@ pub fn execute_buffered(
         report,
       )
     }
-    Some(_) | None -> {
+    Some(_) -> {
       // Prefetched work may be near or beyond expiry. This fenced update must
       // succeed before user code is allowed to run.
       let expires_at = now + lease_ms
@@ -102,12 +116,62 @@ fn execute_owned(
   claimed_job,
   report,
 ) {
+  // Run business code and its acknowledgement in a cancellable child. The
+  // guardian expires independently of a heartbeat blocked in a database call.
+  let outcome =
+    run_fenced(
+      fn(extended) {
+        execute_guarded(
+          queue,
+          definition,
+          lease_ms,
+          lease_expires_at,
+          store,
+          completions,
+          claimed_job,
+          report,
+          extended,
+        )
+      },
+      lease_expires_at,
+    )
+  case outcome {
+    Ok(_) -> Nil
+    Error(_) ->
+      report(JobPersistenceFailed(
+        job.id(claimed_job),
+        queue,
+        "execution_lease_lost",
+        store.StaleExecution,
+      ))
+  }
+}
+
+fn execute_guarded(
+  queue,
+  definition,
+  lease_ms,
+  lease_expires_at,
+  store,
+  completions,
+  claimed_job,
+  report,
+  extended,
+) {
   let id = job.id(claimed_job)
   let attempt = job.attempt(claimed_job)
   report(JobStarted(id, queue, attempt))
   let assert Ok(token) = job.execution_token(claimed_job)
-  let heartbeat =
-    lease.start(store, token, queue, lease_ms, lease_expires_at, report)
+  let assert Ok(heartbeat) =
+    lease.start(
+      store,
+      token,
+      queue,
+      lease_ms,
+      lease_expires_at,
+      report,
+      extended,
+    )
   let context =
     worker.Context(job_id: id, attempt: attempt, execution_token: token)
   let execution_started = monotonic_milliseconds()
@@ -115,15 +179,11 @@ fn execute_owned(
     run_safely(fn() {
       worker.run(definition, job.payload(claimed_job), context)
     })
-  case heartbeat {
-    Ok(subject) -> lease.stop(subject)
-    Error(_) -> Nil
-  }
   case execution {
     Ok(Ok(Nil)) ->
       case worker.completion_mode(definition) {
         worker.RuntimeManaged ->
-          completion_buffer.submit(
+          completion_buffer.submit_wait(
             completions,
             completion_buffer.Complete(claimed_job),
           )
@@ -139,6 +199,7 @@ fn execute_owned(
     Ok(Error(message)) -> fail_job(completions, claimed_job, message)
     Error(_) -> fail_job(completions, claimed_job, "handler crashed")
   }
+  lease.stop(heartbeat)
 }
 
 fn fail_job(
@@ -147,11 +208,17 @@ fn fail_job(
   message: String,
 ) -> Nil {
   let available_at = system_milliseconds() + backoff(job.attempt(claimed_job))
-  completion_buffer.submit(
+  completion_buffer.submit_wait(
     completions,
     completion_buffer.Fail(claimed_job, message, available_at),
   )
 }
+
+@external(erlang, "quasar_jobs_ffi", "run_fenced")
+fn run_fenced(
+  run: fn(fn(Int) -> Nil) -> output,
+  expires_at: Int,
+) -> Result(output, Nil)
 
 fn backoff(attempt: Int) -> Int {
   int.min(60_000, 1000 * power_of_two(int.min(6, int.max(0, attempt - 1))))
