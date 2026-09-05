@@ -72,18 +72,31 @@ pub fn transactional_worker(
 /// Builds a Store backed by an existing Pog connection pool.
 ///
 /// The Pog pool remains application-owned and is not stopped when this Store
-/// closes. Run `migrate` once before starting Quasar.
+/// closes. Run `migrate` and start `quasar_postgres/reaper` before Quasar.
+/// Claim no longer recovers expired jobs; recovery is independent maintenance.
 pub fn new(connection: Connection) -> Store {
+  new_with_pools(connection, connection, connection)
+}
+
+/// Isolates producer/status traffic, completion writes, and claim/heartbeat
+/// traffic. All pools MUST address the same database and schema. A separate
+/// reaper runtime is required, including when all three pools are identical.
+pub fn new_with_pools(
+  producer: Connection,
+  execution: Connection,
+  control: Connection,
+) -> Store {
+  let connection = execution
   store.from_operations_with_all_batches(
     insert: fn(new_job, queue, available_at, now) {
-      insert(connection, new_job, queue, available_at, now)
+      insert(producer, new_job, queue, available_at, now)
     },
     insert_many: fn(jobs, queue, available_at, now) {
-      insert_many(connection, jobs, queue, available_at, now)
+      insert_many(producer, jobs, queue, available_at, now)
     },
-    get: fn(id) { get(connection, id) },
+    get: fn(id) { get(producer, id) },
     claim: fn(queue, limit, owner, now, lease_ms) {
-      claim(connection, queue, limit, owner, now, lease_ms)
+      claim(control, queue, limit, owner, now, lease_ms)
     },
     complete: fn(id, now) { complete_one(connection, id, now) },
     complete_many: fn(completions) { complete_many(connection, completions) },
@@ -113,8 +126,8 @@ pub fn new(connection: Connection) -> Store {
     },
     renew_lease: fn(id, expires_at) {
       update_one(
-        connection,
-        "UPDATE quasar_jobs q SET lease_expires_at = $1 WHERE q.id = $2 AND q.status = 'executing' AND q.lease_owner = $3 AND q.attempt = $4 RETURNING "
+        control,
+        "UPDATE quasar_jobs q SET lease_expires_at = $1 WHERE q.id = $2 AND q.status = 'executing' AND q.lease_owner = $3 AND q.attempt = $4 AND q.lease_expires_at > (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint RETURNING "
           <> columns,
         [
           pog.int(expires_at),
@@ -337,35 +350,24 @@ fn claim(
   now: Int,
   lease_ms: Int,
 ) -> Result(List(Job), store.Error) {
-  pog.transaction(connection, fn(tx) {
-    use _ <- result.try(
-      execute_nil(
-        tx,
-        "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1::bigint, finished_at = CASE WHEN attempt >= max_attempts THEN $1::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = 'lease_expired', error_message = 'execution lease expired' WHERE status = 'executing' AND lease_expires_at <= $2",
-        [pog.int(now), pog.int(now)],
-      )
-      |> result.map_error(fn(_) { store.Unavailable }),
-    )
-    execute_jobs(
-      tx,
-      "WITH claimable AS (SELECT id FROM quasar_jobs WHERE queue = $1 AND status IN ('available', 'scheduled', 'retryable') AND available_at <= $2 ORDER BY priority DESC, id FOR UPDATE SKIP LOCKED LIMIT $3) UPDATE quasar_jobs q SET status = 'executing', attempt = attempt + 1, attempted_at = $2, lease_owner = $4, lease_expires_at = $5 FROM claimable WHERE q.id = claimable.id RETURNING "
-        <> columns,
-      [
-        pog.text(queue),
-        pog.int(now),
-        pog.int(limit),
-        pog.text(owner),
-        pog.int(now + lease_ms),
-      ],
-    )
-  })
-  |> result.map_error(fn(_) { store.Unavailable })
+  execute_jobs(
+    connection,
+    "WITH claimable AS (SELECT id FROM quasar_jobs WHERE queue = $1 AND status IN ('available', 'scheduled', 'retryable') AND available_at <= $2 ORDER BY priority DESC, id FOR UPDATE SKIP LOCKED LIMIT $3) UPDATE quasar_jobs q SET status = 'executing', attempt = attempt + 1, attempted_at = $2, lease_owner = $4, lease_expires_at = $5 FROM claimable WHERE q.id = claimable.id RETURNING "
+      <> columns,
+    [
+      pog.text(queue),
+      pog.int(now),
+      pog.int(limit),
+      pog.text(owner),
+      pog.int(now + lease_ms),
+    ],
+  )
 }
 
 fn complete_one(connection, token, completed_at) {
   update_one(
     connection,
-    "UPDATE quasar_jobs q SET status = 'completed', completed_at = $1, finished_at = $1, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL WHERE q.id = $2 AND q.status = 'executing' AND q.lease_owner = $3 AND q.attempt = $4 RETURNING "
+    "UPDATE quasar_jobs q SET status = 'completed', completed_at = $1, finished_at = $1, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL WHERE q.id = $2 AND q.status = 'executing' AND q.lease_owner = $3 AND q.attempt = $4 AND q.lease_expires_at > (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint RETURNING "
       <> columns,
     [
       pog.int(completed_at),
@@ -379,7 +381,7 @@ fn complete_one(connection, token, completed_at) {
 fn fail_one(connection, token, error, available_at) {
   update_one(
     connection,
-    "UPDATE quasar_jobs q SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1, finished_at = CASE WHEN attempt >= max_attempts THEN (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = $2, error_message = $3 WHERE q.id = $4 AND q.status = 'executing' AND q.lease_owner = $5 AND q.attempt = $6 RETURNING "
+    "UPDATE quasar_jobs q SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1, finished_at = CASE WHEN attempt >= max_attempts THEN (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = $2, error_message = $3 WHERE q.id = $4 AND q.status = 'executing' AND q.lease_owner = $5 AND q.attempt = $6 AND q.lease_expires_at > (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint RETURNING "
       <> columns,
     [
       pog.int(available_at),
@@ -404,7 +406,7 @@ fn complete_many(
         use updated <- result.try(
           execute_jobs(
             tx,
-            "WITH completion AS (SELECT * FROM unnest($1::bigint[], $2::text[], $3::integer[], $4::bigint[]) AS c(id, owner, generation, completed_at)) UPDATE quasar_jobs q SET status = 'completed', completed_at = c.completed_at, finished_at = c.completed_at, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL FROM completion c WHERE q.id = c.id AND q.status = 'executing' AND q.lease_owner = c.owner AND q.attempt = c.generation RETURNING "
+            "WITH completion AS (SELECT * FROM unnest($1::bigint[], $2::text[], $3::integer[], $4::bigint[]) AS c(id, owner, generation, completed_at)) UPDATE quasar_jobs q SET status = 'completed', completed_at = c.completed_at, finished_at = c.completed_at, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL FROM completion c WHERE q.id = c.id AND q.status = 'executing' AND q.lease_owner = c.owner AND q.attempt = c.generation AND q.lease_expires_at > (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint RETURNING "
               <> columns,
             [
               pog.array(
@@ -439,7 +441,7 @@ fn fail_many(
         use updated <- result.try(
           execute_jobs(
             tx,
-            "WITH failure AS (SELECT * FROM unnest($1::bigint[], $2::text[], $3::integer[], $4::bigint[], $5::text[], $6::text[]) AS f(id, owner, generation, available_at, error_kind, error_message)) UPDATE quasar_jobs q SET status = CASE WHEN q.attempt >= q.max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = f.available_at, finished_at = CASE WHEN q.attempt >= q.max_attempts THEN (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = f.error_kind, error_message = f.error_message FROM failure f WHERE q.id = f.id AND q.status = 'executing' AND q.lease_owner = f.owner AND q.attempt = f.generation RETURNING "
+            "WITH failure AS (SELECT * FROM unnest($1::bigint[], $2::text[], $3::integer[], $4::bigint[], $5::text[], $6::text[]) AS f(id, owner, generation, available_at, error_kind, error_message)) UPDATE quasar_jobs q SET status = CASE WHEN q.attempt >= q.max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = f.available_at, finished_at = CASE WHEN q.attempt >= q.max_attempts THEN (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = f.error_kind, error_message = f.error_message FROM failure f WHERE q.id = f.id AND q.status = 'executing' AND q.lease_owner = f.owner AND q.attempt = f.generation AND q.lease_expires_at > (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint RETURNING "
               <> columns,
             [
               pog.array(

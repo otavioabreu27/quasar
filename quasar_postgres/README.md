@@ -1,7 +1,40 @@
 # quasar_postgres
 
 Optional cluster-coordinated PostgreSQL Store for Quasar.
-Requires `quasar_jobs >= 0.1.0 and < 0.2.0`.
+The checked-out source is an unreleased follow-up to 0.2.0. Do not mix it with
+the already-published 0.2.0 documentation or binaries.
+
+## Startup change: explicit lease recovery
+
+`claim` now executes one atomic SQL statement. It does **not** reap expired
+jobs. Start one linked reaper per application before starting Quasar:
+
+```gleam
+import quasar_postgres/reaper
+
+let assert Ok(_) = quasar_postgres.migrate(connection)
+let assert Ok(recovery) = reaper.start(connection, 1000, fn(_) { Nil })
+let store = quasar_postgres.new(connection)
+// Start Quasar with store, then listener; polling remains required.
+// Shutdown: stop Quasar, listener, recovery/retention, then application pools.
+let assert Ok(_) = reaper.stop(recovery)
+```
+
+Recovery is capped at 500 rows per statement, with 100ms between full batches.
+`SKIP LOCKED` and a nonblocking transaction advisory lock coordinate replicas.
+Failure is retried on the next interval; `Reaped`/`ReapFailed` expose outcomes.
+Recovery latency is lease expiry plus the maintenance/polling delay, not an
+immediate side effect of claim. Missing this startup step leaves expired jobs
+in `executing`; this is a migration requirement for the next release.
+
+`new_with_pools(producer, execution, control)` optionally isolates traffic;
+all three pools must connect to the same database/schema and remain app-owned.
+The listener still uses one additional dedicated connection. Budget total
+connections for HPA maximum **plus rollout surge**, maintenance and other apps.
+
+PostgreSQL rejects renewals, completions and failures after lease expiry using
+its own clock, even before a reaper has visited the row. Hosts must have
+synchronized clocks because claim timestamps are supplied by the runtime.
 
 See [Store contract and ownership](../docs/stores.md) and
 [publishing prerequisites](../docs/publishing.md).

@@ -5,6 +5,64 @@ pub fn main() {
   gleeunit.main()
 }
 
+pub fn expired_claim_is_not_resurrected_and_reaper_is_bounded_test() {
+  case getenv("QUASAR_POSTGRES_URL") {
+    Error(_) -> Nil
+    Ok(url) -> {
+      let assert Ok(config) =
+        pog.url_config(process.new_name("quasar-reaper-test"), url)
+      let assert Ok(started) = pog.start(config)
+      process.unlink(started.pid)
+      let assert Ok(_) = migrate_when_ready(started.data, 50)
+      let database = postgres_store.new(started.data)
+      let queue = "reaper-" <> request_id.to_string(request_id.new())
+      let now = system_milliseconds()
+      let assert Ok(_) =
+        store.insert_many(
+          database,
+          list.repeat(job.new_job("test", "p", 0, 3), 3),
+          queue,
+          now,
+          now,
+        )
+      let assert Ok(claimed) = store.claim(database, queue, 3, "test", now, 20)
+      process.sleep(30)
+      let assert [first, ..] = claimed
+      let assert Ok(token) = job.execution_token(first)
+      assert store.renew_lease(database, token, system_milliseconds() + 30_000)
+        == Error(store.StaleExecution)
+      assert store.complete(database, token, system_milliseconds())
+        == Error(store.StaleExecution)
+      assert store.fail(
+          database,
+          token,
+          job.JobError("test", "test"),
+          system_milliseconds(),
+        )
+        == Error(store.StaleExecution)
+      assert store.claim(
+          database,
+          queue,
+          3,
+          "test",
+          system_milliseconds(),
+          30_000,
+        )
+        == Ok([])
+      let assert Ok(count) =
+        reaper.batch(started.data, system_milliseconds(), 2)
+      assert count <= 2
+      // Recover all remaining old fixtures as well, then reclaim only this queue.
+      let assert Ok(_) = reaper.batch(started.data, system_milliseconds(), 500)
+      let assert Ok(recovered) =
+        store.claim(database, queue, 3, "test", system_milliseconds(), 30_000)
+      assert list.length(recovered) == 3
+      assert list.all(recovered, fn(item) { job.attempt(item) == 2 })
+      process.kill(started.pid)
+    }
+  }
+}
+
 import gleam/dynamic/decode
 import gleam/erlang/process
 import gleam/int
@@ -20,6 +78,7 @@ import quasar_jobs/store
 import quasar_jobs/worker
 import quasar_postgres as postgres_store
 import quasar_postgres/listener as postgres_listener
+import quasar_postgres/reaper
 import quasar_postgres/retention as postgres_retention
 import store_contract
 
@@ -228,8 +287,16 @@ pub fn postgres_store_contract_test() {
       let assert Ok(Nil) = migrate_when_ready(started.data, 50)
       let database = postgres_store.new(started.data)
       let queue = request_id.to_string(request_id.new())
-      store_contract.fencing(database, queue <> "-fencing")
-      store_contract.validation_and_exhaustion(database, queue <> "-validation")
+      let reap = fn(now) {
+        let assert Ok(_) = reaper.batch(started.data, now, 500)
+        Nil
+      }
+      store_contract.fencing(database, queue <> "-fencing", reap)
+      store_contract.validation_and_exhaustion(
+        database,
+        queue <> "-validation",
+        reap,
+      )
       process.kill(started.pid)
     }
   }
@@ -263,7 +330,7 @@ pub fn postgres_batch_completion_is_atomic_when_one_token_is_stale_test() {
           100,
         )
       let assert Ok([first, second]) =
-        store.claim(database, queue, 2, "node", 100, 1000)
+        store.claim(database, queue, 2, "node", system_milliseconds(), 30_000)
       let assert Ok(first_token) = job.execution_token(first)
       let assert Ok(second_token) = job.execution_token(second)
       let assert Ok(_) = store.complete(database, first_token, 101)
