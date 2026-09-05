@@ -42,7 +42,7 @@ pub fn main() {
       prefetch: 1,
       buffer_capacity: 32,
     )
-    |> quasar.queue(
+    |> quasar.queue_with_prefetch(
       name: reports.queue,
       worker:,
       concurrency: workers,

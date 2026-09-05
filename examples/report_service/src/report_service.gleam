@@ -48,7 +48,7 @@ pub fn main() {
       prefetch: config.http_pool_prefetch,
       buffer_capacity: config.http_buffer_capacity,
     )
-    |> quasar.queue(
+    |> quasar.queue_with_prefetch(
       name: reports.queue,
       worker: report_worker,
       concurrency: config.worker_concurrency,

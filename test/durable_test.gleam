@@ -26,7 +26,7 @@ fn durable_runtime(durable_worker) {
   let assert Ok(runtime) =
     quasar.new()
     |> quasar.with_store(memory)
-    |> quasar.queue(
+    |> quasar.queue_with_prefetch(
       name: "jobs",
       worker: durable_worker,
       concurrency: 2,
@@ -61,12 +61,7 @@ pub fn durable_reporter_exposes_claim_lease_and_completion_metrics_test() {
   let assert Ok(runtime) =
     quasar.new()
     |> quasar.with_store(memory)
-    |> quasar.queue(
-      name: "metrics",
-      worker: durable_worker,
-      concurrency: 1,
-      prefetch: 1,
-    )
+    |> quasar.queue(name: "metrics", worker: durable_worker, concurrency: 1)
     |> quasar.with_reporter(fn(item) { process.send(reports, item) })
     |> quasar.start
   let assert Ok(_) =

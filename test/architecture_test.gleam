@@ -54,7 +54,7 @@ pub fn old_shutdown_completion_cannot_stop_replacement_runtime_test() {
   let assert Ok(child) =
     config()
     |> quasar.with_store(blocked)
-    |> quasar.queue("queue", worker, 1, 1)
+    |> quasar.queue("queue", worker, 1)
     |> quasar.with_shutdown_timeout(200)
     |> quasar.with_reporter(fn(message) {
       case message {
@@ -171,6 +171,76 @@ pub fn fresh_claim_does_not_write_an_eager_lease_renewal_test() {
   assert store.close(database) == Ok(Nil)
 }
 
+pub fn durable_queue_defaults_to_one_claim_per_available_worker_test() {
+  let claims = process.new_subject()
+  let assert Ok(backing) = memory.new()
+  let observed =
+    store.from_operations(
+      insert: fn(item, queue, at, now) {
+        store.insert(backing, item, queue, at, now)
+      },
+      get: store.get(backing, _),
+      claim: fn(queue, limit, owner, now, lease) {
+        process.send(claims, limit)
+        store.claim(backing, queue, limit, owner, now, lease)
+      },
+      complete: fn(token, now) { store.complete(backing, token, now) },
+      fail: fn(token, reason, at) { store.fail(backing, token, reason, at) },
+      cancel: store.cancel(backing, _),
+      retry: fn(id, now) { store.retry(backing, id, now) },
+      renew_lease: fn(token, expiry) {
+        store.renew_lease(backing, token, expiry)
+      },
+      close: fn() { Ok(Nil) },
+    )
+  let durable_worker =
+    worker.new("worker", fn(x) { x }, fn(x) { Ok(x) }, fn(_, _) { Ok(Nil) })
+  let assert Ok(runtime) =
+    quasar.new()
+    |> quasar.with_store(observed)
+    |> quasar.queue("queue", durable_worker, 2)
+    |> quasar.start
+
+  // Two idle workers produce demand for exactly two jobs. With the old
+  // prefetch of two this first claim would reserve four jobs.
+  assert process.receive(claims, within: 1000) == Ok(2)
+  assert process.receive(claims, within: 0) == Error(Nil)
+  assert quasar.stop(runtime) == Ok(Nil)
+  assert store.close(backing) == Ok(Nil)
+}
+
+pub fn long_job_renews_lease_until_completion_test() {
+  let assert Ok(database) = memory.new()
+  let now = system_milliseconds()
+  let assert Ok(id) =
+    store.insert(database, job.new_job("worker", "p", 0, 3), "queue", now, now)
+  let assert Ok([claimed]) = store.claim(database, "queue", 1, "node", now, 60)
+  let renewed = process.new_subject()
+  let durable_worker =
+    worker.new("worker", fn(x) { x }, fn(x) { Ok(x) }, fn(_, _) {
+      process.sleep(150)
+      Ok(Nil)
+    })
+  job_executor.execute(
+    "queue",
+    worker.erase(durable_worker),
+    60,
+    database,
+    claimed,
+    fn(message) {
+      case message {
+        event.LeaseRenewed(_, _, _) -> process.send(renewed, Nil)
+        _ -> Nil
+      }
+    },
+  )
+
+  assert process.receive(renewed, within: 1000) == Ok(Nil)
+  let assert Ok(completed) = store.get(database, id)
+  assert job.status(completed) == job.Completed
+  assert store.close(database) == Ok(Nil)
+}
+
 pub fn blocking_store_does_not_block_local_execution_or_shutdown_test() {
   let entered = process.new_subject()
   let done = process.new_subject()
@@ -277,8 +347,8 @@ pub fn explicit_queue_routes_a_shared_worker_and_rejects_mismatch_test() {
   let assert Ok(runtime) =
     quasar.new()
     |> quasar.with_store(database)
-    |> quasar.queue("first", worker, 1, 1)
-    |> quasar.queue("second", worker, 1, 1)
+    |> quasar.queue("first", worker, 1)
+    |> quasar.queue("second", worker, 1)
     |> quasar.start
   let assert Ok(id) =
     quasar.schedule(

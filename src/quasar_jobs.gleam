@@ -90,6 +90,19 @@ pub fn queue(
   name name: String,
   worker durable_worker: worker.Worker(input),
   concurrency concurrency: Int,
+) -> Config {
+  queue_with_prefetch(config, name, durable_worker, concurrency, 1)
+}
+
+/// Adds a durable queue with an explicit amount of prefetched work.
+///
+/// Prefer `queue`, whose prefetch of one avoids leasing work before a worker is
+/// ready. Values above one trade additional leased work for throughput.
+pub fn queue_with_prefetch(
+  config: Config,
+  name name: String,
+  worker durable_worker: worker.Worker(input),
+  concurrency concurrency: Int,
   prefetch prefetch: Int,
 ) -> Config {
   Config(

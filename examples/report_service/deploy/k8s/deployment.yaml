@@ -57,7 +57,7 @@ spec:
             - name: WORKER_CONCURRENCY
               value: "8"
             - name: WORKER_PREFETCH
-              value: "2"
+              value: "1"
             - name: QUEUE_POLL_INTERVAL_MS
               value: "5000"
             - name: HTTP_POOL_WORKERS

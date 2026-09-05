@@ -49,12 +49,7 @@ pub fn sqlite_store_runs_jobs_and_persists_terminal_state_test() {
   let assert Ok(runtime) =
     quasar.new()
     |> quasar.with_store(sqlite)
-    |> quasar.queue(
-      name: "jobs",
-      worker: durable_worker,
-      concurrency: 1,
-      prefetch: 1,
-    )
+    |> quasar.queue(name: "jobs", worker: durable_worker, concurrency: 1)
     |> quasar.start
   let assert Ok(id) =
     worker.job(durable_worker, 99) |> quasar.enqueue(runtime, on: "jobs")

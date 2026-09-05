@@ -154,7 +154,7 @@ fn durable_runtime_with_poll(store, durable_worker, queue, poll_interval) {
   quasar.new()
   |> quasar.with_store(store)
   |> quasar.with_poll_interval(poll_interval)
-  |> quasar.queue(
+  |> quasar.queue_with_prefetch(
     name: queue,
     worker: durable_worker,
     concurrency: 2,

@@ -50,7 +50,7 @@ pub fn load() -> Result(Config, String) {
   )
   use worker_prefetch <- result.try(
     envoy.get("WORKER_PREFETCH")
-    |> result.unwrap("2")
+    |> result.unwrap("1")
     |> int.parse
     |> result.map_error(fn(_) { "WORKER_PREFETCH must be an integer" }),
   )
