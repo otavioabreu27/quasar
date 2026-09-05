@@ -66,6 +66,18 @@ spec:
               value: "256"
             - name: SIMULATED_WORK_MS
               value: "0"
+            - name: RETENTION_COMPLETED_DAYS
+              value: "7"
+            - name: RETENTION_CANCELLED_DAYS
+              value: "30"
+            - name: RETENTION_DISCARDED_DAYS
+              value: "30"
+            - name: RETENTION_BATCH_SIZE
+              value: "1000"
+            - name: RETENTION_PAUSE_MS
+              value: "100"
+            - name: RETENTION_INTERVAL_MS
+              value: "60000"
           resources:
             requests:
               cpu: 250m

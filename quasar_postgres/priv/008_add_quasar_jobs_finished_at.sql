@@ -1,0 +1,2 @@
+ALTER TABLE quasar_jobs
+  ADD COLUMN IF NOT EXISTS finished_at BIGINT

@@ -4,7 +4,9 @@ import gleam/io
 import mist
 import pog
 import quasar_jobs as quasar
+import quasar_jobs/retention
 import quasar_postgres
+import quasar_postgres/retention as postgres_retention
 import report_service/api
 import report_service/config
 import report_service/database
@@ -20,6 +22,19 @@ pub fn main() {
   let assert Ok(Nil) = wait_for_database(db.data, 50)
   let assert Ok(Nil) = quasar_postgres.migrate(db.data)
   let assert Ok(Nil) = database.migrate(db.data)
+  let retention_policy =
+    retention.new()
+    |> retention.completed_for(days: config.retention_completed_days)
+    |> retention.cancelled_for(days: config.retention_cancelled_days)
+    |> retention.discarded_for(days: config.retention_discarded_days)
+  let assert Ok(_retention) =
+    postgres_retention.new(db.data, retention_policy)
+    |> postgres_retention.with_batch_size(rows: config.retention_batch_size)
+    |> postgres_retention.with_pause(milliseconds: config.retention_pause_ms)
+    |> postgres_retention.with_interval(
+      milliseconds: config.retention_interval_ms,
+    )
+    |> postgres_retention.start
   let report_worker =
     reports.worker(db.data, config.instance_id, config.simulated_work_ms)
   let assert Ok(runtime) =

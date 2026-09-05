@@ -15,6 +15,12 @@ pub type Config {
     http_pool_prefetch: Int,
     http_buffer_capacity: Int,
     simulated_work_ms: Int,
+    retention_completed_days: Int,
+    retention_cancelled_days: Int,
+    retention_discarded_days: Int,
+    retention_batch_size: Int,
+    retention_pause_ms: Int,
+    retention_interval_ms: Int,
   )
 }
 
@@ -71,6 +77,30 @@ pub fn load() -> Result(Config, String) {
     |> int.parse
     |> result.map_error(fn(_) { "SIMULATED_WORK_MS must be an integer" }),
   )
+  use retention_completed_days <- result.try(positive_env(
+    "RETENTION_COMPLETED_DAYS",
+    "7",
+  ))
+  use retention_cancelled_days <- result.try(positive_env(
+    "RETENTION_CANCELLED_DAYS",
+    "30",
+  ))
+  use retention_discarded_days <- result.try(positive_env(
+    "RETENTION_DISCARDED_DAYS",
+    "30",
+  ))
+  use retention_batch_size <- result.try(positive_env(
+    "RETENTION_BATCH_SIZE",
+    "1000",
+  ))
+  use retention_interval_ms <- result.try(positive_env(
+    "RETENTION_INTERVAL_MS",
+    "60000",
+  ))
+  use retention_pause_ms <- result.try(non_negative_env(
+    "RETENTION_PAUSE_MS",
+    "100",
+  ))
   case
     port > 0
     && port <= 65_535
@@ -100,6 +130,38 @@ pub fn load() -> Result(Config, String) {
         http_pool_prefetch:,
         http_buffer_capacity:,
         simulated_work_ms:,
+        retention_completed_days:,
+        retention_cancelled_days:,
+        retention_discarded_days:,
+        retention_batch_size:,
+        retention_pause_ms:,
+        retention_interval_ms:,
       ))
+  }
+}
+
+fn positive_env(name: String, default: String) -> Result(Int, String) {
+  use value <- result.try(
+    envoy.get(name)
+    |> result.unwrap(default)
+    |> int.parse
+    |> result.map_error(fn(_) { name <> " must be an integer" }),
+  )
+  case value > 0 {
+    True -> Ok(value)
+    False -> Error(name <> " must be positive")
+  }
+}
+
+fn non_negative_env(name: String, default: String) -> Result(Int, String) {
+  use value <- result.try(
+    envoy.get(name)
+    |> result.unwrap(default)
+    |> int.parse
+    |> result.map_error(fn(_) { name <> " must be an integer" }),
+  )
+  case value >= 0 {
+    True -> Ok(value)
+    False -> Error(name <> " must be non-negative")
   }
 }

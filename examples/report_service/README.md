@@ -115,6 +115,19 @@ docker compose exec postgres psql -U reports -d reports -c \
   'SELECT status, attempt, count(*) FROM quasar_jobs GROUP BY status, attempt;'
 ```
 
+## Retenção
+
+O serviço habilita retenção por estado terminal: `completed` por 7 dias e
+`cancelled`/`discarded` por 30 dias. A limpeza usa lotes de 1.000 linhas, pausa
+100 ms entre lotes e inicia um ciclo a cada minuto. Todos esses valores podem
+ser alterados com `RETENTION_COMPLETED_DAYS`, `RETENTION_CANCELLED_DAYS`,
+`RETENTION_DISCARDED_DAYS`, `RETENTION_BATCH_SIZE`, `RETENTION_PAUSE_MS` e
+`RETENTION_INTERVAL_MS`.
+
+`example_reports.job_id` usa `ON DELETE CASCADE`: remover o job também remove o
+resultado demonstrativo. Em uma aplicação real, escolha explicitamente entre
+cascata, limpeza prévia ou arquivamento da informação de negócio.
+
 ## Durabilidade e falhas
 
 Os jobs são **at-least-once**: após uma falha, uma tentativa pode ser repetida
@@ -186,9 +199,9 @@ Internet sem um Ingress/API gateway com acesso e limites.
 - `report_service.gleam`: composição e inicialização dos processos ligados.
 - `/health/live`: liveness sem banco; `/health/ready`: consulta PostgreSQL pelo pool HTTP.
 
-Esta é uma aplicação demonstrativa, sem autenticação, TLS ou limite global de
-jobs persistidos. Não exponha as portas publicamente. Para produção: adicione
-autorização, quotas, retenção de jobs, observabilidade, migrations versionadas
+Esta é uma aplicação demonstrativa, sem autenticação, TLS ou quota global de
+jobs. Não exponha as portas publicamente. Para produção: adicione
+autorização, quotas, observabilidade, migrations versionadas
 executadas uma única vez no deploy, supervisão/gerenciador de processos e
 shutdown coordenado (parar HTTP, drenar Quasar, encerrar o pool PostgreSQL).
 A inicialização aqui é fail-fast; não implementa recuperação completa de toda

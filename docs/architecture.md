@@ -23,8 +23,9 @@ depends on the Constellation 0.2 public API, never its private implementation.
 - `internal/durable`: demand grants, bounded claims and polling, one scheduler
   per queue. A slow Store can stall that queue, not local capability resolution.
 - `internal/job_executor` and `internal/lease`: one execution attempt and its
-  heartbeat. Execution checks ownership before invoking user code; ACK and
-  renewals match a fenced token atomically.
+  heartbeat. Fresh claims defer renewal until close to expiry; delayed prefetch
+  renews ownership before invoking user code. ACK and renewals match a fenced
+  token atomically.
 - `internal/reporter`: asynchronous callback delivery, with panic containment.
 
 This applies single responsibility and dependency inversion to functional
@@ -71,8 +72,9 @@ finish afterwards; stop all such callers before closing the Store.
 
 The suite exercises a blocked Store while local execution and shutdown succeed,
 an actual supervised restart using the original handle, admission rejection
-during drain, routing one worker into two queues, request-ID propagation,
-and stale prefetched claims without invoking user code.
+during drain, routing one worker into two queues, request-ID propagation, stale
+prefetched claims without invoking user code, and fresh claims without an eager
+renewal write.
 
 The same Store contract runs against Memory, SQLite and PostgreSQL: stale
 complete/fail/renew, manual retry with reset attempts, invalid jobs, terminal

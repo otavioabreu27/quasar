@@ -26,6 +26,12 @@ Claims run in a transaction with `FOR UPDATE SKIP LOCKED`. Only the granted
 number of eligible jobs moves to Executing. Each package's SQL migration is
 loaded from `priv/`, not duplicated in Gleam string constants.
 
+The optional PostgreSQL retention worker consumes a policy from
+`quasar_jobs/retention` and removes terminal rows in bounded, observable
+batches. It borrows the same Pog pool and must be stopped before that pool.
+Business tables referencing jobs must define their own cascade, archival, or
+prior-cleanup policy.
+
 ## Contract and ownership
 
 `store.claim` appends a fresh random nonce to the supplied diagnostic owner

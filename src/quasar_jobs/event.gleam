@@ -34,6 +34,7 @@ pub type Event {
   JobCompletionPersisted(JobId, queue: String, duration_ms: Int)
   JobRetryScheduled(JobId, queue: String, available_at: Int)
   JobDiscarded(JobId, queue: String)
+  LeaseRenewalDeferred(JobId, queue: String, expires_at: Int)
   LeaseRenewed(JobId, queue: String, expires_at: Int)
   JobPersistenceFailed(
     JobId,

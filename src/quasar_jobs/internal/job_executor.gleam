@@ -1,9 +1,11 @@
 //// Executes one durable claim. Scheduling and Store ownership live elsewhere.
 
 import gleam/int
+import gleam/option.{None, Some}
 import quasar_jobs/event.{
   type Event, JobCompleted, JobCompletionPersisted, JobDiscarded,
-  JobPersistenceFailed, JobRetryScheduled, JobStarted, LeaseRenewed,
+  JobPersistenceFailed, JobRetryScheduled, JobStarted, LeaseRenewalDeferred,
+  LeaseRenewed,
 }
 import quasar_jobs/internal/lease
 import quasar_jobs/job.{type Job}
@@ -19,25 +21,68 @@ pub fn execute(
   report: fn(Event) -> Nil,
 ) -> Nil {
   let assert Ok(token) = job.execution_token(claimed_job)
-  // Prefetched work may have waited beyond its lease. Check ownership before
-  // invoking user code; fencing still cannot prevent duplicate external effects.
-  let expires_at = system_milliseconds() + lease_ms
-  case store.renew_lease(store, token, expires_at) {
-    Error(reason) ->
-      report(JobPersistenceFailed(job.id(claimed_job), queue, "begin", reason))
-    Ok(_) -> {
-      report(LeaseRenewed(job.id(claimed_job), queue, expires_at))
-      execute_owned(queue, definition, lease_ms, store, claimed_job, report)
+  let now = system_milliseconds()
+  let assert Ok(margin) = int.divide(lease_ms, 3)
+  let renewal_margin = int.max(1, margin)
+  case job.lease_expires_at(claimed_job) {
+    Some(expires_at) if expires_at - now > renewal_margin -> {
+      // A fresh claim is still exclusively owned. Avoid a write and schedule
+      // the heartbeat relative to its actual expiry instead.
+      report(LeaseRenewalDeferred(job.id(claimed_job), queue, expires_at))
+      execute_owned(
+        queue,
+        definition,
+        lease_ms,
+        expires_at,
+        store,
+        claimed_job,
+        report,
+      )
+    }
+    Some(_) | None -> {
+      // Prefetched work may be near or beyond expiry. This fenced update must
+      // succeed before user code is allowed to run.
+      let expires_at = now + lease_ms
+      case store.renew_lease(store, token, expires_at) {
+        Error(reason) ->
+          report(JobPersistenceFailed(
+            job.id(claimed_job),
+            queue,
+            "begin",
+            reason,
+          ))
+        Ok(updated) -> {
+          report(LeaseRenewed(job.id(claimed_job), queue, expires_at))
+          execute_owned(
+            queue,
+            definition,
+            lease_ms,
+            expires_at,
+            store,
+            updated,
+            report,
+          )
+        }
+      }
     }
   }
 }
 
-fn execute_owned(queue, definition, lease_ms, store, claimed_job, report) {
+fn execute_owned(
+  queue,
+  definition,
+  lease_ms,
+  lease_expires_at,
+  store,
+  claimed_job,
+  report,
+) {
   let id = job.id(claimed_job)
   let attempt = job.attempt(claimed_job)
   report(JobStarted(id, queue, attempt))
   let assert Ok(token) = job.execution_token(claimed_job)
-  let heartbeat = lease.start(store, token, queue, lease_ms, report)
+  let heartbeat =
+    lease.start(store, token, queue, lease_ms, lease_expires_at, report)
   let context = worker.Context(job_id: id, attempt: attempt)
   let execution =
     run_safely(fn() {

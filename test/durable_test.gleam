@@ -80,7 +80,7 @@ pub fn durable_reporter_exposes_claim_lease_and_completion_metrics_test() {
   })
   assert list.any(events, fn(item) {
     case item {
-      event.LeaseRenewed(_, "metrics", _) -> True
+      event.LeaseRenewalDeferred(_, "metrics", _) -> True
       _ -> False
     }
   })

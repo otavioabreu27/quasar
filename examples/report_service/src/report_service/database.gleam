@@ -6,17 +6,45 @@ import gleam/result
 import pog
 
 pub fn migrate(connection: pog.Connection) -> Result(Nil, pog.QueryError) {
-  pog.query(
-    "CREATE TABLE IF NOT EXISTS example_reports (
-    job_id BIGINT PRIMARY KEY REFERENCES quasar_jobs(id),
+  use _ <- result.try(
+    pog.query(
+      "CREATE TABLE IF NOT EXISTS example_reports (
+    job_id BIGINT PRIMARY KEY REFERENCES quasar_jobs(id) ON DELETE CASCADE,
     size INTEGER NOT NULL,
     total BIGINT NOT NULL,
     processed_by TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )",
+    )
+    |> pog.execute(on: connection),
+  )
+  use _ <- result.try(
+    pog.query(
+      "DO $$
+     BEGIN
+       IF EXISTS (
+         SELECT 1 FROM pg_constraint
+         WHERE conname = 'example_reports_job_id_fkey'
+           AND conrelid = 'example_reports'::regclass
+           AND confdeltype <> 'c'
+       ) THEN
+         ALTER TABLE example_reports
+           DROP CONSTRAINT example_reports_job_id_fkey;
+         ALTER TABLE example_reports
+           ADD CONSTRAINT example_reports_job_id_fkey
+           FOREIGN KEY (job_id) REFERENCES quasar_jobs(id)
+           ON DELETE CASCADE NOT VALID;
+       END IF;
+     END $$",
+    )
+    |> pog.execute(on: connection),
+  )
+  pog.query(
+    "ALTER TABLE example_reports
+     VALIDATE CONSTRAINT example_reports_job_id_fkey",
   )
   |> pog.execute(on: connection)
-  |> result.map(fn(_) { Nil })
+  |> result.replace(Nil)
 }
 
 /// A replay after the INSERT but before Quasar's acknowledgement is harmless.

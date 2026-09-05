@@ -21,9 +21,29 @@ Quasar request telemetry.
 
 Durable queues additionally emit `QueueClaimCompleted`, with requested and
 returned batch sizes plus claim duration, and `JobCompletionPersisted`, with
-the completion-store duration. `LeaseRenewed` includes the ownership check made
-immediately before execution and later heartbeats. Current execution can be
-derived from `JobStarted` minus completed, retried, discarded, or failed jobs.
+the completion-store duration. `LeaseRenewalDeferred` means a fresh claim had
+enough time remaining to avoid an immediate write. `LeaseRenewed` records a
+fenced renewal for delayed prefetch or a later heartbeat. Current execution can
+be derived from `JobStarted` minus completed, retried, discarded, or failed
+jobs.
+
+## Retention
+
+Build database-independent terminal-state policies with
+`quasar_jobs/retention`. An unset state is retained indefinitely; configured
+durations must be positive. The PostgreSQL adapter provides a linked periodic
+cleaner with bounded batches, pauses, partial retention indexes, `SKIP LOCKED`,
+and a non-blocking advisory lock. Its reporter emits batch count/duration/error
+and cycle completion events.
+
+Retention is based on the time a job entered its terminal state. PostgreSQL
+stores this in `finished_at`. Historical rows created before that column use
+`completed_at` for completed jobs and `attempted_at` or `inserted_at` as the
+best available fallback for cancelled/discarded jobs.
+
+Deleting old tuples does not immediately shrink the table file. PostgreSQL
+autovacuum reclaims that space for reuse; reserve table rewrites for explicit
+maintenance windows.
 
 ## Shutdown
 

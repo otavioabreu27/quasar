@@ -125,6 +125,52 @@ pub fn stale_prefetched_claim_does_not_invoke_user_handler_test() {
   assert store.close(database) == Ok(Nil)
 }
 
+pub fn fresh_claim_does_not_write_an_eager_lease_renewal_test() {
+  let assert Ok(database) = memory.new()
+  let now = system_milliseconds()
+  let assert Ok(_) =
+    store.insert(database, job.new_job("worker", "p", 0, 3), "queue", now, now)
+  let assert Ok([fresh]) =
+    store.claim(database, "queue", 1, "node", now, 30_000)
+  let renewals = process.new_subject()
+  let performed = process.new_subject()
+  let observed =
+    store.from_operations(
+      insert: fn(item, queue, at, now) {
+        store.insert(database, item, queue, at, now)
+      },
+      get: store.get(database, _),
+      claim: fn(queue, limit, owner, now, lease) {
+        store.claim(database, queue, limit, owner, now, lease)
+      },
+      complete: fn(token, now) { store.complete(database, token, now) },
+      fail: fn(token, reason, at) { store.fail(database, token, reason, at) },
+      cancel: store.cancel(database, _),
+      retry: fn(id, now) { store.retry(database, id, now) },
+      renew_lease: fn(token, expiry) {
+        process.send(renewals, Nil)
+        store.renew_lease(database, token, expiry)
+      },
+      close: fn() { Ok(Nil) },
+    )
+  let worker =
+    worker.new("worker", fn(x) { x }, fn(x) { Ok(x) }, fn(_, _) {
+      process.send(performed, Nil)
+      Ok(Nil)
+    })
+  job_executor.execute(
+    "queue",
+    worker.erase(worker),
+    30_000,
+    observed,
+    fresh,
+    fn(_) { Nil },
+  )
+  assert process.receive(performed, within: 1000) == Ok(Nil)
+  assert process.receive(renewals, within: 0) == Error(Nil)
+  assert store.close(database) == Ok(Nil)
+}
+
 pub fn blocking_store_does_not_block_local_execution_or_shutdown_test() {
   let entered = process.new_subject()
   let done = process.new_subject()
@@ -274,3 +320,6 @@ pub fn caller_request_id_reaches_telemetry_test() {
   assert process.receive(ids, within: 1000) == Ok(id)
   assert quasar.stop(runtime) == Ok(Nil)
 }
+
+@external(erlang, "quasar_jobs_ffi", "system_milliseconds")
+fn system_milliseconds() -> Int

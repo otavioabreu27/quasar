@@ -41,7 +41,7 @@ pub fn new(connection: Connection) -> Store {
     complete: fn(id, now) {
       update_one(
         connection,
-        "UPDATE quasar_jobs q SET status = 'completed', completed_at = $1, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL WHERE q.id = $2 AND q.status = 'executing' AND q.lease_owner = $3 AND q.attempt = $4 RETURNING "
+        "UPDATE quasar_jobs q SET status = 'completed', completed_at = $1, finished_at = $1, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL WHERE q.id = $2 AND q.status = 'executing' AND q.lease_owner = $3 AND q.attempt = $4 RETURNING "
           <> columns,
         [
           pog.int(now),
@@ -54,7 +54,7 @@ pub fn new(connection: Connection) -> Store {
     fail: fn(id, error, available_at) {
       update_one(
         connection,
-        "UPDATE quasar_jobs q SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1, lease_owner = NULL, lease_expires_at = NULL, error_kind = $2, error_message = $3 WHERE q.id = $4 AND q.status = 'executing' AND q.lease_owner = $5 AND q.attempt = $6 RETURNING "
+        "UPDATE quasar_jobs q SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1, finished_at = CASE WHEN attempt >= max_attempts THEN (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = $2, error_message = $3 WHERE q.id = $4 AND q.status = 'executing' AND q.lease_owner = $5 AND q.attempt = $6 RETURNING "
           <> columns,
         [
           pog.int(available_at),
@@ -71,7 +71,7 @@ pub fn new(connection: Connection) -> Store {
         connection,
         id,
         "cancel",
-        "UPDATE quasar_jobs q SET status = 'cancelled', lease_owner = NULL, lease_expires_at = NULL WHERE q.id = $1 AND q.status NOT IN ('completed', 'discarded', 'cancelled') RETURNING "
+        "UPDATE quasar_jobs q SET status = 'cancelled', finished_at = (EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::bigint, lease_owner = NULL, lease_expires_at = NULL WHERE q.id = $1 AND q.status NOT IN ('completed', 'discarded', 'cancelled') RETURNING "
           <> columns,
         [pog.int(job.id_value(id))],
       )
@@ -81,7 +81,7 @@ pub fn new(connection: Connection) -> Store {
         connection,
         id,
         "retry",
-        "UPDATE quasar_jobs q SET status = 'available', attempt = 0, available_at = $1, attempted_at = NULL, completed_at = NULL, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL WHERE q.id = $2 AND q.status IN ('discarded', 'cancelled', 'retryable') RETURNING "
+        "UPDATE quasar_jobs q SET status = 'available', attempt = 0, available_at = $1, attempted_at = NULL, completed_at = NULL, finished_at = NULL, lease_owner = NULL, lease_expires_at = NULL, error_kind = NULL, error_message = NULL WHERE q.id = $2 AND q.status IN ('discarded', 'cancelled', 'retryable') RETURNING "
           <> columns,
         [pog.int(now), pog.int(job.id_value(id))],
       )
@@ -264,7 +264,7 @@ fn claim(
     use _ <- result.try(
       execute_nil(
         tx,
-        "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1, lease_owner = NULL, lease_expires_at = NULL, error_kind = 'lease_expired', error_message = 'execution lease expired' WHERE status = 'executing' AND lease_expires_at <= $2",
+        "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN 'discarded' ELSE 'retryable' END, available_at = $1::bigint, finished_at = CASE WHEN attempt >= max_attempts THEN $1::bigint ELSE NULL END, lease_owner = NULL, lease_expires_at = NULL, error_kind = 'lease_expired', error_message = 'execution lease expired' WHERE status = 'executing' AND lease_expires_at <= $2",
         [pog.int(now), pog.int(now)],
       )
       |> result.map_error(fn(_) { store.Unavailable }),
