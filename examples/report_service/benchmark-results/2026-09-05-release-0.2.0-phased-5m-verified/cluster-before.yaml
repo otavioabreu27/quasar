@@ -1,0 +1,1008 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "20"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"report-service"},"name":"report-service","namespace":"reports"},"spec":{"replicas":2,"revisionHistoryLimit":3,"selector":{"matchLabels":{"app.kubernetes.io/name":"report-service"}},"strategy":{"rollingUpdate":{"maxSurge":1,"maxUnavailable":0},"type":"RollingUpdate"},"template":{"metadata":{"labels":{"app.kubernetes.io/name":"report-service"}},"spec":{"containers":[{"env":[{"name":"DATABASE_URL","valueFrom":{"secretKeyRef":{"key":"DATABASE_URL","name":"report-service"}}},{"name":"HOST","value":"0.0.0.0"},{"name":"PORT","value":"8080"},{"name":"INSTANCE_ID","valueFrom":{"fieldRef":{"fieldPath":"metadata.name"}}},{"name":"DB_POOL_SIZE","value":"8"},{"name":"WORKER_CONCURRENCY","value":"8"},{"name":"WORKER_PREFETCH","value":"1"},{"name":"QUEUE_POLL_INTERVAL_MS","value":"5000"},{"name":"HTTP_POOL_WORKERS","value":"32"},{"name":"HTTP_POOL_PREFETCH","value":"2"},{"name":"HTTP_BUFFER_CAPACITY","value":"256"},{"name":"SIMULATED_WORK_MS","value":"0"},{"name":"RETENTION_COMPLETED_DAYS","value":"7"},{"name":"RETENTION_CANCELLED_DAYS","value":"30"},{"name":"RETENTION_DISCARDED_DAYS","value":"30"},{"name":"RETENTION_BATCH_SIZE","value":"1000"},{"name":"RETENTION_PAUSE_MS","value":"100"},{"name":"RETENTION_INTERVAL_MS","value":"60000"}],"image":"ghcr.io/otavioabreu27/report_service:latest","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/health/live","port":"http"},"periodSeconds":10,"timeoutSeconds":2},"name":"report-service","ports":[{"containerPort":8080,"name":"http"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/health/ready","port":"http"},"periodSeconds":5,"timeoutSeconds":3},"resources":{"limits":{"cpu":"2","memory":"1Gi"},"requests":{"cpu":"250m","memory":"256Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true},"startupProbe":{"failureThreshold":60,"httpGet":{"path":"/health/live","port":"http"},"periodSeconds":2,"timeoutSeconds":2}}],"securityContext":{"seccompProfile":{"type":"RuntimeDefault"}},"terminationGracePeriodSeconds":30,"topologySpreadConstraints":[{"labelSelector":{"matchLabels":{"app.kubernetes.io/name":"report-service"}},"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]}}}}
+    creationTimestamp: "2026-09-05T15:34:10Z"
+    generation: 62
+    labels:
+      app.kubernetes.io/name: report-service
+    name: report-service
+    namespace: reports
+    resourceVersion: "789878"
+    uid: da4b16fb-3a34-479f-993b-652f7bbda495
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 3
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: report-service
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-09-05T18:05:59-03:00"
+        labels:
+          app.kubernetes.io/name: report-service
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: DoesNotExist
+        containers:
+        - env:
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                key: DATABASE_URL
+                name: report-service
+          - name: HOST
+            value: 0.0.0.0
+          - name: PORT
+            value: "8080"
+          - name: INSTANCE_ID
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: DB_POOL_SIZE
+            value: "8"
+          - name: WORKER_CONCURRENCY
+            value: "8"
+          - name: WORKER_PREFETCH
+            value: "1"
+          - name: QUEUE_POLL_INTERVAL_MS
+            value: "5000"
+          - name: HTTP_POOL_WORKERS
+            value: "32"
+          - name: HTTP_POOL_PREFETCH
+            value: "2"
+          - name: HTTP_BUFFER_CAPACITY
+            value: "256"
+          - name: SIMULATED_WORK_MS
+            value: "0"
+          - name: RETENTION_COMPLETED_DAYS
+            value: "7"
+          - name: RETENTION_CANCELLED_DAYS
+            value: "30"
+          - name: RETENTION_DISCARDED_DAYS
+            value: "30"
+          - name: RETENTION_BATCH_SIZE
+            value: "1000"
+          - name: RETENTION_PAUSE_MS
+            value: "100"
+          - name: RETENTION_INTERVAL_MS
+            value: "60000"
+          image: ghcr.io/otavioabreu27/report_service:sha-852f666
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health/live
+              port: http
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          name: report-service
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health/ready
+              port: http
+              scheme: HTTP
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          startupProbe:
+            failureThreshold: 60
+            httpGet:
+              path: /health/live
+              port: http
+              scheme: HTTP
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 2
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        terminationGracePeriodSeconds: 30
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: report-service
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2026-09-05T21:18:24Z"
+      lastUpdateTime: "2026-09-05T21:18:24Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2026-09-05T15:34:10Z"
+      lastUpdateTime: "2026-09-05T21:25:03Z"
+      message: ReplicaSet "report-service-57564974d7" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 62
+    readyReplicas: 2
+    replicas: 2
+    terminatingReplicas: 0
+    updatedReplicas: 2
+- apiVersion: autoscaling/v2
+  kind: HorizontalPodAutoscaler
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"autoscaling/v2","kind":"HorizontalPodAutoscaler","metadata":{"annotations":{},"name":"report-service","namespace":"reports"},"spec":{"behavior":{"scaleDown":{"policies":[{"periodSeconds":60,"type":"Percent","value":25}],"selectPolicy":"Max","stabilizationWindowSeconds":300},"scaleUp":{"policies":[{"periodSeconds":60,"type":"Percent","value":100},{"periodSeconds":60,"type":"Pods","value":4}],"selectPolicy":"Max","stabilizationWindowSeconds":0}},"maxReplicas":8,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":70,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2,"scaleTargetRef":{"apiVersion":"apps/v1","kind":"Deployment","name":"report-service"}}}
+    creationTimestamp: "2026-09-05T15:34:10Z"
+    name: report-service
+    namespace: reports
+    resourceVersion: "789895"
+    uid: e85b8050-dfdc-4a36-9e93-572542195403
+  spec:
+    behavior:
+      scaleDown:
+        policies:
+        - periodSeconds: 60
+          type: Percent
+          value: 25
+        selectPolicy: Max
+        stabilizationWindowSeconds: 300
+      scaleUp:
+        policies:
+        - periodSeconds: 60
+          type: Percent
+          value: 100
+        - periodSeconds: 60
+          type: Pods
+          value: 4
+        selectPolicy: Max
+        stabilizationWindowSeconds: 0
+    maxReplicas: 2
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 70
+          type: Utilization
+      type: Resource
+    - resource:
+        name: memory
+        target:
+          averageUtilization: 80
+          type: Utilization
+      type: Resource
+    minReplicas: 2
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: report-service
+  status:
+    conditions:
+    - lastTransitionTime: "2026-09-05T15:34:25Z"
+      message: the HPA controller was able to get the target's current scale
+      reason: SucceededGetScale
+      status: "True"
+      type: AbleToScale
+    - lastTransitionTime: "2026-09-05T21:25:20Z"
+      message: 'the HPA was unable to compute the replica count: failed to get cpu
+        utilization: did not receive metrics for targeted pods (pods might be unready)'
+      reason: FailedGetResourceMetric
+      status: "False"
+      type: ScalingActive
+    - lastTransitionTime: "2026-09-05T21:22:20Z"
+      message: the desired count is within the acceptable range
+      reason: DesiredWithinRange
+      status: "False"
+      type: ScalingLimited
+    currentMetrics:
+    - type: ""
+    - resource:
+        current:
+          averageUtilization: 24
+          averageValue: 65534Ki
+        name: memory
+      type: Resource
+    currentReplicas: 2
+    desiredReplicas: 2
+    lastScaleTime: "2026-09-05T21:25:05Z"
+- apiVersion: policy/v1
+  kind: PodDisruptionBudget
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"policy/v1","kind":"PodDisruptionBudget","metadata":{"annotations":{},"name":"report-service","namespace":"reports"},"spec":{"maxUnavailable":1,"selector":{"matchLabels":{"app.kubernetes.io/name":"report-service"}}}}
+    creationTimestamp: "2026-09-05T15:34:10Z"
+    generation: 1
+    name: report-service
+    namespace: reports
+    resourceVersion: "789839"
+    uid: 16654281-184f-4885-89dc-f7c2231bcb1a
+  spec:
+    maxUnavailable: 1
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: report-service
+  status:
+    conditions:
+    - lastTransitionTime: "2026-09-05T21:18:24Z"
+      message: ""
+      observedGeneration: 1
+      reason: SufficientPods
+      status: "True"
+      type: DisruptionAllowed
+    currentHealthy: 2
+    desiredHealthy: 1
+    disruptionsAllowed: 1
+    expectedPods: 2
+    observedGeneration: 1
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"report-service"},"name":"report-service","namespace":"reports"},"spec":{"ports":[{"name":"http","port":8080,"protocol":"TCP","targetPort":"http"}],"selector":{"app.kubernetes.io/name":"report-service"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-09-05T15:34:10Z"
+    labels:
+      app.kubernetes.io/name: report-service
+    name: report-service
+    namespace: reports
+    resourceVersion: "767977"
+    uid: 1dc4d5b6-ee9d-490a-8f35-c499530b5dc1
+  spec:
+    clusterIP: 10.43.137.111
+    clusterIPs:
+    - 10.43.137.111
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: http
+    selector:
+      app.kubernetes.io/name: report-service
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-09-05T21:16:45Z"
+    generation: 1
+    labels:
+      run: release-020-phased-5m
+    name: release-020-phased-5m
+    namespace: reports
+    resourceVersion: "788981"
+    uid: 2d3498ea-46bf-4bb5-bde3-ff1048cfb07e
+  spec:
+    containers:
+    - args:
+      - pip install -q urllib3==2.5.0 && python /bench/benchmark_v2.py --url http://report-service:8080
+        --scenario release-0.2.0-phased-5m --stages 60:50,60:150,60:300,60:500,60:150
+        --submit-workers 128 --poll-workers 128 --drain-timeout 300 --sample-interval
+        5
+      command:
+      - sh
+      - -lc
+      image: python:3.12-alpine
+      imagePullPolicy: IfNotPresent
+      name: benchmark
+      resources:
+        limits:
+          cpu: "3"
+          memory: 1Gi
+        requests:
+          cpu: 500m
+          memory: 256Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /bench
+        name: script
+        readOnly: true
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-6f7lr
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: k3s-master
+    nodeSelector:
+      kubernetes.io/hostname: k3s-master
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Never
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - configMap:
+        defaultMode: 420
+        name: benchmark-v2
+      name: script
+    - name: kube-api-access-6f7lr
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    allocatedResources:
+      cpu: 500m
+      memory: 256Mi
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:21:52Z"
+      observedGeneration: 1
+      status: "False"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:16:45Z"
+      observedGeneration: 1
+      reason: PodCompleted
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:21:50Z"
+      observedGeneration: 1
+      reason: PodCompleted
+      status: "False"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:21:50Z"
+      observedGeneration: 1
+      reason: PodCompleted
+      status: "False"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:16:45Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - allocatedResources:
+        cpu: 500m
+        memory: 256Mi
+      containerID: containerd://75b79ddf8227dac988c3094070387e164632fcdf60702e7c3b5c8e6775d5f3c2
+      image: docker.io/library/python:3.12-alpine
+      imageID: docker.io/library/python@sha256:b64631e04e4920160c50fbe8d8df828f7f35f06f425cb44aa09bca53e708a35a
+      lastState: {}
+      name: benchmark
+      ready: false
+      resources:
+        limits:
+          cpu: "3"
+          memory: 1Gi
+        requests:
+          cpu: 500m
+          memory: 256Mi
+      restartCount: 0
+      started: false
+      state:
+        terminated:
+          containerID: containerd://75b79ddf8227dac988c3094070387e164632fcdf60702e7c3b5c8e6775d5f3c2
+          exitCode: 0
+          finishedAt: "2026-09-05T21:21:50Z"
+          reason: Completed
+          startedAt: "2026-09-05T21:16:46Z"
+      user:
+        linux:
+          gid: 0
+          supplementalGroups:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 6
+          - 10
+          - 11
+          - 20
+          - 26
+          - 27
+          uid: 0
+      volumeMounts:
+      - mountPath: /bench
+        name: script
+        readOnly: true
+        recursiveReadOnly: Disabled
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-6f7lr
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.15.201
+    hostIPs:
+    - ip: 192.168.15.201
+    - ip: 2804:1b3:a9c0:56d1:be24:11ff:fe28:772
+    observedGeneration: 1
+    phase: Succeeded
+    podIP: 10.42.0.162
+    podIPs:
+    - ip: 10.42.0.162
+    qosClass: Burstable
+    resources:
+      requests:
+        memory: 256Mi
+    startTime: "2026-09-05T21:16:45Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/restartedAt: "2026-09-05T18:05:59-03:00"
+    creationTimestamp: "2026-09-05T21:24:40Z"
+    generateName: report-service-57564974d7-
+    generation: 1
+    labels:
+      app.kubernetes.io/name: report-service
+      pod-template-hash: 57564974d7
+    name: report-service-57564974d7-b6zxq
+    namespace: reports
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: report-service-57564974d7
+      uid: 81e1a886-8adf-4cd5-a67c-d534ea71fb62
+    resourceVersion: "789529"
+    uid: be5882e5-9b16-4f40-9e0d-f6d923bd6560
+  spec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: DoesNotExist
+    containers:
+    - env:
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            key: DATABASE_URL
+            name: report-service
+      - name: HOST
+        value: 0.0.0.0
+      - name: PORT
+        value: "8080"
+      - name: INSTANCE_ID
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: DB_POOL_SIZE
+        value: "8"
+      - name: WORKER_CONCURRENCY
+        value: "8"
+      - name: WORKER_PREFETCH
+        value: "1"
+      - name: QUEUE_POLL_INTERVAL_MS
+        value: "5000"
+      - name: HTTP_POOL_WORKERS
+        value: "32"
+      - name: HTTP_POOL_PREFETCH
+        value: "2"
+      - name: HTTP_BUFFER_CAPACITY
+        value: "256"
+      - name: SIMULATED_WORK_MS
+        value: "0"
+      - name: RETENTION_COMPLETED_DAYS
+        value: "7"
+      - name: RETENTION_CANCELLED_DAYS
+        value: "30"
+      - name: RETENTION_DISCARDED_DAYS
+        value: "30"
+      - name: RETENTION_BATCH_SIZE
+        value: "1000"
+      - name: RETENTION_PAUSE_MS
+        value: "100"
+      - name: RETENTION_INTERVAL_MS
+        value: "60000"
+      image: ghcr.io/otavioabreu27/report_service:sha-852f666
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health/live
+          port: http
+          scheme: HTTP
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 2
+      name: report-service
+      ports:
+      - containerPort: 8080
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health/ready
+          port: http
+          scheme: HTTP
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 3
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+      startupProbe:
+        failureThreshold: 60
+        httpGet:
+          path: /health/live
+          port: http
+          scheme: HTTP
+        periodSeconds: 2
+        successThreshold: 1
+        timeoutSeconds: 2
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-glczw
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: k3s-worker-2
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      seccompProfile:
+        type: RuntimeDefault
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    topologySpreadConstraints:
+    - labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: report-service
+      maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+    volumes:
+    - name: kube-api-access-glczw
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    allocatedResources:
+      cpu: 250m
+      memory: 256Mi
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:41Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:40Z"
+      observedGeneration: 1
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:43Z"
+      observedGeneration: 1
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:43Z"
+      observedGeneration: 1
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:40Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - allocatedResources:
+        cpu: 250m
+        memory: 256Mi
+      containerID: containerd://ead1c0980fd284e47a5a7eae7c3ee7be5a40cafdb174e5e072352f96972d7313
+      image: ghcr.io/otavioabreu27/report_service:sha-852f666
+      imageID: ghcr.io/otavioabreu27/report_service@sha256:937c290b7e34028565c0d9202f01222b3224b11186178737f8357a86a4a7fc21
+      lastState: {}
+      name: report-service
+      ready: true
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-09-05T21:24:41Z"
+      user:
+        linux:
+          gid: 10001
+          supplementalGroups:
+          - 10001
+          uid: 10001
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-glczw
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.15.203
+    hostIPs:
+    - ip: 192.168.15.203
+    - ip: 2804:1b3:a9c0:56d1:be24:11ff:fe96:a68d
+    observedGeneration: 1
+    phase: Running
+    podIP: 10.42.1.126
+    podIPs:
+    - ip: 10.42.1.126
+    qosClass: Burstable
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 232m
+        memory: 256Mi
+    startTime: "2026-09-05T21:24:40Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/restartedAt: "2026-09-05T18:05:59-03:00"
+    creationTimestamp: "2026-09-05T21:24:37Z"
+    generateName: report-service-57564974d7-
+    generation: 1
+    labels:
+      app.kubernetes.io/name: report-service
+      pod-template-hash: 57564974d7
+    name: report-service-57564974d7-rxxnc
+    namespace: reports
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: report-service-57564974d7
+      uid: 81e1a886-8adf-4cd5-a67c-d534ea71fb62
+    resourceVersion: "789482"
+    uid: 681db57c-ef80-48bc-8340-6cfe56078a45
+  spec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: DoesNotExist
+    containers:
+    - env:
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            key: DATABASE_URL
+            name: report-service
+      - name: HOST
+        value: 0.0.0.0
+      - name: PORT
+        value: "8080"
+      - name: INSTANCE_ID
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: DB_POOL_SIZE
+        value: "8"
+      - name: WORKER_CONCURRENCY
+        value: "8"
+      - name: WORKER_PREFETCH
+        value: "1"
+      - name: QUEUE_POLL_INTERVAL_MS
+        value: "5000"
+      - name: HTTP_POOL_WORKERS
+        value: "32"
+      - name: HTTP_POOL_PREFETCH
+        value: "2"
+      - name: HTTP_BUFFER_CAPACITY
+        value: "256"
+      - name: SIMULATED_WORK_MS
+        value: "0"
+      - name: RETENTION_COMPLETED_DAYS
+        value: "7"
+      - name: RETENTION_CANCELLED_DAYS
+        value: "30"
+      - name: RETENTION_DISCARDED_DAYS
+        value: "30"
+      - name: RETENTION_BATCH_SIZE
+        value: "1000"
+      - name: RETENTION_PAUSE_MS
+        value: "100"
+      - name: RETENTION_INTERVAL_MS
+        value: "60000"
+      image: ghcr.io/otavioabreu27/report_service:sha-852f666
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health/live
+          port: http
+          scheme: HTTP
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 2
+      name: report-service
+      ports:
+      - containerPort: 8080
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health/ready
+          port: http
+          scheme: HTTP
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 3
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+      startupProbe:
+        failureThreshold: 60
+        httpGet:
+          path: /health/live
+          port: http
+          scheme: HTTP
+        periodSeconds: 2
+        successThreshold: 1
+        timeoutSeconds: 2
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-sq8lr
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: k3s-worker-1
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      seccompProfile:
+        type: RuntimeDefault
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    topologySpreadConstraints:
+    - labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: report-service
+      maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+    volumes:
+    - name: kube-api-access-sq8lr
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    allocatedResources:
+      cpu: 250m
+      memory: 256Mi
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:38Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:37Z"
+      observedGeneration: 1
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:40Z"
+      observedGeneration: 1
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:40Z"
+      observedGeneration: 1
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-05T21:24:37Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - allocatedResources:
+        cpu: 250m
+        memory: 256Mi
+      containerID: containerd://11fd2b4875be9e7b23b8aaa56a51ae0817df35ce5ed12544dbd991029449f0a3
+      image: ghcr.io/otavioabreu27/report_service:sha-852f666
+      imageID: ghcr.io/otavioabreu27/report_service@sha256:937c290b7e34028565c0d9202f01222b3224b11186178737f8357a86a4a7fc21
+      lastState: {}
+      name: report-service
+      ready: true
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-09-05T21:24:38Z"
+      user:
+        linux:
+          gid: 10001
+          supplementalGroups:
+          - 10001
+          uid: 10001
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-sq8lr
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.15.202
+    hostIPs:
+    - ip: 192.168.15.202
+    - ip: 2804:1b3:a9c0:56d1:be24:11ff:fe53:ade7
+    observedGeneration: 1
+    phase: Running
+    podIP: 10.42.2.135
+    podIPs:
+    - ip: 10.42.2.135
+    qosClass: Burstable
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 232m
+        memory: 256Mi
+    startTime: "2026-09-05T21:24:37Z"
+kind: List
+metadata:
+  resourceVersion: ""

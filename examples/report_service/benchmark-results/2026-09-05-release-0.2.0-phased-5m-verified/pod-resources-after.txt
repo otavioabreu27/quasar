@@ -1,0 +1,10 @@
+NAME                              CPU(cores)   MEMORY(bytes)   
+release-020-db-observer           1m           25Mi            
+report-service-57564974d7-84bgq   87m          75Mi            
+report-service-57564974d7-8s76n   645m         72Mi            
+report-service-57564974d7-9zmfv   655m         72Mi            
+report-service-57564974d7-b6zxq   703m         72Mi            
+report-service-57564974d7-jf6rn   655m         71Mi            
+report-service-57564974d7-k4pq2   665m         72Mi            
+report-service-57564974d7-nn5cn   710m         73Mi            
+report-service-57564974d7-rxxnc   551m         74Mi            

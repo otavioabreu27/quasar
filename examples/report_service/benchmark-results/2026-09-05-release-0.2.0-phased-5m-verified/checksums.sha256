@@ -1,0 +1,13 @@
+805dcce18191f99fe9057fc839de40da7f8eb2f3ca766a7ae5e9dc0e5a8382c7  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/README.md
+49e1324e3f1104e82c61b25c22229890ac32f89f8c51d147544faadf31bbf16c  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/cluster-after.yaml
+014057a9b66bc5530226d6c69b6a3db3bbaac916ea3358925be387560ee93efd  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/cluster-before.yaml
+1e3794d3dc6fa4e913c708f0ed528a09a97cd7f487e644ce07c64738b18308f5  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/kubernetes-observer.jsonl
+6de558e768cee9c6fdae28d84c9d4d34b4f62d8af6d57db45c5794751ef30b5e  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/load-pod.json
+79ff9efc8ff28cc34c7bf521697df8a9657ec9bdd8adfe6095749ab90228960a  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/load.jsonl
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/load.stderr
+05c33b5a357806520feda1f974ea94a93955391449000067b422bfc14186946d  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/nodes.json
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/observer.stderr
+0b5cdac311b9f3a6100d35b49a6cb1f080a3df9d35e6a118cde9967c09dd9b46  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/pod-resources-after.txt
+198cdd6f23e072c41441e1db88e8552d46b67932c8b1155e4574f12533919bde  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/postgresql-observer-pod.json
+9cdf17524180ffe7a301122da30214e45a0bbc86624c1c042ae64e66807db437  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/postgresql-observer.jsonl
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  benchmark-results/2026-09-05-release-0.2.0-phased-5m-verified/postgresql-observer.stderr

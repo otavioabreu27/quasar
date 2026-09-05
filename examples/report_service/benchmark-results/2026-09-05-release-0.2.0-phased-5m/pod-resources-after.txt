@@ -1,0 +1,9 @@
+NAME                              CPU(cores)   MEMORY(bytes)   
+report-service-57564974d7-2vb5t   620m         75Mi            
+report-service-57564974d7-bpr24   605m         72Mi            
+report-service-57564974d7-jl5nh   598m         72Mi            
+report-service-57564974d7-lfj9h   596m         72Mi            
+report-service-57564974d7-md7tz   720m         70Mi            
+report-service-57564974d7-rnrk7   593m         72Mi            
+report-service-57564974d7-wjkxw   716m         71Mi            
+report-service-57564974d7-wrcl4   627m         73Mi            
