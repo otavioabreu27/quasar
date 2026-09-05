@@ -61,8 +61,18 @@ pub fn submit(buffer: Buffer, result: Result) -> Nil {
 /// the persisted claim remains recoverable by its lease (at-least-once).
 pub fn submit_wait(buffer: Buffer, result: Result) -> Nil {
   let reply = process.new_subject()
+  let assert Ok(owner) = process.subject_owner(buffer.subject)
+  let monitor = process.monitor(owner)
   process.send(buffer.subject, Add(result, Some(reply)))
-  let _ = process.receive(reply, within: 10_000)
+  let acknowledged =
+    process.new_selector()
+    |> process.select_map(reply, fn(_) { True })
+    |> process.select_specific_monitor(monitor, fn(_) { False })
+    |> process.selector_receive_forever
+  process.demonitor_process(monitor)
+  // Never release pool capacity merely because a client-side wait timed out:
+  // that lets pending acknowledgements grow without bound under a slow store.
+  let assert True = acknowledged
   Nil
 }
 

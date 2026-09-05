@@ -3,8 +3,8 @@
 -export([crash_notifications/1]).
 
 crash_notifications({listener, Listener}) ->
-    {links, Children} = process_info(Listener, links),
-    lists:foreach(fun(Child) -> exit(Child, kill) end, Children),
+    {links, [Child]} = process_info(Listener, links),
+    exit(Child, kill),
     nil.
 
 getenv(Name) ->
