@@ -1,0 +1,8 @@
+.git
+.github
+build
+__pycache__
+*.md
+*.py
+*.json
+*.txt

@@ -1,0 +1,883 @@
+[
+  {
+    "case": "control_2_workers",
+    "repetition": 1,
+    "instances": 4,
+    "workers_per_instance": 2,
+    "connections_per_instance": 12,
+    "enqueue_p95_ms": 58.255,
+    "submission_seconds": 1.357,
+    "aggregate_observed_seconds": 2.734,
+    "batch": {
+      "jobs": 1000,
+      "attempt_max": 1,
+      "queue_p95_ms": 1156,
+      "claim_to_completion_p95_ms": 45,
+      "end_to_end_p95_ms": 1166,
+      "batch_span_ms": 2570
+    },
+    "processed_by": {
+      "profile-19183": 251,
+      "profile-19184": 248,
+      "profile-19181": 250,
+      "profile-19182": 251
+    },
+    "trace": {},
+    "sql": [
+      {
+        "query": "WITH claimable AS (SELECT id FROM quasar_jobs WHERE queue = $1 AND status IN ($6, $7, $8) AND available_at <= $2 ORDER B",
+        "calls": 1014,
+        "mean_ms": 0.562,
+        "total_ms": 569.876,
+        "max_ms": 10.017,
+        "block_read_ms": 0,
+        "block_write_ms": 0.294
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET lease_expires_at = $1 WHERE q.id = $2 AND q.status = $5 AND q.lease_owner = $3 AND q.attempt = ",
+        "calls": 1000,
+        "mean_ms": 0.358,
+        "total_ms": 358.298,
+        "max_ms": 35.462,
+        "block_read_ms": 0,
+        "block_write_ms": 0.198
+      },
+      {
+        "query": "INSERT INTO example_reports (job_id, size, total, processed_by)\n    VALUES ($1, $2, $3, $4) ON CONFLICT (job_id) DO NOTH",
+        "calls": 1000,
+        "mean_ms": 0.269,
+        "total_ms": 268.94,
+        "max_ms": 5.972,
+        "block_read_ms": 0,
+        "block_write_ms": 1.467
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET status = $5, completed_at = $1, lease_owner = $6, lease_expires_at = $7, error_kind = $8, error",
+        "calls": 1000,
+        "mean_ms": 0.176,
+        "total_ms": 176.455,
+        "max_ms": 3.543,
+        "block_read_ms": 0,
+        "block_write_ms": 0.493
+      },
+      {
+        "query": "INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) VAL",
+        "calls": 1000,
+        "mean_ms": 0.149,
+        "total_ms": 148.908,
+        "max_ms": 1.751,
+        "block_read_ms": 0,
+        "block_write_ms": 1.931
+      },
+      {
+        "query": "SELECT $2 FROM ONLY \"public\".\"quasar_jobs\" x WHERE \"id\" OPERATOR(pg_catalog.=) $1 FOR KEY SHARE OF x",
+        "calls": 1000,
+        "mean_ms": 0.049,
+        "total_ms": 48.716,
+        "max_ms": 0.553,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN $3 ELSE $4 END, available_at = $1, lease_owner = ",
+        "calls": 1014,
+        "mean_ms": 0.04,
+        "total_ms": 40.254,
+        "max_ms": 0.414,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "SELECT json_build_object(\n                $1, count(*), $2, count(*) FILTER (WHERE status=$3),\n                $4, count",
+        "calls": 8,
+        "mean_ms": 0.681,
+        "total_ms": 5.447,
+        "max_ms": 1.078,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "begin",
+        "calls": 1014,
+        "mean_ms": 0.003,
+        "total_ms": 3.161,
+        "max_ms": 0.056,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "commit",
+        "calls": 1014,
+        "mean_ms": 0.003,
+        "total_ms": 3.103,
+        "max_ms": 0.148,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      }
+    ],
+    "pg_wait_samples": 20,
+    "pg_backend_state_observations": {
+      "IO:WALSync": 19,
+      "LWLock:WALWrite": 215,
+      "idle": 699,
+      "Lock:transactionid": 4,
+      "LWLock:BufferContent": 1,
+      "active": 16,
+      "Client:ClientRead": 4,
+      "idle in transaction": 2
+    }
+  },
+  {
+    "case": "control_2_workers",
+    "repetition": 2,
+    "instances": 4,
+    "workers_per_instance": 2,
+    "connections_per_instance": 12,
+    "enqueue_p95_ms": 52.08,
+    "submission_seconds": 1.406,
+    "aggregate_observed_seconds": 4.038,
+    "batch": {
+      "jobs": 1000,
+      "attempt_max": 1,
+      "queue_p95_ms": 2551.05,
+      "claim_to_completion_p95_ms": 50,
+      "end_to_end_p95_ms": 2561.05,
+      "batch_span_ms": 3982
+    },
+    "processed_by": {
+      "profile-19181": 246,
+      "profile-19182": 250,
+      "profile-19183": 251,
+      "profile-19184": 253
+    },
+    "trace": {},
+    "sql": [
+      {
+        "query": "WITH claimable AS (SELECT id FROM quasar_jobs WHERE queue = $1 AND status IN ($6, $7, $8) AND available_at <= $2 ORDER B",
+        "calls": 1014,
+        "mean_ms": 0.616,
+        "total_ms": 624.372,
+        "max_ms": 8.791,
+        "block_read_ms": 0,
+        "block_write_ms": 0.167
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET lease_expires_at = $1 WHERE q.id = $2 AND q.status = $5 AND q.lease_owner = $3 AND q.attempt = ",
+        "calls": 1000,
+        "mean_ms": 0.562,
+        "total_ms": 561.808,
+        "max_ms": 32.792,
+        "block_read_ms": 0,
+        "block_write_ms": 0.107
+      },
+      {
+        "query": "INSERT INTO example_reports (job_id, size, total, processed_by)\n    VALUES ($1, $2, $3, $4) ON CONFLICT (job_id) DO NOTH",
+        "calls": 1000,
+        "mean_ms": 0.26,
+        "total_ms": 260.253,
+        "max_ms": 2.526,
+        "block_read_ms": 0,
+        "block_write_ms": 1.221
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET status = $5, completed_at = $1, lease_owner = $6, lease_expires_at = $7, error_kind = $8, error",
+        "calls": 1000,
+        "mean_ms": 0.191,
+        "total_ms": 191.362,
+        "max_ms": 2.205,
+        "block_read_ms": 0,
+        "block_write_ms": 0.469
+      },
+      {
+        "query": "INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) VAL",
+        "calls": 1000,
+        "mean_ms": 0.144,
+        "total_ms": 143.743,
+        "max_ms": 3.502,
+        "block_read_ms": 0,
+        "block_write_ms": 2.734
+      },
+      {
+        "query": "SELECT $2 FROM ONLY \"public\".\"quasar_jobs\" x WHERE \"id\" OPERATOR(pg_catalog.=) $1 FOR KEY SHARE OF x",
+        "calls": 1000,
+        "mean_ms": 0.055,
+        "total_ms": 54.928,
+        "max_ms": 1.26,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN $3 ELSE $4 END, available_at = $1, lease_owner = ",
+        "calls": 1014,
+        "mean_ms": 0.045,
+        "total_ms": 45.179,
+        "max_ms": 1.124,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "SELECT json_build_object(\n                $1, count(*), $2, count(*) FILTER (WHERE status=$3),\n                $4, count",
+        "calls": 15,
+        "mean_ms": 0.724,
+        "total_ms": 10.865,
+        "max_ms": 1.052,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "begin",
+        "calls": 1014,
+        "mean_ms": 0.003,
+        "total_ms": 3.311,
+        "max_ms": 0.092,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "commit",
+        "calls": 1014,
+        "mean_ms": 0.003,
+        "total_ms": 3.124,
+        "max_ms": 0.056,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      }
+    ],
+    "pg_wait_samples": 29,
+    "pg_backend_state_observations": {
+      "IO:WALSync": 28,
+      "LWLock:WALWrite": 222,
+      "idle": 1107,
+      "active": 18,
+      "idle in transaction": 3,
+      "Client:ClientRead": 8,
+      "Lock:transactionid": 5,
+      "LWLock:BufferContent": 1
+    }
+  },
+  {
+    "case": "traced_2_workers",
+    "repetition": 1,
+    "instances": 4,
+    "workers_per_instance": 2,
+    "connections_per_instance": 12,
+    "enqueue_p95_ms": 20.737,
+    "submission_seconds": 0.791,
+    "aggregate_observed_seconds": 2.213,
+    "batch": {
+      "jobs": 1000,
+      "attempt_max": 1,
+      "queue_p95_ms": 1318.05,
+      "claim_to_completion_p95_ms": 21,
+      "end_to_end_p95_ms": 1328.05,
+      "batch_span_ms": 2149
+    },
+    "processed_by": {
+      "profile-19184": 249,
+      "profile-19181": 250,
+      "profile-19182": 250,
+      "profile-19183": 251
+    },
+    "trace": {
+      "driver_query": {
+        "count": 8096,
+        "summed_peak_concurrency": 28,
+        "p95_upper_ms": 5.4,
+        "mean_ms": 2.479,
+        "summed_duration_ms": 20066.952
+      },
+      "pool_checkout": {
+        "count": 5024,
+        "summed_peak_concurrency": 13,
+        "p95_upper_ms": 0.1,
+        "mean_ms": 0.049,
+        "summed_duration_ms": 245.015
+      },
+      "store_claim": {
+        "count": 1024,
+        "summed_peak_concurrency": 4,
+        "p95_upper_ms": 9.8,
+        "mean_ms": 5.972,
+        "summed_duration_ms": 6115.734
+      },
+      "worker_execute": {
+        "count": 1000,
+        "summed_peak_concurrency": 8,
+        "p95_upper_ms": 16.9,
+        "mean_ms": 10.455,
+        "summed_duration_ms": 10454.835
+      }
+    },
+    "sql": [
+      {
+        "query": "WITH claimable AS (SELECT id FROM quasar_jobs WHERE queue = $1 AND status IN ($6, $7, $8) AND available_at <= $2 ORDER B",
+        "calls": 1012,
+        "mean_ms": 0.535,
+        "total_ms": 541.571,
+        "max_ms": 2.757,
+        "block_read_ms": 0,
+        "block_write_ms": 0.248
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET lease_expires_at = $1 WHERE q.id = $2 AND q.status = $5 AND q.lease_owner = $3 AND q.attempt = ",
+        "calls": 1000,
+        "mean_ms": 0.397,
+        "total_ms": 397.444,
+        "max_ms": 5.228,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "INSERT INTO example_reports (job_id, size, total, processed_by)\n    VALUES ($1, $2, $3, $4) ON CONFLICT (job_id) DO NOTH",
+        "calls": 1000,
+        "mean_ms": 0.224,
+        "total_ms": 224.076,
+        "max_ms": 1.57,
+        "block_read_ms": 0,
+        "block_write_ms": 1.31
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET status = $5, completed_at = $1, lease_owner = $6, lease_expires_at = $7, error_kind = $8, error",
+        "calls": 1000,
+        "mean_ms": 0.17,
+        "total_ms": 170.272,
+        "max_ms": 1.348,
+        "block_read_ms": 0,
+        "block_write_ms": 0.547
+      },
+      {
+        "query": "INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) VAL",
+        "calls": 1000,
+        "mean_ms": 0.145,
+        "total_ms": 144.878,
+        "max_ms": 1.494,
+        "block_read_ms": 0,
+        "block_write_ms": 2.326
+      },
+      {
+        "query": "SELECT $2 FROM ONLY \"public\".\"quasar_jobs\" x WHERE \"id\" OPERATOR(pg_catalog.=) $1 FOR KEY SHARE OF x",
+        "calls": 1000,
+        "mean_ms": 0.045,
+        "total_ms": 45.159,
+        "max_ms": 0.998,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN $3 ELSE $4 END, available_at = $1, lease_owner = ",
+        "calls": 1012,
+        "mean_ms": 0.036,
+        "total_ms": 35.96,
+        "max_ms": 1.107,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "SELECT json_build_object(\n                $1, count(*), $2, count(*) FILTER (WHERE status=$3),\n                $4, count",
+        "calls": 8,
+        "mean_ms": 0.813,
+        "total_ms": 6.507,
+        "max_ms": 0.988,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "begin",
+        "calls": 1012,
+        "mean_ms": 0.003,
+        "total_ms": 3.083,
+        "max_ms": 0.078,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "commit",
+        "calls": 1012,
+        "mean_ms": 0.003,
+        "total_ms": 2.972,
+        "max_ms": 0.05,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      }
+    ],
+    "pg_wait_samples": 15,
+    "pg_backend_state_observations": {
+      "Client:ClientRead": 18,
+      "IO:WALSync": 12,
+      "LWLock:WALWrite": 74,
+      "active": 22,
+      "idle": 590,
+      "idle in transaction": 2,
+      "IO:WALInitSync": 1,
+      "IO:WALWrite": 1
+    }
+  },
+  {
+    "case": "traced_2_workers",
+    "repetition": 2,
+    "instances": 4,
+    "workers_per_instance": 2,
+    "connections_per_instance": 12,
+    "enqueue_p95_ms": 52.3,
+    "submission_seconds": 1.18,
+    "aggregate_observed_seconds": 3.407,
+    "batch": {
+      "jobs": 1000,
+      "attempt_max": 1,
+      "queue_p95_ms": 2115.05,
+      "claim_to_completion_p95_ms": 43,
+      "end_to_end_p95_ms": 2125.05,
+      "batch_span_ms": 3330
+    },
+    "processed_by": {
+      "profile-19184": 255,
+      "profile-19181": 245,
+      "profile-19182": 251,
+      "profile-19183": 249
+    },
+    "trace": {
+      "driver_query": {
+        "count": 8104,
+        "summed_peak_concurrency": 28,
+        "p95_upper_ms": 28.1,
+        "mean_ms": 4.255,
+        "summed_duration_ms": 34482.834
+      },
+      "pool_checkout": {
+        "count": 5026,
+        "summed_peak_concurrency": 13,
+        "p95_upper_ms": 0.2,
+        "mean_ms": 0.05,
+        "summed_duration_ms": 249.334
+      },
+      "store_claim": {
+        "count": 1026,
+        "summed_peak_concurrency": 4,
+        "p95_upper_ms": 34,
+        "mean_ms": 9.578,
+        "summed_duration_ms": 9827.388
+      },
+      "worker_execute": {
+        "count": 1000,
+        "summed_peak_concurrency": 8,
+        "p95_upper_ms": 40.3,
+        "mean_ms": 16.057,
+        "summed_duration_ms": 16056.869
+      }
+    },
+    "sql": [
+      {
+        "query": "UPDATE quasar_jobs q SET lease_expires_at = $1 WHERE q.id = $2 AND q.status = $5 AND q.lease_owner = $3 AND q.attempt = ",
+        "calls": 1000,
+        "mean_ms": 0.589,
+        "total_ms": 588.912,
+        "max_ms": 34.89,
+        "block_read_ms": 0,
+        "block_write_ms": 0.185
+      },
+      {
+        "query": "WITH claimable AS (SELECT id FROM quasar_jobs WHERE queue = $1 AND status IN ($6, $7, $8) AND available_at <= $2 ORDER B",
+        "calls": 1012,
+        "mean_ms": 0.551,
+        "total_ms": 557.313,
+        "max_ms": 8.907,
+        "block_read_ms": 0,
+        "block_write_ms": 0.255
+      },
+      {
+        "query": "INSERT INTO example_reports (job_id, size, total, processed_by)\n    VALUES ($1, $2, $3, $4) ON CONFLICT (job_id) DO NOTH",
+        "calls": 1000,
+        "mean_ms": 0.232,
+        "total_ms": 232.246,
+        "max_ms": 3.412,
+        "block_read_ms": 0,
+        "block_write_ms": 1.828
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET status = $5, completed_at = $1, lease_owner = $6, lease_expires_at = $7, error_kind = $8, error",
+        "calls": 1000,
+        "mean_ms": 0.19,
+        "total_ms": 190.119,
+        "max_ms": 3.693,
+        "block_read_ms": 0,
+        "block_write_ms": 0.866
+      },
+      {
+        "query": "INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) VAL",
+        "calls": 1000,
+        "mean_ms": 0.125,
+        "total_ms": 124.661,
+        "max_ms": 1.157,
+        "block_read_ms": 0,
+        "block_write_ms": 1.684
+      },
+      {
+        "query": "SELECT $2 FROM ONLY \"public\".\"quasar_jobs\" x WHERE \"id\" OPERATOR(pg_catalog.=) $1 FOR KEY SHARE OF x",
+        "calls": 1000,
+        "mean_ms": 0.05,
+        "total_ms": 50.325,
+        "max_ms": 2.079,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN $3 ELSE $4 END, available_at = $1, lease_owner = ",
+        "calls": 1012,
+        "mean_ms": 0.043,
+        "total_ms": 43.484,
+        "max_ms": 3.077,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "SELECT json_build_object(\n                $1, count(*), $2, count(*) FILTER (WHERE status=$3),\n                $4, count",
+        "calls": 13,
+        "mean_ms": 0.596,
+        "total_ms": 7.752,
+        "max_ms": 0.86,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "begin",
+        "calls": 1012,
+        "mean_ms": 0.003,
+        "total_ms": 3.196,
+        "max_ms": 0.066,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "commit",
+        "calls": 1012,
+        "mean_ms": 0.003,
+        "total_ms": 3.056,
+        "max_ms": 0.078,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      }
+    ],
+    "pg_wait_samples": 25,
+    "pg_backend_state_observations": {
+      "IO:WALSync": 25,
+      "LWLock:WALWrite": 175,
+      "idle": 962,
+      "Client:ClientRead": 18,
+      "active": 14,
+      "Lock:transactionid": 4,
+      "idle in transaction": 2
+    }
+  },
+  {
+    "case": "traced_8_workers",
+    "repetition": 1,
+    "instances": 4,
+    "workers_per_instance": 8,
+    "connections_per_instance": 12,
+    "enqueue_p95_ms": 23.042,
+    "submission_seconds": 0.84,
+    "aggregate_observed_seconds": 1.916,
+    "batch": {
+      "jobs": 1000,
+      "attempt_max": 1,
+      "queue_p95_ms": 908,
+      "claim_to_completion_p95_ms": 23,
+      "end_to_end_p95_ms": 921,
+      "batch_span_ms": 1788
+    },
+    "processed_by": {
+      "profile-19183": 245,
+      "profile-19184": 253,
+      "profile-19181": 251,
+      "profile-19182": 251
+    },
+    "trace": {
+      "driver_query": {
+        "count": 8712,
+        "summed_peak_concurrency": 38,
+        "p95_upper_ms": 6,
+        "mean_ms": 2.72,
+        "summed_duration_ms": 23699.159
+      },
+      "pool_checkout": {
+        "count": 5178,
+        "summed_peak_concurrency": 25,
+        "p95_upper_ms": 0.2,
+        "mean_ms": 0.065,
+        "summed_duration_ms": 339.056
+      },
+      "store_claim": {
+        "count": 1178,
+        "summed_peak_concurrency": 4,
+        "p95_upper_ms": 10.6,
+        "mean_ms": 6.235,
+        "summed_duration_ms": 7344.883
+      },
+      "worker_execute": {
+        "count": 1000,
+        "summed_peak_concurrency": 30,
+        "p95_upper_ms": 19.4,
+        "mean_ms": 12.602,
+        "summed_duration_ms": 12601.559
+      }
+    },
+    "sql": [
+      {
+        "query": "UPDATE quasar_jobs q SET lease_expires_at = $1 WHERE q.id = $2 AND q.status = $5 AND q.lease_owner = $3 AND q.attempt = ",
+        "calls": 1000,
+        "mean_ms": 0.593,
+        "total_ms": 592.706,
+        "max_ms": 9.466,
+        "block_read_ms": 0,
+        "block_write_ms": 0.159
+      },
+      {
+        "query": "WITH claimable AS (SELECT id FROM quasar_jobs WHERE queue = $1 AND status IN ($6, $7, $8) AND available_at <= $2 ORDER B",
+        "calls": 1145,
+        "mean_ms": 0.5,
+        "total_ms": 572.916,
+        "max_ms": 2.872,
+        "block_read_ms": 0,
+        "block_write_ms": 0.302
+      },
+      {
+        "query": "INSERT INTO example_reports (job_id, size, total, processed_by)\n    VALUES ($1, $2, $3, $4) ON CONFLICT (job_id) DO NOTH",
+        "calls": 1000,
+        "mean_ms": 0.236,
+        "total_ms": 236.212,
+        "max_ms": 2.669,
+        "block_read_ms": 0,
+        "block_write_ms": 1.286
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET status = $5, completed_at = $1, lease_owner = $6, lease_expires_at = $7, error_kind = $8, error",
+        "calls": 1000,
+        "mean_ms": 0.211,
+        "total_ms": 211.381,
+        "max_ms": 3.134,
+        "block_read_ms": 0,
+        "block_write_ms": 0.621
+      },
+      {
+        "query": "INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) VAL",
+        "calls": 1000,
+        "mean_ms": 0.192,
+        "total_ms": 192.016,
+        "max_ms": 3.502,
+        "block_read_ms": 0,
+        "block_write_ms": 1.847
+      },
+      {
+        "query": "SELECT $2 FROM ONLY \"public\".\"quasar_jobs\" x WHERE \"id\" OPERATOR(pg_catalog.=) $1 FOR KEY SHARE OF x",
+        "calls": 1000,
+        "mean_ms": 0.05,
+        "total_ms": 50.168,
+        "max_ms": 1.451,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN $3 ELSE $4 END, available_at = $1, lease_owner = ",
+        "calls": 1145,
+        "mean_ms": 0.039,
+        "total_ms": 45.202,
+        "max_ms": 1.287,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "commit",
+        "calls": 1145,
+        "mean_ms": 0.003,
+        "total_ms": 3.731,
+        "max_ms": 0.373,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "SELECT json_build_object(\n                $1, count(*), $2, count(*) FILTER (WHERE status=$3),\n                $4, count",
+        "calls": 6,
+        "mean_ms": 0.601,
+        "total_ms": 3.606,
+        "max_ms": 0.736,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "begin",
+        "calls": 1145,
+        "mean_ms": 0.003,
+        "total_ms": 3.465,
+        "max_ms": 0.073,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      }
+    ],
+    "pg_wait_samples": 12,
+    "pg_backend_state_observations": {
+      "Client:ClientRead": 22,
+      "IO:WALSync": 10,
+      "LWLock:WALWrite": 82,
+      "active": 17,
+      "idle": 439,
+      "Lock:transactionid": 3,
+      "idle in transaction": 3
+    }
+  },
+  {
+    "case": "traced_8_workers",
+    "repetition": 2,
+    "instances": 4,
+    "workers_per_instance": 8,
+    "connections_per_instance": 12,
+    "enqueue_p95_ms": 56.352,
+    "submission_seconds": 1.461,
+    "aggregate_observed_seconds": 3.242,
+    "batch": {
+      "jobs": 1000,
+      "attempt_max": 1,
+      "queue_p95_ms": 1718,
+      "claim_to_completion_p95_ms": 57.049999999999955,
+      "end_to_end_p95_ms": 1733,
+      "batch_span_ms": 3205
+    },
+    "processed_by": {
+      "profile-19183": 249,
+      "profile-19184": 257,
+      "profile-19181": 244,
+      "profile-19182": 250
+    },
+    "trace": {
+      "driver_query": {
+        "count": 8768,
+        "summed_peak_concurrency": 38,
+        "p95_upper_ms": 30.4,
+        "mean_ms": 5.384,
+        "summed_duration_ms": 47208.982
+      },
+      "pool_checkout": {
+        "count": 5192,
+        "summed_peak_concurrency": 25,
+        "p95_upper_ms": 0.2,
+        "mean_ms": 0.066,
+        "summed_duration_ms": 343.303
+      },
+      "store_claim": {
+        "count": 1192,
+        "summed_peak_concurrency": 4,
+        "p95_upper_ms": 34.8,
+        "mean_ms": 10.992,
+        "summed_duration_ms": 13102.423
+      },
+      "worker_execute": {
+        "count": 1000,
+        "summed_peak_concurrency": 30,
+        "p95_upper_ms": 50.9,
+        "mean_ms": 22.632,
+        "summed_duration_ms": 22632.222
+      }
+    },
+    "sql": [
+      {
+        "query": "UPDATE quasar_jobs q SET lease_expires_at = $1 WHERE q.id = $2 AND q.status = $5 AND q.lease_owner = $3 AND q.attempt = ",
+        "calls": 1000,
+        "mean_ms": 0.757,
+        "total_ms": 756.543,
+        "max_ms": 35.535,
+        "block_read_ms": 0,
+        "block_write_ms": 0.423
+      },
+      {
+        "query": "WITH claimable AS (SELECT id FROM quasar_jobs WHERE queue = $1 AND status IN ($6, $7, $8) AND available_at <= $2 ORDER B",
+        "calls": 1152,
+        "mean_ms": 0.576,
+        "total_ms": 663.049,
+        "max_ms": 12.147,
+        "block_read_ms": 0,
+        "block_write_ms": 0.404
+      },
+      {
+        "query": "INSERT INTO example_reports (job_id, size, total, processed_by)\n    VALUES ($1, $2, $3, $4) ON CONFLICT (job_id) DO NOTH",
+        "calls": 1000,
+        "mean_ms": 0.276,
+        "total_ms": 276.152,
+        "max_ms": 5.047,
+        "block_read_ms": 0,
+        "block_write_ms": 2.512
+      },
+      {
+        "query": "UPDATE quasar_jobs q SET status = $5, completed_at = $1, lease_owner = $6, lease_expires_at = $7, error_kind = $8, error",
+        "calls": 1000,
+        "mean_ms": 0.242,
+        "total_ms": 242.414,
+        "max_ms": 4.526,
+        "block_read_ms": 0,
+        "block_write_ms": 0.794
+      },
+      {
+        "query": "INSERT INTO quasar_jobs (queue, worker, payload, status, priority, attempt, max_attempts, available_at, inserted_at) VAL",
+        "calls": 1000,
+        "mean_ms": 0.125,
+        "total_ms": 124.726,
+        "max_ms": 0.993,
+        "block_read_ms": 0,
+        "block_write_ms": 1.497
+      },
+      {
+        "query": "SELECT $2 FROM ONLY \"public\".\"quasar_jobs\" x WHERE \"id\" OPERATOR(pg_catalog.=) $1 FOR KEY SHARE OF x",
+        "calls": 1000,
+        "mean_ms": 0.06,
+        "total_ms": 60.247,
+        "max_ms": 2.871,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "UPDATE quasar_jobs SET status = CASE WHEN attempt >= max_attempts THEN $3 ELSE $4 END, available_at = $1, lease_owner = ",
+        "calls": 1152,
+        "mean_ms": 0.048,
+        "total_ms": 55.038,
+        "max_ms": 1.578,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "SELECT json_build_object(\n                $1, count(*), $2, count(*) FILTER (WHERE status=$3),\n                $4, count",
+        "calls": 10,
+        "mean_ms": 0.73,
+        "total_ms": 7.299,
+        "max_ms": 1.075,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "begin",
+        "calls": 1152,
+        "mean_ms": 0.005,
+        "total_ms": 5.395,
+        "max_ms": 1.517,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      },
+      {
+        "query": "commit",
+        "calls": 1152,
+        "mean_ms": 0.003,
+        "total_ms": 3.73,
+        "max_ms": 0.139,
+        "block_read_ms": 0,
+        "block_write_ms": 0
+      }
+    ],
+    "pg_wait_samples": 23,
+    "pg_backend_state_observations": {
+      "IO:WALSync": 21,
+      "LWLock:WALWrite": 239,
+      "idle": 794,
+      "Client:ClientRead": 20,
+      "active": 16,
+      "idle in transaction": 9,
+      "Lock:transactionid": 5
+    }
+  }
+]

@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: reports
+      POSTGRES_PASSWORD: reports_local_only
+      POSTGRES_DB: reports
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c wal_buffers=64MB
+      -c max_connections=200
+      -c checkpoint_completion_target=0.9
+      -c max_wal_size=2GB
+      -c min_wal_size=512MB
+      -c random_page_cost=1.1
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - reports_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reports -d reports"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://reports:reports_local_only@postgres:5432/reports
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      INSTANCE_ID: "reports-app-1"
+      # --- Fine Tuning Knobs ---
+      DB_POOL_SIZE: "20"
+      WORKER_CONCURRENCY: "8"
+      WORKER_PREFETCH: "2"
+      HTTP_POOL_WORKERS: "8"
+      HTTP_POOL_PREFETCH: "1"
+      HTTP_BUFFER_CAPACITY: "32"
+      SIMULATED_WORK_MS: "0"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  reports_data:
