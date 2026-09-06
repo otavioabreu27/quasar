@@ -12,6 +12,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from benchmark_v2 import Benchmark
 from analyze_release_benchmark import bracket, delta
+from benchmark_parallel import merge
 
 
 def args(**changes):
@@ -54,6 +55,23 @@ def run(benchmark):
 
 
 class GeneratorTest(unittest.TestCase):
+    def test_parallel_merge_counts_but_does_not_average_percentiles(self):
+        _, first = run(FakeBenchmark(args(parsed_stages=[(0.1, 20)])))
+        _, second = run(FakeBenchmark(args(parsed_stages=[(0.1, 20)])))
+        second['accepted_ids'] = [str(int(value) + 100) for value in second['accepted_ids']]
+        combined = merge([first, second], 'parallel')
+        self.assertEqual(combined['completed'], 4)
+        self.assertEqual(combined['configured_stages'][0]['rate_requests_s'], 40)
+        self.assertEqual(combined['phases'][0]['scheduled'], 4)
+        self.assertNotIn('p95_ms', combined['latency']['enqueue'])
+        self.assertEqual(len(combined['phases'][0]['generators']), 2)
+        self.assertIsNone(combined['max_client_pending'])
+
+    def test_parallel_merge_rejects_overlapping_job_ids(self):
+        _, first = run(FakeBenchmark(args(parsed_stages=[(0.1, 20)])))
+        with self.assertRaises(AssertionError):
+            merge([first, first], 'parallel')
+
     def test_resource_analysis_requires_both_boundaries(self):
         self.assertIsNone(bracket([dict(timestamp_epoch_ms=15)], 10, 20))
         pair = bracket([dict(timestamp_epoch_ms=5), dict(timestamp_epoch_ms=25)], 10, 20)

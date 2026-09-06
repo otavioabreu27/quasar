@@ -10,6 +10,8 @@ batch_size=${BATCH_SIZE:-1}
 baseline_replicas=${REPLICAS:-2}
 max_replicas=${MAX_REPLICAS:-8}
 require_runtime_metrics=${REQUIRE_RUNTIME_METRICS:-1}
+generators=${GENERATORS:-1}
+[[ "$generators" == 1 || "$generators" == 2 ]] || exit 1
 expected_image=${EXPECTED_IMAGE:?Set EXPECTED_IMAGE to the already-deployed image@sha256:digest}
 [[ "$scenario" =~ ^[a-zA-Z0-9._-]+$ && "$stages" =~ ^[0-9:.,]+$ && "$batch_size" =~ ^[0-9]+$ ]] || exit 1
 [[ "$baseline_replicas" =~ ^[1-9][0-9]*$ && "$max_replicas" =~ ^[1-9][0-9]*$ ]] || exit 1
@@ -23,8 +25,8 @@ actual_image=$(kubectl -n "$namespace" get deployment report-service -o jsonpath
 [[ "$expected_image" == *@sha256:* && "$actual_image" == "$expected_image" ]] || { echo "Deploy the expected immutable image first" >&2; exit 1; }
 kubectl -n "$namespace" get deployment report-service -o json >"$result_dir/deployment-original.json"
 kubectl -n "$namespace" get hpa report-service -o json >"$result_dir/hpa-original.json"
-jq -n --arg image "$expected_image" --arg scenario "$scenario" --arg stages "$stages" --argjson batch "$batch_size" --argjson runtime "$require_runtime_metrics" '{image:$image,scenario:$scenario,stages:$stages,batch_size:$batch,require_runtime_metrics:$runtime}' >"$result_dir/experiment.json"
-sha256sum benchmark_v2.py benchmark_observer.py run_release_benchmark.sh >"$result_dir/scripts.sha256"
+jq -n --arg image "$expected_image" --arg scenario "$scenario" --arg stages "$stages" --argjson batch "$batch_size" --argjson runtime "$require_runtime_metrics" --argjson generators "$generators" '{image:$image,scenario:$scenario,stages:$stages,batch_size:$batch,require_runtime_metrics:$runtime,generators:$generators}' >"$result_dir/experiment.json"
+sha256sum benchmark_v2.py benchmark_parallel.py benchmark_observer.py run_release_benchmark.sh >"$result_dir/scripts.sha256"
 affinity_restore=$(jq -c 'if .spec.template.spec | has("affinity") then [{op:"add",path:"/spec/template/spec/affinity",value:.spec.template.spec.affinity}] else [{op:"remove",path:"/spec/template/spec/affinity"}] end' "$result_dir/deployment-original.json")
 run_id="quasar-bench-$(date +%s)-$$"
 load_config="$run_id-load-script"
@@ -75,7 +77,7 @@ trap restore_cluster EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-kubectl -n "$namespace" create configmap "$load_config" --from-file=benchmark_v2.py=benchmark_v2.py >/dev/null
+kubectl -n "$namespace" create configmap "$load_config" --from-file=benchmark_v2.py=benchmark_v2.py --from-file=benchmark_parallel.py=benchmark_parallel.py >/dev/null
 kubectl -n "$namespace" create configmap "$observer_config" --from-file=benchmark_observer.py=benchmark_observer.py >/dev/null
 
 # Isolate the generator from the application so client CPU cannot inflate HPA metrics.
@@ -125,7 +127,9 @@ done
 kubectl -n "$namespace" patch hpa report-service --type merge -p "{\"spec\":{\"minReplicas\":$baseline_replicas,\"maxReplicas\":$max_replicas}}" >/dev/null
 
 args="--url http://report-service:8080 --scenario $scenario --stages $stages --batch-size $batch_size --submit-workers 128 --poll-workers 128 --drain-timeout 300 --sample-interval 5"
-overrides=$(jq -nc --arg args "$args" --arg config "$load_config" '{spec:{nodeSelector:{"kubernetes.io/hostname":"k3s-master"},containers:[{name:"benchmark",image:"python:3.12-alpine",command:["sh","-lc"],args:[("pip install -q urllib3==2.5.0 >&2 && python /bench/benchmark_v2.py " + $args)],resources:{requests:{cpu:"500m",memory:"256Mi"},limits:{cpu:"3",memory:"1Gi"}},volumeMounts:[{name:"script",mountPath:"/bench",readOnly:true}]}],volumes:[{name:"script",configMap:{name:$config}}]}}')
+entry="benchmark_v2.py"
+if [[ "$generators" == 2 ]]; then entry="benchmark_parallel.py"; args="--generators 2 $args"; fi
+overrides=$(jq -nc --arg args "$args" --arg entry "$entry" --arg config "$load_config" '{spec:{nodeSelector:{"kubernetes.io/hostname":"k3s-master"},containers:[{name:"benchmark",image:"python:3.12-alpine",command:["sh","-lc"],args:[("pip install -q urllib3==2.5.0 >&2 && python /bench/" + $entry + " " + $args)],resources:{requests:{cpu:"500m",memory:"256Mi"},limits:{cpu:"3",memory:"1Gi"}},volumeMounts:[{name:"script",mountPath:"/bench",readOnly:true}]}],volumes:[{name:"script",configMap:{name:$config}}]}}')
 
 kubectl -n "$namespace" delete pod "$pod_name" --ignore-not-found --wait=true >/dev/null
 kubectl -n "$namespace" run "$pod_name" --image=python:3.12-alpine --restart=Never \

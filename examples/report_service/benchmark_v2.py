@@ -284,6 +284,12 @@ class Benchmark:
 
         # Thread startup is not an offered-load failure. Start the schedule
         # only once producer/poll infrastructure exists.
+        target = getattr(self.args, "start_at_epoch_ms", None)
+        if target is not None:
+            remaining = target / 1000 - time.time()
+            if remaining <= 0:
+                raise SystemExit("Generator missed the coordinated start; no load sent")
+            time.sleep(remaining)
         started_epoch_ms = int(time.time() * 1000)
         self.start = time.monotonic()
 
@@ -400,10 +406,11 @@ class Benchmark:
                          or self.terminal_failures or self.dropped or self.invalid_results) else 2
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", default="http://report-service:8080")
     parser.add_argument("--scenario", default="unnamed")
+    parser.add_argument("--start-at-epoch-ms", type=int, help="Coordinated future start for independent generators")
     parser.add_argument("--duration", type=float, default=60.0)
     parser.add_argument("--rate", type=float, default=100.0)
     parser.add_argument(
@@ -421,7 +428,7 @@ def parse_args():
     parser.add_argument("--sample-interval", type=float, default=5.0)
     parser.add_argument("--connect-timeout", type=float, default=3.0)
     parser.add_argument("--read-timeout", type=float, default=10.0)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if not 1 <= args.batch_size <= 1000 or args.max_schedule_lag_ms <= 0:
         parser.error("batch-size must be 1..1000 and max-schedule-lag-ms must be positive")
     if args.duration <= 0 or args.rate <= 0:
