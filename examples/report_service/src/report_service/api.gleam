@@ -48,7 +48,15 @@ pub fn handler_with_readiness(
         |> response.set_body(
           mist.Bytes(bytes_tree.from_string(metrics.snapshot())),
         )
-      _, _ -> managed(req)
+      _, _ -> {
+        let label = case req.method {
+          http.Post -> "http_post_handler"
+          http.Get -> "http_get_handler"
+          _ -> "http_other_handler"
+        }
+        // Handler entry through response construction, not socket send time.
+        metrics.measure(label, fn() { managed(req) })
+      }
     }
   }
 }
@@ -72,9 +80,11 @@ fn route(
         Error(reason) -> message(400, reason)
         Ok(size) -> {
           let inserted =
-            worker.job(report_worker, size)
-            |> job.with_max_attempts(5)
-            |> quasar.enqueue(runtime, on: reports.queue)
+            metrics.measure("http_enqueue", fn() {
+              worker.job(report_worker, size)
+              |> job.with_max_attempts(5)
+              |> quasar.enqueue(runtime, on: reports.queue)
+            })
           let accepted = quasar_mist.accepted(inserted)
           case inserted {
             Ok(id) ->
@@ -128,7 +138,11 @@ fn enqueue_batch(runtime, report_worker, size_text, count_text) {
 }
 
 fn get_job(connection, id) {
-  case database.get_job_view(connection, id, reports.queue) {
+  let view =
+    metrics.measure("http_status_query", fn() {
+      database.get_job_view(connection, id, reports.queue)
+    })
+  case view {
     Error(reason) ->
       json_response(
         503,

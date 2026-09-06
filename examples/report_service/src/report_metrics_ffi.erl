@@ -1,9 +1,10 @@
 -module(report_metrics_ffi).
--export([start/0, snapshot/0, reaper_event/1]).
+-export([start/0, snapshot/0, reaper_event/1, measure/2]).
 
 start() ->
     ets:new(?MODULE, [named_table, public, set, {write_concurrency, true}]),
     ets:insert(?MODULE, {started_epoch_ms, erlang:system_time(millisecond)}),
+    ets:insert(?MODULE, {http_timing_enabled, case os:getenv("BENCHMARK_HTTP_TIMING") of "1" -> 1; _ -> 0 end}),
     ets:insert(?MODULE, [{K, 0} || K <- [claims, claim_requested, claim_returned, empty_claims,
         claim_failures, jobs_started, jobs_completed, lease_renewals, persistence_failures,
         reaper_batches, reaped_jobs, reaper_failures, http_rejections, wakes_received, wakes_coalesced]]),
@@ -12,6 +13,24 @@ start() ->
         _ -> nil
     end,
     fun record/1.
+
+%% Opt-in handler/service timings. Labels are fixed at the Gleam call sites;
+%% never record requests, paths, job IDs, SQL, return values or exceptions.
+measure(Label, Fun) ->
+    Enabled = case ets:whereis(?MODULE) of
+        undefined -> false;
+        _ -> ets:lookup(?MODULE, http_timing_enabled) =:= [{http_timing_enabled, 1}]
+    end,
+    case Enabled of
+        false -> Fun();
+        true ->
+            Start = erlang:monotonic_time(millisecond),
+            try Fun()
+            after
+                hist(Label, erlang:monotonic_time(millisecond) - Start),
+                add(<<Label/binary, "_count">>, 1)
+            end
+    end.
 
 %% Opt-in diagnostic run only: checkout includes waiting for the pool. Trace
 %% arguments/results are never printed or stored, only durations and counts.

@@ -7,6 +7,13 @@ pub fn main() {
   gleeunit.main()
 }
 
+@external(erlang, "report_metrics_test_ffi", "verify")
+fn verify_diagnostic_timing() -> Nil
+
+pub fn diagnostic_timing_preserves_results_and_errors_test() {
+  verify_diagnostic_timing()
+}
+
 pub fn validates_report_size_test() {
   assert reports.parse_size("100") == Ok(100)
   assert reports.parse_size("1") == Ok(1)

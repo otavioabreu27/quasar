@@ -11,3 +11,8 @@ pub fn snapshot() -> String
 
 @external(erlang, "report_metrics_ffi", "reaper_event")
 pub fn reaper_event(event: reaper.Event) -> Nil
+
+/// Diagnostic-only timing, enabled with BENCHMARK_HTTP_TIMING=1.
+/// Use fixed labels, never request paths or user data.
+@external(erlang, "report_metrics_ffi", "measure")
+pub fn measure(label: String, action: fn() -> a) -> a
