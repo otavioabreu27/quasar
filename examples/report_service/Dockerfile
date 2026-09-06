@@ -9,13 +9,7 @@ WORKDIR /build/examples/report_service
 RUN apk add --no-cache git build-base rebar3
 
 # Download dependencies first for optimal Docker layer caching
-COPY gleam.toml /build/gleam.toml
-COPY src /build/src
-COPY quasar_mist/gleam.toml /build/quasar_mist/gleam.toml
-COPY quasar_mist/src /build/quasar_mist/src
-COPY quasar_postgres/gleam.toml /build/quasar_postgres/gleam.toml
-COPY quasar_postgres/src /build/quasar_postgres/src
-COPY quasar_postgres/priv /build/quasar_postgres/priv
+# Use the published packages pinned by the example lockfile, not local adapters.
 COPY examples/report_service/gleam.toml examples/report_service/manifest.toml ./
 RUN gleam deps download
 
