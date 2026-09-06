@@ -1,8 +1,8 @@
 # quasar_postgres
 
 Optional cluster-coordinated PostgreSQL Store for Quasar.
-The checked-out source is an unreleased follow-up to 0.2.0. Do not mix it with
-the already-published 0.2.0 documentation or binaries.
+This is the 0.3.0 release candidate, requiring `quasar_jobs >= 0.3.0 and < 0.4.0`.
+Do not mix it with the already-published 0.2.0 documentation or binaries.
 
 ## Startup change: explicit lease recovery
 

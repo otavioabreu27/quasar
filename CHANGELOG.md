@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.3.0 - Unreleased
+
+### Breaking changes
+
+- PostgreSQL applications must explicitly start `quasar_postgres/reaper` before
+  Quasar. Claims no longer recover expired leases as a side effect.
+- PostgreSQL rejects expired execution mutations using the database clock,
+  in addition to execution token fencing.
+- The public event type adds `QueueWakeReceived(queue, coalesced)`; update
+  exhaustive reporters when upgrading.
+- All adapters require `quasar_jobs >= 0.3.0 and < 0.4.0`.
+
+### Fixed and improved
+
+- Aggregate fragmented demand grants into one claim and coalesce wake bursts.
+- Independently enforce execution lease deadlines and cancel handlers after
+  heartbeat failure. Keep heartbeats and worker capacity until acknowledgement.
+- Retry transient completion-buffer failures and isolate stale batch tokens.
+- Recover crashed PostgreSQL notification clients in addition to socket reconnects.
+- Add bounded, periodic PostgreSQL recovery and optional separated connection pools.
+- Isolate report-service database traffic, replace duplicate status reads with a
+  JOIN, and add bounded runtime/pool diagnostics.
+- Prepare a phased benchmark with explicit generator drops, batch scenarios,
+  validated business results, temporal metrics and conservative cost accounting.
+
+The PostgreSQL migrations already shipped with 0.2.0 are unchanged. Constellation
+remains on the `>= 0.2.0 and < 0.3.0` range; no Constellation release is needed.
+
 ## 0.1.0 - 2026-09-04
 
 ### Added
