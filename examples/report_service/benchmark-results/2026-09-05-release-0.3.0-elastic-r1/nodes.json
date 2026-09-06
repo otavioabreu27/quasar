@@ -1,0 +1,1360 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "192.168.15.201,2804:1b3:a9c0:56d1:be24:11ff:fe28:772",
+                    "flannel.alpha.coreos.com/backend-data": "{\"VNI\":1,\"VtepMAC\":\"c2:53:8b:41:0d:a4\"}",
+                    "flannel.alpha.coreos.com/backend-type": "vxlan",
+                    "flannel.alpha.coreos.com/kube-subnet-manager": "true",
+                    "flannel.alpha.coreos.com/public-ip": "192.168.15.201",
+                    "k3s.io/hostname": "k3s-master",
+                    "k3s.io/internal-ip": "192.168.15.201,2804:1b3:a9c0:56d1:be24:11ff:fe28:772",
+                    "k3s.io/node-args": "[\"server\",\"--disable\",\"traefik\"]",
+                    "k3s.io/node-config-hash": "JVBB3FE3SQ2RU6T2GURBXU6C47XOVCA74HYNFW3O6TZXT2YKPLNA====",
+                    "k3s.io/node-env": "{}",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-08-21T19:55:44Z",
+                "finalizers": [
+                    "wrangler.cattle.io/node"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "k3s",
+                    "beta.kubernetes.io/os": "linux",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "k3s-master",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/control-plane": "true",
+                    "node.kubernetes.io/instance-type": "k3s"
+                },
+                "name": "k3s-master",
+                "resourceVersion": "803231",
+                "uid": "5504d4af-1ef7-4d13-881e-aa7214c764e6"
+            },
+            "spec": {
+                "podCIDR": "10.42.0.0/24",
+                "podCIDRs": [
+                    "10.42.0.0/24"
+                ],
+                "providerID": "k3s://k3s-master"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "192.168.15.201",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "2804:1b3:a9c0:56d1:be24:11ff:fe28:772",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "k3s-master",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "4",
+                    "ephemeral-storage": "77982375671",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "6067392Ki",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "4",
+                    "ephemeral-storage": "80162804Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "6067392Ki",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:26:02Z",
+                        "lastTransitionTime": "2026-08-21T19:55:44Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:26:02Z",
+                        "lastTransitionTime": "2026-08-21T19:55:44Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:26:02Z",
+                        "lastTransitionTime": "2026-08-21T19:55:44Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:26:02Z",
+                        "lastTransitionTime": "2026-08-21T19:55:45Z",
+                        "message": "kubelet is posting ready status",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "declaredFeatures": [
+                    "ExtendWebSocketsToKubelet",
+                    "InPlacePodLevelResourcesVerticalScaling",
+                    "InPlacePodVerticalScalingInitContainers",
+                    "RestartAllContainersOnContainerExits"
+                ],
+                "features": {
+                    "supplementalGroupsPolicy": true
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/grafana/alloy@sha256:b8ec653c44235fbe910879145dac3597d66b0aaecf60bcbbe82580767771a839",
+                            "docker.io/grafana/alloy:v1.19.2"
+                        ],
+                        "sizeBytes": 210777038
+                    },
+                    {
+                        "names": [
+                            "quay.io/argoproj/argocd@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8",
+                            "quay.io/argoproj/argocd:v3.5.1"
+                        ],
+                        "sizeBytes": 210598970
+                    },
+                    {
+                        "names": [
+                            "docker.io/grafana/grafana@sha256:8b37a2f028f164ce7b9889e1765b9d6ee23fec80f871d156fbf436d6198d32b7",
+                            "docker.io/grafana/grafana:11.5.2"
+                        ],
+                        "sizeBytes": 151069581
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:fe868488c621a0419650224082d5b7bf89e2f3296d3485286e6f3185b68ca734",
+                            "ghcr.io/stackvize/epi-frontend:sha-20d52211ac40b4c0eb161c924e3a16089d26d524"
+                        ],
+                        "sizeBytes": 118356998
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:31be293c74b153bb43310afa4bbc50936adf28375ddea3338d2157b8b78f0fc0",
+                            "ghcr.io/stackvize/epi-frontend:sha-2b0d31bec0154f1880539db47a2d24592928acaa"
+                        ],
+                        "sizeBytes": 117845859
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:3b3de757f37a9dccbd052da54d7ab48a17282e22c3ea217578552f242bee873a",
+                            "ghcr.io/stackvize/epi-frontend:sha-6d9180f809d7e5ae6ddf9b94ef9951e861bacbe3"
+                        ],
+                        "sizeBytes": 117841222
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:37ed64292f22d947eb237eafa1c8b773fd42ec323d11fc977bd1c1ae576d59ad",
+                            "ghcr.io/stackvize/epi-frontend:sha-60b70bc39007d6e2e6f91eced8fb4a07b8cfe1ba"
+                        ],
+                        "sizeBytes": 117839387
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:4cb96710eba4f0cb6a6146fbf464e312728a0199e6f5553ffc2f44ec2af8cf4d",
+                            "ghcr.io/stackvize/epi-frontend:sha-ecf932addcc5059974b1142a898498c006ddd7f9"
+                        ],
+                        "sizeBytes": 117833125
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:11bb17ff4610764e6a58fe747f3a9b97150200ba4f95ac7ba116a068733a443e",
+                            "ghcr.io/stackvize/epi-frontend:sha-532b53dff14a6e3e48cd34b5d902f77cf143b8c8"
+                        ],
+                        "sizeBytes": 117828795
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:b5d83c4090fd8b847d392c08fe989c99b4e6a75b881a8966137a6d6508d2b1ac",
+                            "ghcr.io/stackvize/epi-frontend:sha-c0caa0d924f5c43c00b6abbd555ad9986b88d006"
+                        ],
+                        "sizeBytes": 117825530
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:004da2fc7d2f2a9ffbfa7900344b8cb989f2498fc1d0e39c139f45c49fdb1329",
+                            "ghcr.io/stackvize/epi-frontend:sha-647906fdb3dd9f36d1ef7598853bddbe81cce33c"
+                        ],
+                        "sizeBytes": 117825040
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/postgres@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685",
+                            "docker.io/library/postgres:16-alpine"
+                        ],
+                        "sizeBytes": 116075089
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/local-path-provisioner@sha256:1eba82e9c386038b4af6d69cca7519fac738c28c42735ed48ce70c882ad0d80f",
+                            "docker.io/rancher/local-path-provisioner:v0.0.36"
+                        ],
+                        "sizeBytes": 89390500
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:937c290b7e34028565c0d9202f01222b3224b11186178737f8357a86a4a7fc21",
+                            "ghcr.io/otavioabreu27/report_service:sha-852f666"
+                        ],
+                        "sizeBytes": 71926122
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:1bb4fedbb72c1b3b081bc1395e9d7c459d67e9c16c670a5eae09104f245b0af9",
+                            "ghcr.io/otavioabreu27/report_service:latest"
+                        ],
+                        "sizeBytes": 71887462
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:4df7a7edab3a7d792526b01dd8c0855297a52375229a09d7b82811a0864092ee"
+                        ],
+                        "sizeBytes": 71887462
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:a9f0db8796752c7d354b74679864c397823573565b1339b529c52ef65fa7180e"
+                        ],
+                        "sizeBytes": 71864084
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:05eeea162c399d339265b2f2b42d3837dcc2244021144efb321f67e8e6e66ccb"
+                        ],
+                        "sizeBytes": 71849097
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:76f4609c6234e71758aab5a6870a54453fab76b357951f6d098e2efa7c4356c3"
+                        ],
+                        "sizeBytes": 71848829
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:b11fa83ce88978c60eceecefcf87b56821b4db6d6108bac37c8130b8b7995560"
+                        ],
+                        "sizeBytes": 71848829
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:a059d92e20c253e516d8caac8c56aa99b55d8e7df22b2a3da751faf23ea5acf5",
+                            "ghcr.io/stackvize/epi-backend:sha-e3a9c1b726523348eb9337a2a293e1f81274a4dc"
+                        ],
+                        "sizeBytes": 60542365
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:a09ad96f1414076d3953aec53dd02285c1fa650ccef3fc0840492d846c874f52",
+                            "ghcr.io/stackvize/epi-backend:sha-ec2b8d4e38b923f2695bf740d4d758ee8a7082f3"
+                        ],
+                        "sizeBytes": 60518644
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:ab212e5a5290d32ed05d827d0572ab99d4707db94e74ad72564ec2352977f502",
+                            "ghcr.io/stackvize/epi-backend:sha-7c8e14e87ebe73b9765be37bf726c055c8cc4896"
+                        ],
+                        "sizeBytes": 60502476
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:6ae824d6cfe5666326d62219e48c31aea22dd2515745ae46c46658d216b60d36",
+                            "ghcr.io/stackvize/epi-backend:sha-20d52211ac40b4c0eb161c924e3a16089d26d524"
+                        ],
+                        "sizeBytes": 60502149
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:ddee61b476b677b45e68915d9651c6bf3031ee52232a6e5589daa7fc5384b360",
+                            "ghcr.io/stackvize/epi-backend:sha-ecf932addcc5059974b1142a898498c006ddd7f9"
+                        ],
+                        "sizeBytes": 60490266
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:fab95c976f614296e8ce142104abcfffcdce244bc798c06a41417afb51fcc3ad",
+                            "ghcr.io/stackvize/epi-backend:sha-c0caa0d924f5c43c00b6abbd555ad9986b88d006"
+                        ],
+                        "sizeBytes": 60486581
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:b171f4a386b74a8fb113e4469edf27fe0030d03cd8d11419416a86b1d6f6cf11",
+                            "ghcr.io/stackvize/epi-backend:sha-647906fdb3dd9f36d1ef7598853bddbe81cce33c"
+                        ],
+                        "sizeBytes": 59185407
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
+                            "docker.io/library/python:3.12-slim"
+                        ],
+                        "sizeBytes": 46192946
+                    },
+                    {
+                        "names": [
+                            "public.ecr.aws/docker/library/redis@sha256:08ad0b1d280850169a790dba1393ff7a90aef951fc19632cf4d3ce4f78e679ba",
+                            "public.ecr.aws/docker/library/redis:8.2.3-alpine"
+                        ],
+                        "sizeBytes": 27510315
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-coredns-coredns@sha256:900f9c109f7a33545d3c811516e8376df9019147b750f5ce3e254468769176ea",
+                            "docker.io/rancher/mirrored-coredns-coredns:1.14.6"
+                        ],
+                        "sizeBytes": 23758055
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-metrics-server@sha256:d9862115e7c7881280d3d75ca26bda8ffc0fc213315979575bf23ce9826205c0",
+                            "docker.io/rancher/mirrored-metrics-server:v0.9.0"
+                        ],
+                        "sizeBytes": 23258428
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/python@sha256:b64631e04e4920160c50fbe8d8df828f7f35f06f425cb44aa09bca53e708a35a",
+                            "docker.io/library/python:3.12-alpine"
+                        ],
+                        "sizeBytes": 20618940
+                    },
+                    {
+                        "names": [
+                            "docker.io/victoriametrics/victoria-metrics@sha256:e47c14e6bacd79eaa05a032f263dca91a157f1618de65f8f1f1617e44ebd3757",
+                            "docker.io/victoriametrics/victoria-metrics:v1.123.0"
+                        ],
+                        "sizeBytes": 17132638
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:980d16c9e60900f9b9207df92e9a990fce40c1a20040df4182fe9e1f9244e4f4",
+                            "ghcr.io/stackvize/auth:0.1.5"
+                        ],
+                        "sizeBytes": 13065081
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:e3f02378d304c8fcd50110fa623e73ea06a530dcc9aa711bcb466a950a629252",
+                            "ghcr.io/stackvize/auth:0.1.3"
+                        ],
+                        "sizeBytes": 13045656
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:54a20703597f3b755dccc9e6ea74e5f48efd0a64505f706b5136811fad5aa081",
+                            "ghcr.io/stackvize/auth:0.1.2"
+                        ],
+                        "sizeBytes": 13019929
+                    },
+                    {
+                        "names": [
+                            "quay.io/prometheus/node-exporter@sha256:4032c6d5bfd752342c3e631c2f1de93ba6b86c41db6b167b9a35372c139e7706",
+                            "quay.io/prometheus/node-exporter:v1.8.2"
+                        ],
+                        "sizeBytes": 12041464
+                    },
+                    {
+                        "names": [
+                            "docker.io/otavioabreu27/desafio-abp@sha256:f42a0e7b908875e3b82d70f8d80588499c2f571e7092e9fa2609cf4b61fae4b3",
+                            "docker.io/otavioabreu27/desafio-abp:latest"
+                        ],
+                        "sizeBytes": 5107567
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-library-busybox@sha256:101b4afd76732482eff9b95cae5f94bcf295e521fbec4e01b69c5421f3f3f3e5",
+                            "docker.io/rancher/mirrored-library-busybox:1.37.0"
+                        ],
+                        "sizeBytes": 2151353
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-pause@sha256:f548e0e8e3dc1896ca956272154dde3314e8cc4fde0a57577ee9fa1c63f5baf4",
+                            "docker.io/rancher/mirrored-pause:3.10.2"
+                        ],
+                        "sizeBytes": 320805
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "5bf00064-93cc-423b-a753-9af56ab9d523",
+                    "containerRuntimeVersion": "containerd://2.3.2-k3s2",
+                    "kernelVersion": "6.8.0-138-generic",
+                    "kubeProxyVersion": "",
+                    "kubeletVersion": "v1.36.3+k3s1",
+                    "machineID": "00915dbe5bc64b6ea2743955d9646596",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.4 LTS",
+                    "systemUUID": "00915dbe-5bc6-4b6e-a274-3955d9646596"
+                },
+                "runtimeHandlers": [
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": true,
+                            "userNamespaces": true
+                        },
+                        "name": ""
+                    },
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": true,
+                            "userNamespaces": true
+                        },
+                        "name": "runc"
+                    },
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": false,
+                            "userNamespaces": false
+                        },
+                        "name": "runhcs-wcow-process"
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "192.168.15.202,2804:1b3:a9c0:56d1:be24:11ff:fe53:ade7",
+                    "flannel.alpha.coreos.com/backend-data": "{\"VNI\":1,\"VtepMAC\":\"a6:8e:78:03:35:65\"}",
+                    "flannel.alpha.coreos.com/backend-type": "vxlan",
+                    "flannel.alpha.coreos.com/kube-subnet-manager": "true",
+                    "flannel.alpha.coreos.com/public-ip": "192.168.15.202",
+                    "k3s.io/hostname": "k3s-worker-1",
+                    "k3s.io/internal-ip": "192.168.15.202,2804:1b3:a9c0:56d1:be24:11ff:fe53:ade7",
+                    "k3s.io/node-args": "[\"agent\"]",
+                    "k3s.io/node-config-hash": "GE4U5XZJ6MQVD6ZSVG63ATLQSJV7ZPCO4XNQXRIL7VVYPWKNRS6Q====",
+                    "k3s.io/node-env": "{\"K3S_NODE_NAME\":\"k3s-worker-1\",\"K3S_TOKEN\":\"********\",\"K3S_URL\":\"https://192.168.15.201:6443\"}",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-08-21T19:55:58Z",
+                "finalizers": [
+                    "wrangler.cattle.io/node"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "k3s",
+                    "beta.kubernetes.io/os": "linux",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "k3s-worker-1",
+                    "kubernetes.io/os": "linux",
+                    "node.kubernetes.io/instance-type": "k3s"
+                },
+                "name": "k3s-worker-1",
+                "resourceVersion": "803194",
+                "uid": "34709898-cc15-417d-9af5-40009fe4a757"
+            },
+            "spec": {
+                "podCIDR": "10.42.2.0/24",
+                "podCIDRs": [
+                    "10.42.2.0/24"
+                ],
+                "providerID": "k3s://k3s-worker-1"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "192.168.15.202",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "2804:1b3:a9c0:56d1:be24:11ff:fe53:ade7",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "k3s-worker-1",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "4",
+                    "ephemeral-storage": "97743690881",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "7099572Ki",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "4",
+                    "ephemeral-storage": "100476656Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "7099572Ki",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:25:04Z",
+                        "lastTransitionTime": "2026-08-21T19:55:58Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:25:04Z",
+                        "lastTransitionTime": "2026-08-21T19:55:58Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:25:04Z",
+                        "lastTransitionTime": "2026-08-21T19:55:58Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:25:04Z",
+                        "lastTransitionTime": "2026-08-21T19:55:58Z",
+                        "message": "kubelet is posting ready status",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "declaredFeatures": [
+                    "ExtendWebSocketsToKubelet",
+                    "InPlacePodLevelResourcesVerticalScaling",
+                    "InPlacePodVerticalScalingInitContainers",
+                    "RestartAllContainersOnContainerExits"
+                ],
+                "features": {
+                    "supplementalGroupsPolicy": true
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/grafana/alloy@sha256:b8ec653c44235fbe910879145dac3597d66b0aaecf60bcbbe82580767771a839",
+                            "docker.io/grafana/alloy:v1.19.2"
+                        ],
+                        "sizeBytes": 210777038
+                    },
+                    {
+                        "names": [
+                            "quay.io/argoproj/argocd@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8",
+                            "quay.io/argoproj/argocd:v3.5.1"
+                        ],
+                        "sizeBytes": 210598970
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:fe868488c621a0419650224082d5b7bf89e2f3296d3485286e6f3185b68ca734",
+                            "ghcr.io/stackvize/epi-frontend:sha-20d52211ac40b4c0eb161c924e3a16089d26d524"
+                        ],
+                        "sizeBytes": 118356998
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:3b3de757f37a9dccbd052da54d7ab48a17282e22c3ea217578552f242bee873a",
+                            "ghcr.io/stackvize/epi-frontend:sha-6d9180f809d7e5ae6ddf9b94ef9951e861bacbe3"
+                        ],
+                        "sizeBytes": 117841222
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:2ff703952e0947152cda48ef29de169fdc2c6a2f7515405beeb25fa7aea36562",
+                            "ghcr.io/stackvize/epi-frontend:sha-e3a9c1b726523348eb9337a2a293e1f81274a4dc"
+                        ],
+                        "sizeBytes": 117840861
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:bf583e051f6771f56aadbfc2ca0bf2ae1456512c18dbfa77c9f41a1ab99d4451",
+                            "ghcr.io/stackvize/epi-frontend:sha-ec2b8d4e38b923f2695bf740d4d758ee8a7082f3"
+                        ],
+                        "sizeBytes": 117839387
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:37ed64292f22d947eb237eafa1c8b773fd42ec323d11fc977bd1c1ae576d59ad",
+                            "ghcr.io/stackvize/epi-frontend:sha-60b70bc39007d6e2e6f91eced8fb4a07b8cfe1ba"
+                        ],
+                        "sizeBytes": 117839387
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:c98ca6adef81f445260a6b1bf7cc4f8d6ed6c55d3ebbb422535948b477030141",
+                            "ghcr.io/stackvize/epi-frontend:sha-7c8e14e87ebe73b9765be37bf726c055c8cc4896"
+                        ],
+                        "sizeBytes": 117839313
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:4cb96710eba4f0cb6a6146fbf464e312728a0199e6f5553ffc2f44ec2af8cf4d",
+                            "ghcr.io/stackvize/epi-frontend:sha-ecf932addcc5059974b1142a898498c006ddd7f9"
+                        ],
+                        "sizeBytes": 117833125
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:11bb17ff4610764e6a58fe747f3a9b97150200ba4f95ac7ba116a068733a443e",
+                            "ghcr.io/stackvize/epi-frontend:sha-532b53dff14a6e3e48cd34b5d902f77cf143b8c8"
+                        ],
+                        "sizeBytes": 117828795
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:79b3e94084c7a7acee84224023709ce1db76f7ac8ff6f7d5b55484a3fa3b31c9",
+                            "ghcr.io/stackvize/epi-frontend:sha-2bc0b9602de1849426438d4953570ff119583b80"
+                        ],
+                        "sizeBytes": 117825929
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:b5d83c4090fd8b847d392c08fe989c99b4e6a75b881a8966137a6d6508d2b1ac",
+                            "ghcr.io/stackvize/epi-frontend:sha-c0caa0d924f5c43c00b6abbd555ad9986b88d006"
+                        ],
+                        "sizeBytes": 117825530
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:fe4cce83f1a3bdfc551dd83232e39f674684ee9a85c25d22c33939e35560a467",
+                            "ghcr.io/stackvize/epi-frontend:sha-8f1f2d80dbb6249002eed8107b8849c5b04e3c3f"
+                        ],
+                        "sizeBytes": 117825530
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:004da2fc7d2f2a9ffbfa7900344b8cb989f2498fc1d0e39c139f45c49fdb1329",
+                            "ghcr.io/stackvize/epi-frontend:sha-647906fdb3dd9f36d1ef7598853bddbe81cce33c"
+                        ],
+                        "sizeBytes": 117825040
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38"
+                        ],
+                        "sizeBytes": 71958581
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:937c290b7e34028565c0d9202f01222b3224b11186178737f8357a86a4a7fc21",
+                            "ghcr.io/otavioabreu27/report_service:sha-852f666"
+                        ],
+                        "sizeBytes": 71926122
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:1bb4fedbb72c1b3b081bc1395e9d7c459d67e9c16c670a5eae09104f245b0af9",
+                            "ghcr.io/otavioabreu27/report_service:latest"
+                        ],
+                        "sizeBytes": 71887462
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:4df7a7edab3a7d792526b01dd8c0855297a52375229a09d7b82811a0864092ee"
+                        ],
+                        "sizeBytes": 71887462
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:a9f0db8796752c7d354b74679864c397823573565b1339b529c52ef65fa7180e"
+                        ],
+                        "sizeBytes": 71864084
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:05eeea162c399d339265b2f2b42d3837dcc2244021144efb321f67e8e6e66ccb"
+                        ],
+                        "sizeBytes": 71849097
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:76f4609c6234e71758aab5a6870a54453fab76b357951f6d098e2efa7c4356c3"
+                        ],
+                        "sizeBytes": 71848829
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:b11fa83ce88978c60eceecefcf87b56821b4db6d6108bac37c8130b8b7995560"
+                        ],
+                        "sizeBytes": 71848829
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:a059d92e20c253e516d8caac8c56aa99b55d8e7df22b2a3da751faf23ea5acf5",
+                            "ghcr.io/stackvize/epi-backend:sha-e3a9c1b726523348eb9337a2a293e1f81274a4dc"
+                        ],
+                        "sizeBytes": 60542365
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:3824d94ddfad69556c85bb29c9645804b442e71125da6728b894ac5d010bb770",
+                            "ghcr.io/stackvize/epi-backend:sha-2b0d31bec0154f1880539db47a2d24592928acaa"
+                        ],
+                        "sizeBytes": 60542365
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:a09ad96f1414076d3953aec53dd02285c1fa650ccef3fc0840492d846c874f52",
+                            "ghcr.io/stackvize/epi-backend:sha-ec2b8d4e38b923f2695bf740d4d758ee8a7082f3"
+                        ],
+                        "sizeBytes": 60518644
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:f866d0b952c1edd0c9ade5e9b4a4096b78b19f110a2afbeef822007b8f4737a5",
+                            "ghcr.io/stackvize/epi-backend:sha-6d9180f809d7e5ae6ddf9b94ef9951e861bacbe3"
+                        ],
+                        "sizeBytes": 60515818
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:ab212e5a5290d32ed05d827d0572ab99d4707db94e74ad72564ec2352977f502",
+                            "ghcr.io/stackvize/epi-backend:sha-7c8e14e87ebe73b9765be37bf726c055c8cc4896"
+                        ],
+                        "sizeBytes": 60502476
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:ddee61b476b677b45e68915d9651c6bf3031ee52232a6e5589daa7fc5384b360",
+                            "ghcr.io/stackvize/epi-backend:sha-ecf932addcc5059974b1142a898498c006ddd7f9"
+                        ],
+                        "sizeBytes": 60490266
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:fab95c976f614296e8ce142104abcfffcdce244bc798c06a41417afb51fcc3ad",
+                            "ghcr.io/stackvize/epi-backend:sha-c0caa0d924f5c43c00b6abbd555ad9986b88d006"
+                        ],
+                        "sizeBytes": 60486581
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:c325d2b5f10a5345c3bb18a40ebcfc5968377d4b2bd9ae95f99c0a8ddba8fff7",
+                            "ghcr.io/stackvize/epi-backend:sha-2bc0b9602de1849426438d4953570ff119583b80"
+                        ],
+                        "sizeBytes": 60486581
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:9fe3634be843eb99260c91ad2d24dbb0d8839d8bb3899a0727674446412b2e4b",
+                            "ghcr.io/stackvize/epi-backend:sha-60b70bc39007d6e2e6f91eced8fb4a07b8cfe1ba"
+                        ],
+                        "sizeBytes": 60481116
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:f46d24cfc1c0d76d9dd78ceb01101b3ea1daa51cb22421d7e9e44cd1b285ebf5",
+                            "ghcr.io/stackvize/epi-backend:sha-8f1f2d80dbb6249002eed8107b8849c5b04e3c3f"
+                        ],
+                        "sizeBytes": 59185499
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:ca600344e046f68fd968f61ee4a0944d9d361877de0d7faff55e74b5bd91e6ad",
+                            "ghcr.io/stackvize/epi-backend:sha-532b53dff14a6e3e48cd34b5d902f77cf143b8c8"
+                        ],
+                        "sizeBytes": 59185407
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:b171f4a386b74a8fb113e4469edf27fe0030d03cd8d11419416a86b1d6f6cf11",
+                            "ghcr.io/stackvize/epi-backend:sha-647906fdb3dd9f36d1ef7598853bddbe81cce33c"
+                        ],
+                        "sizeBytes": 59185407
+                    },
+                    {
+                        "names": [
+                            "docker.io/grafana/loki@sha256:c316b7c7589a5eeca843b6926c7446149d18300b79ac8538dc4ae063bc478da2",
+                            "docker.io/grafana/loki:3.7.0"
+                        ],
+                        "sizeBytes": 48564471
+                    },
+                    {
+                        "names": [
+                            "docker.io/cloudflare/cloudflared@sha256:0aa26e284f05e6c77ae375b8c9c11d9eb6a448fb7bcd8d40f31cb6176189eb38"
+                        ],
+                        "sizeBytes": 28752386
+                    },
+                    {
+                        "names": [
+                            "docker.io/cloudflare/cloudflared@sha256:51c9cefcb4569df44e1ad403ab1d3d8065aa8e84339bcfc6aee75502e1140339",
+                            "docker.io/cloudflare/cloudflared:latest"
+                        ],
+                        "sizeBytes": 28742060
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/python@sha256:b64631e04e4920160c50fbe8d8df828f7f35f06f425cb44aa09bca53e708a35a",
+                            "docker.io/library/python:3.12-alpine"
+                        ],
+                        "sizeBytes": 20618940
+                    },
+                    {
+                        "names": [
+                            "docker.io/victoriametrics/vmagent@sha256:eba7d173adc2a3e4a8baad665ce444f394dea7e5cfabc92ca5d05ec99c5949b2",
+                            "docker.io/victoriametrics/vmagent:v1.123.0"
+                        ],
+                        "sizeBytes": 14811133
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:887f03d282830a01f9f8a686aa891496c611c5707c3fcdd3814fd38c22797b35",
+                            "ghcr.io/stackvize/auth:0.1.6"
+                        ],
+                        "sizeBytes": 13079464
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:e3f02378d304c8fcd50110fa623e73ea06a530dcc9aa711bcb466a950a629252",
+                            "ghcr.io/stackvize/auth:0.1.3"
+                        ],
+                        "sizeBytes": 13045656
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:40b2c51c5cbd8da35f795b1f39ec722c80c0376192802e8116e80f27fa4e7d0f",
+                            "ghcr.io/stackvize/auth:0.1.4"
+                        ],
+                        "sizeBytes": 13045642
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:54a20703597f3b755dccc9e6ea74e5f48efd0a64505f706b5136811fad5aa081",
+                            "ghcr.io/stackvize/auth:0.1.2"
+                        ],
+                        "sizeBytes": 13019929
+                    },
+                    {
+                        "names": [
+                            "quay.io/prometheus/node-exporter@sha256:4032c6d5bfd752342c3e631c2f1de93ba6b86c41db6b167b9a35372c139e7706",
+                            "quay.io/prometheus/node-exporter:v1.8.2"
+                        ],
+                        "sizeBytes": 12041464
+                    },
+                    {
+                        "names": [
+                            "docker.io/otavioabreu27/desafio-abp@sha256:f42a0e7b908875e3b82d70f8d80588499c2f571e7092e9fa2609cf4b61fae4b3",
+                            "docker.io/otavioabreu27/desafio-abp:latest"
+                        ],
+                        "sizeBytes": 5107567
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-library-busybox@sha256:101b4afd76732482eff9b95cae5f94bcf295e521fbec4e01b69c5421f3f3f3e5",
+                            "docker.io/rancher/mirrored-library-busybox:1.37.0"
+                        ],
+                        "sizeBytes": 2151353
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-pause@sha256:f548e0e8e3dc1896ca956272154dde3314e8cc4fde0a57577ee9fa1c63f5baf4",
+                            "docker.io/rancher/mirrored-pause:3.10.2"
+                        ],
+                        "sizeBytes": 320805
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "f085371c-aed8-4d84-851f-2615cee4346e",
+                    "containerRuntimeVersion": "containerd://2.3.2-k3s2",
+                    "kernelVersion": "6.8.0-138-generic",
+                    "kubeProxyVersion": "",
+                    "kubeletVersion": "v1.36.3+k3s1",
+                    "machineID": "c5a15073184a4fb7b4806d1162f67803",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.4 LTS",
+                    "systemUUID": "c5a15073-184a-4fb7-b480-6d1162f67803"
+                },
+                "runtimeHandlers": [
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": true,
+                            "userNamespaces": true
+                        },
+                        "name": ""
+                    },
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": true,
+                            "userNamespaces": true
+                        },
+                        "name": "runc"
+                    },
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": false,
+                            "userNamespaces": false
+                        },
+                        "name": "runhcs-wcow-process"
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "192.168.15.203,2804:1b3:a9c0:56d1:be24:11ff:fe96:a68d",
+                    "flannel.alpha.coreos.com/backend-data": "{\"VNI\":1,\"VtepMAC\":\"5e:8d:49:84:b9:24\"}",
+                    "flannel.alpha.coreos.com/backend-type": "vxlan",
+                    "flannel.alpha.coreos.com/kube-subnet-manager": "true",
+                    "flannel.alpha.coreos.com/public-ip": "192.168.15.203",
+                    "k3s.io/hostname": "k3s-worker-2",
+                    "k3s.io/internal-ip": "192.168.15.203,2804:1b3:a9c0:56d1:be24:11ff:fe96:a68d",
+                    "k3s.io/node-args": "[\"agent\"]",
+                    "k3s.io/node-config-hash": "W7IV2IYD76A2ZFHV7DE46EC4UPJH472MQAYIORZHBTUD65CBJWGA====",
+                    "k3s.io/node-env": "{\"K3S_NODE_NAME\":\"k3s-worker-2\",\"K3S_TOKEN\":\"********\",\"K3S_URL\":\"https://192.168.15.201:6443\"}",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-08-21T19:55:57Z",
+                "finalizers": [
+                    "wrangler.cattle.io/node"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "k3s",
+                    "beta.kubernetes.io/os": "linux",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "k3s-worker-2",
+                    "kubernetes.io/os": "linux",
+                    "node.kubernetes.io/instance-type": "k3s"
+                },
+                "name": "k3s-worker-2",
+                "resourceVersion": "803074",
+                "uid": "a7c99c1b-dbc0-401b-9951-6f260bb519b7"
+            },
+            "spec": {
+                "podCIDR": "10.42.1.0/24",
+                "podCIDRs": [
+                    "10.42.1.0/24"
+                ],
+                "providerID": "k3s://k3s-worker-2"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "192.168.15.203",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "2804:1b3:a9c0:56d1:be24:11ff:fe96:a68d",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "k3s-worker-2",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "4",
+                    "ephemeral-storage": "97743690881",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "7099588Ki",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "4",
+                    "ephemeral-storage": "100476656Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "7099588Ki",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:22:12Z",
+                        "lastTransitionTime": "2026-08-21T19:55:57Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:22:12Z",
+                        "lastTransitionTime": "2026-08-21T19:55:57Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:22:12Z",
+                        "lastTransitionTime": "2026-08-21T19:55:57Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-06T02:22:12Z",
+                        "lastTransitionTime": "2026-08-21T19:55:57Z",
+                        "message": "kubelet is posting ready status",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "declaredFeatures": [
+                    "ExtendWebSocketsToKubelet",
+                    "InPlacePodLevelResourcesVerticalScaling",
+                    "InPlacePodVerticalScalingInitContainers",
+                    "RestartAllContainersOnContainerExits"
+                ],
+                "features": {
+                    "supplementalGroupsPolicy": true
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/grafana/alloy@sha256:b8ec653c44235fbe910879145dac3597d66b0aaecf60bcbbe82580767771a839",
+                            "docker.io/grafana/alloy:v1.19.2"
+                        ],
+                        "sizeBytes": 210777038
+                    },
+                    {
+                        "names": [
+                            "quay.io/argoproj/argocd@sha256:0deb1a1c917629b960ead995ae3b6069450a866992676599658687ef9a641ee8",
+                            "quay.io/argoproj/argocd:v3.5.1"
+                        ],
+                        "sizeBytes": 210598970
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:fe868488c621a0419650224082d5b7bf89e2f3296d3485286e6f3185b68ca734",
+                            "ghcr.io/stackvize/epi-frontend:sha-20d52211ac40b4c0eb161c924e3a16089d26d524"
+                        ],
+                        "sizeBytes": 118356998
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:31be293c74b153bb43310afa4bbc50936adf28375ddea3338d2157b8b78f0fc0",
+                            "ghcr.io/stackvize/epi-frontend:sha-2b0d31bec0154f1880539db47a2d24592928acaa"
+                        ],
+                        "sizeBytes": 117845859
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:2ff703952e0947152cda48ef29de169fdc2c6a2f7515405beeb25fa7aea36562",
+                            "ghcr.io/stackvize/epi-frontend:sha-e3a9c1b726523348eb9337a2a293e1f81274a4dc"
+                        ],
+                        "sizeBytes": 117840861
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:bf583e051f6771f56aadbfc2ca0bf2ae1456512c18dbfa77c9f41a1ab99d4451",
+                            "ghcr.io/stackvize/epi-frontend:sha-ec2b8d4e38b923f2695bf740d4d758ee8a7082f3"
+                        ],
+                        "sizeBytes": 117839387
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:c98ca6adef81f445260a6b1bf7cc4f8d6ed6c55d3ebbb422535948b477030141",
+                            "ghcr.io/stackvize/epi-frontend:sha-7c8e14e87ebe73b9765be37bf726c055c8cc4896"
+                        ],
+                        "sizeBytes": 117839313
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:11bb17ff4610764e6a58fe747f3a9b97150200ba4f95ac7ba116a068733a443e",
+                            "ghcr.io/stackvize/epi-frontend:sha-532b53dff14a6e3e48cd34b5d902f77cf143b8c8"
+                        ],
+                        "sizeBytes": 117828795
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:79b3e94084c7a7acee84224023709ce1db76f7ac8ff6f7d5b55484a3fa3b31c9",
+                            "ghcr.io/stackvize/epi-frontend:sha-2bc0b9602de1849426438d4953570ff119583b80"
+                        ],
+                        "sizeBytes": 117825929
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-frontend@sha256:fe4cce83f1a3bdfc551dd83232e39f674684ee9a85c25d22c33939e35560a467",
+                            "ghcr.io/stackvize/epi-frontend:sha-8f1f2d80dbb6249002eed8107b8849c5b04e3c3f"
+                        ],
+                        "sizeBytes": 117825530
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38"
+                        ],
+                        "sizeBytes": 71958581
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:937c290b7e34028565c0d9202f01222b3224b11186178737f8357a86a4a7fc21",
+                            "ghcr.io/otavioabreu27/report_service:sha-852f666"
+                        ],
+                        "sizeBytes": 71926122
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:4df7a7edab3a7d792526b01dd8c0855297a52375229a09d7b82811a0864092ee",
+                            "ghcr.io/otavioabreu27/report_service:latest"
+                        ],
+                        "sizeBytes": 71887462
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:a9f0db8796752c7d354b74679864c397823573565b1339b529c52ef65fa7180e"
+                        ],
+                        "sizeBytes": 71864084
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:05eeea162c399d339265b2f2b42d3837dcc2244021144efb321f67e8e6e66ccb"
+                        ],
+                        "sizeBytes": 71849097
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:76f4609c6234e71758aab5a6870a54453fab76b357951f6d098e2efa7c4356c3"
+                        ],
+                        "sizeBytes": 71848829
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/otavioabreu27/report_service@sha256:b11fa83ce88978c60eceecefcf87b56821b4db6d6108bac37c8130b8b7995560"
+                        ],
+                        "sizeBytes": 71848829
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:3824d94ddfad69556c85bb29c9645804b442e71125da6728b894ac5d010bb770",
+                            "ghcr.io/stackvize/epi-backend:sha-2b0d31bec0154f1880539db47a2d24592928acaa"
+                        ],
+                        "sizeBytes": 60542365
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:f866d0b952c1edd0c9ade5e9b4a4096b78b19f110a2afbeef822007b8f4737a5",
+                            "ghcr.io/stackvize/epi-backend:sha-6d9180f809d7e5ae6ddf9b94ef9951e861bacbe3"
+                        ],
+                        "sizeBytes": 60515818
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:6ae824d6cfe5666326d62219e48c31aea22dd2515745ae46c46658d216b60d36",
+                            "ghcr.io/stackvize/epi-backend:sha-20d52211ac40b4c0eb161c924e3a16089d26d524"
+                        ],
+                        "sizeBytes": 60502149
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:ddee61b476b677b45e68915d9651c6bf3031ee52232a6e5589daa7fc5384b360",
+                            "ghcr.io/stackvize/epi-backend:sha-ecf932addcc5059974b1142a898498c006ddd7f9"
+                        ],
+                        "sizeBytes": 60490266
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:c325d2b5f10a5345c3bb18a40ebcfc5968377d4b2bd9ae95f99c0a8ddba8fff7",
+                            "ghcr.io/stackvize/epi-backend:sha-2bc0b9602de1849426438d4953570ff119583b80"
+                        ],
+                        "sizeBytes": 60486581
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:9fe3634be843eb99260c91ad2d24dbb0d8839d8bb3899a0727674446412b2e4b",
+                            "ghcr.io/stackvize/epi-backend:sha-60b70bc39007d6e2e6f91eced8fb4a07b8cfe1ba"
+                        ],
+                        "sizeBytes": 60481116
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:f46d24cfc1c0d76d9dd78ceb01101b3ea1daa51cb22421d7e9e44cd1b285ebf5",
+                            "ghcr.io/stackvize/epi-backend:sha-8f1f2d80dbb6249002eed8107b8849c5b04e3c3f"
+                        ],
+                        "sizeBytes": 59185499
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/epi-backend@sha256:ca600344e046f68fd968f61ee4a0944d9d361877de0d7faff55e74b5bd91e6ad",
+                            "ghcr.io/stackvize/epi-backend:sha-532b53dff14a6e3e48cd34b5d902f77cf143b8c8"
+                        ],
+                        "sizeBytes": 59185407
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/dexidp/dex@sha256:b8469881d3cb3a73001506f0d3aaefecb9c45d2311c1e0f405d8ac538316c59d",
+                            "ghcr.io/dexidp/dex:v2.45.0"
+                        ],
+                        "sizeBytes": 48093516
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
+                            "docker.io/library/python:3.12-slim"
+                        ],
+                        "sizeBytes": 46192946
+                    },
+                    {
+                        "names": [
+                            "docker.io/cloudflare/cloudflared@sha256:0aa26e284f05e6c77ae375b8c9c11d9eb6a448fb7bcd8d40f31cb6176189eb38"
+                        ],
+                        "sizeBytes": 28752386
+                    },
+                    {
+                        "names": [
+                            "docker.io/cloudflare/cloudflared@sha256:51c9cefcb4569df44e1ad403ab1d3d8065aa8e84339bcfc6aee75502e1140339",
+                            "docker.io/cloudflare/cloudflared:latest"
+                        ],
+                        "sizeBytes": 28742060
+                    },
+                    {
+                        "names": [
+                            "docker.io/valkey/valkey@sha256:e0eb7c480958d32bdc4357a74bdd70653ae15f2f9b4c93c4a5a9fad1dc471c84"
+                        ],
+                        "sizeBytes": 17479036
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/kube-state-metrics/kube-state-metrics@sha256:37d841299325c23b56e5951176ce8ef317d537447c0f1b2d2437dddbb1f51165",
+                            "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.14.0"
+                        ],
+                        "sizeBytes": 15427061
+                    },
+                    {
+                        "names": [
+                            "docker.io/victoriametrics/vmagent@sha256:eba7d173adc2a3e4a8baad665ce444f394dea7e5cfabc92ca5d05ec99c5949b2",
+                            "docker.io/victoriametrics/vmagent:v1.123.0"
+                        ],
+                        "sizeBytes": 14811133
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:887f03d282830a01f9f8a686aa891496c611c5707c3fcdd3814fd38c22797b35",
+                            "ghcr.io/stackvize/auth:0.1.6"
+                        ],
+                        "sizeBytes": 13079464
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:980d16c9e60900f9b9207df92e9a990fce40c1a20040df4182fe9e1f9244e4f4",
+                            "ghcr.io/stackvize/auth:0.1.5"
+                        ],
+                        "sizeBytes": 13065081
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:40b2c51c5cbd8da35f795b1f39ec722c80c0376192802e8116e80f27fa4e7d0f",
+                            "ghcr.io/stackvize/auth:0.1.4"
+                        ],
+                        "sizeBytes": 13045642
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/stackvize/auth@sha256:54a20703597f3b755dccc9e6ea74e5f48efd0a64505f706b5136811fad5aa081",
+                            "ghcr.io/stackvize/auth:0.1.2"
+                        ],
+                        "sizeBytes": 13019929
+                    },
+                    {
+                        "names": [
+                            "quay.io/prometheus/node-exporter@sha256:4032c6d5bfd752342c3e631c2f1de93ba6b86c41db6b167b9a35372c139e7706",
+                            "quay.io/prometheus/node-exporter:v1.8.2"
+                        ],
+                        "sizeBytes": 12041464
+                    },
+                    {
+                        "names": [
+                            "docker.io/otavioabreu27/desafio-abp@sha256:f42a0e7b908875e3b82d70f8d80588499c2f571e7092e9fa2609cf4b61fae4b3",
+                            "docker.io/otavioabreu27/desafio-abp:latest"
+                        ],
+                        "sizeBytes": 5107567
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+                            "docker.io/library/busybox:1.36"
+                        ],
+                        "sizeBytes": 2217006
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-pause@sha256:f548e0e8e3dc1896ca956272154dde3314e8cc4fde0a57577ee9fa1c63f5baf4",
+                            "docker.io/rancher/mirrored-pause:3.10.2"
+                        ],
+                        "sizeBytes": 320805
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "2663ff9f-1a1e-45a0-94e0-46f848c07509",
+                    "containerRuntimeVersion": "containerd://2.3.2-k3s2",
+                    "kernelVersion": "6.8.0-138-generic",
+                    "kubeProxyVersion": "",
+                    "kubeletVersion": "v1.36.3+k3s1",
+                    "machineID": "37d384238b524ef0bc9f3f5e14810bc5",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.4 LTS",
+                    "systemUUID": "37d38423-8b52-4ef0-bc9f-3f5e14810bc5"
+                },
+                "runtimeHandlers": [
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": true,
+                            "userNamespaces": true
+                        },
+                        "name": ""
+                    },
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": true,
+                            "userNamespaces": true
+                        },
+                        "name": "runc"
+                    },
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": false,
+                            "userNamespaces": false
+                        },
+                        "name": "runhcs-wcow-process"
+                    }
+                ]
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

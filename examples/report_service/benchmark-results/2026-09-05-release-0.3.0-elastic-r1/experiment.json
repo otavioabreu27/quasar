@@ -1,0 +1,7 @@
+{
+  "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+  "scenario": "release-0.3.0-elastic",
+  "stages": "60:50,60:150,60:300,60:500,60:150",
+  "batch_size": 1,
+  "require_runtime_metrics": 1
+}

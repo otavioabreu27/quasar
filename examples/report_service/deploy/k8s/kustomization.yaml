@@ -10,4 +10,4 @@ resources:
 images:
   - name: ghcr.io/otavioabreu27/report_service
     newName: ghcr.io/otavioabreu27/report_service
-    newTag: latest
+    digest: sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38

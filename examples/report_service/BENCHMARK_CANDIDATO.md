@@ -1,6 +1,10 @@
 # Candidato: correções e próximo benchmark
 
-Preparação de 05/09/2026. Código ainda não publicado no Hex nem aplicado no k3s.
+Preparação de 05/09/2026. Atualização: os quatro pacotes 0.3.0 foram publicados
+no Hex pelo mantenedor. O serviço passou a consumir essas versões publicadas,
+com checksums no manifest, e foi aplicado no k3s pela imagem do commit `92f4f45`.
+O digest está fixado em `deploy/k8s/kustomization.yaml`. A coleta da release fica
+em `benchmark-results/2026-09-05-release-0.3.0-elastic-r1`.
 Os testes locais descritos abaixo são funcionais; não são evidência de capacidade
 de produção nem substituem o benchmark de cinco minutos.
 
@@ -101,7 +105,7 @@ que é anterior ao commit. O runner exige amostras antes da carga e após a dren
 
 ## Execução após publicação/deploy do candidato
 
-Primeiro decidir/publicar a próxima versão: há mudança de inicialização do PG
+As versões 0.3.0 já foram publicadas: há mudança de inicialização do PG
 e novo evento público; **não republicar 0.2.0 nem misturar código e pacote antigo**.
 Construir e aplicar a imagem correspondente, fixada por `@sha256:...`, e conferir
 as variáveis do deployment. O runner não publica nem troca a imagem.

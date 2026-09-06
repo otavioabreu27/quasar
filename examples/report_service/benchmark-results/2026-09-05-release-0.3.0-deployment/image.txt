@@ -1,0 +1,15 @@
+Name:      ghcr.io/otavioabreu27/report_service:sha-92f4f45
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38
+           
+Manifests: 
+  Name:        ghcr.io/otavioabreu27/report_service:sha-92f4f45@sha256:7e63a264dfdcf95ba3e2bac36cbdaa0a0b5a64967bafc22dcc64ad6348926565
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/amd64
+               
+  Name:        ghcr.io/otavioabreu27/report_service:sha-92f4f45@sha256:03fc4752fa417db664003c81b4fa7bd09a426ec08c3d3fd783bc6b6bdb45ef86
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations: 
+    vnd.docker.reference.digest: sha256:7e63a264dfdcf95ba3e2bac36cbdaa0a0b5a64967bafc22dcc64ad6348926565
+    vnd.docker.reference.type:   attestation-manifest

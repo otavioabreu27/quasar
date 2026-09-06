@@ -1,0 +1,124 @@
+{
+    "apiVersion": "autoscaling/v2",
+    "kind": "HorizontalPodAutoscaler",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"autoscaling/v2\",\"kind\":\"HorizontalPodAutoscaler\",\"metadata\":{\"annotations\":{},\"name\":\"report-service\",\"namespace\":\"reports\"},\"spec\":{\"behavior\":{\"scaleDown\":{\"policies\":[{\"periodSeconds\":60,\"type\":\"Percent\",\"value\":25}],\"selectPolicy\":\"Max\",\"stabilizationWindowSeconds\":300},\"scaleUp\":{\"policies\":[{\"periodSeconds\":60,\"type\":\"Percent\",\"value\":100},{\"periodSeconds\":60,\"type\":\"Pods\",\"value\":4}],\"selectPolicy\":\"Max\",\"stabilizationWindowSeconds\":0}},\"maxReplicas\":8,\"metrics\":[{\"resource\":{\"name\":\"cpu\",\"target\":{\"averageUtilization\":70,\"type\":\"Utilization\"}},\"type\":\"Resource\"},{\"resource\":{\"name\":\"memory\",\"target\":{\"averageUtilization\":80,\"type\":\"Utilization\"}},\"type\":\"Resource\"}],\"minReplicas\":2,\"scaleTargetRef\":{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"name\":\"report-service\"}}}\n"
+        },
+        "creationTimestamp": "2026-09-05T15:34:10Z",
+        "name": "report-service",
+        "namespace": "reports",
+        "resourceVersion": "803300",
+        "uid": "e85b8050-dfdc-4a36-9e93-572542195403"
+    },
+    "spec": {
+        "behavior": {
+            "scaleDown": {
+                "policies": [
+                    {
+                        "periodSeconds": 60,
+                        "type": "Percent",
+                        "value": 25
+                    }
+                ],
+                "selectPolicy": "Max",
+                "stabilizationWindowSeconds": 300
+            },
+            "scaleUp": {
+                "policies": [
+                    {
+                        "periodSeconds": 60,
+                        "type": "Percent",
+                        "value": 100
+                    },
+                    {
+                        "periodSeconds": 60,
+                        "type": "Pods",
+                        "value": 4
+                    }
+                ],
+                "selectPolicy": "Max",
+                "stabilizationWindowSeconds": 0
+            }
+        },
+        "maxReplicas": 8,
+        "metrics": [
+            {
+                "resource": {
+                    "name": "cpu",
+                    "target": {
+                        "averageUtilization": 70,
+                        "type": "Utilization"
+                    }
+                },
+                "type": "Resource"
+            },
+            {
+                "resource": {
+                    "name": "memory",
+                    "target": {
+                        "averageUtilization": 80,
+                        "type": "Utilization"
+                    }
+                },
+                "type": "Resource"
+            }
+        ],
+        "minReplicas": 2,
+        "scaleTargetRef": {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "name": "report-service"
+        }
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastTransitionTime": "2026-09-05T15:34:25Z",
+                "message": "recommended size matches current size",
+                "reason": "ReadyForNewScale",
+                "status": "True",
+                "type": "AbleToScale"
+            },
+            {
+                "lastTransitionTime": "2026-09-05T21:25:35Z",
+                "message": "the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)",
+                "reason": "ValidMetricFound",
+                "status": "True",
+                "type": "ScalingActive"
+            },
+            {
+                "lastTransitionTime": "2026-09-06T02:27:09Z",
+                "message": "the desired replica count is less than the minimum replica count",
+                "reason": "TooFewReplicas",
+                "status": "True",
+                "type": "ScalingLimited"
+            }
+        ],
+        "currentMetrics": [
+            {
+                "resource": {
+                    "current": {
+                        "averageUtilization": 1,
+                        "averageValue": "3m"
+                    },
+                    "name": "cpu"
+                },
+                "type": "Resource"
+            },
+            {
+                "resource": {
+                    "current": {
+                        "averageUtilization": 27,
+                        "averageValue": "71930Ki"
+                    },
+                    "name": "memory"
+                },
+                "type": "Resource"
+            }
+        ],
+        "currentReplicas": 2,
+        "desiredReplicas": 2,
+        "lastScaleTime": "2026-09-05T21:41:06Z"
+    }
+}
