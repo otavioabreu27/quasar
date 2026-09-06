@@ -1,0 +1,10 @@
+NAME                                CPU(cores)   MEMORY(bytes)   
+quasar-bench-1788663350-532341-db   1m           26Mi            
+report-service-6cdfbcfb8-4tmwp      242m         75Mi            
+report-service-6cdfbcfb8-8vdmt      117m         74Mi            
+report-service-6cdfbcfb8-dmvm5      168m         75Mi            
+report-service-6cdfbcfb8-kqtkr      236m         76Mi            
+report-service-6cdfbcfb8-lj4wc      301m         75Mi            
+report-service-6cdfbcfb8-q6cll      249m         76Mi            
+report-service-6cdfbcfb8-tsqrd      231m         77Mi            
+report-service-6cdfbcfb8-v4lcd      192m         77Mi            

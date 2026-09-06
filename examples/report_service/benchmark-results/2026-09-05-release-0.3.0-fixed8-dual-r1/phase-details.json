@@ -1,0 +1,188 @@
+{
+  "scenario": "release-0.3.0-fixed8-dual",
+  "phases": [
+    {
+      "rate_requests_s": 50.0,
+      "accepted": 3000,
+      "dropped": 0,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 4.652,
+          "enqueue_mean_ms": 3.841,
+          "server_job_p95_ms": 19.0,
+          "observed_p95_ms": 57.373
+        },
+        {
+          "enqueue_p95_ms": 4.645,
+          "enqueue_mean_ms": 3.913,
+          "server_job_p95_ms": 19.0,
+          "observed_p95_ms": 57.341
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": null,
+        "http_get_handler": null,
+        "http_enqueue": null,
+        "http_status_query": null,
+        "pool_checkout": null
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 16943,
+      "empty_claims": 14357,
+      "empty_fraction": 0.847370595526176,
+      "window_ms": [
+        1788662940010,
+        1788663000010.0
+      ]
+    },
+    {
+      "rate_requests_s": 150.0,
+      "accepted": 9000,
+      "dropped": 0,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 4.467,
+          "enqueue_mean_ms": 3.751,
+          "server_job_p95_ms": 19.0,
+          "observed_p95_ms": 57.451
+        },
+        {
+          "enqueue_p95_ms": 4.45,
+          "enqueue_mean_ms": 3.76,
+          "server_job_p95_ms": 19.0,
+          "observed_p95_ms": 57.427
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": null,
+        "http_get_handler": null,
+        "http_enqueue": null,
+        "http_status_query": null,
+        "pool_checkout": null
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 48965,
+      "empty_claims": 42063,
+      "empty_fraction": 0.8590421729807005,
+      "window_ms": [
+        1788663000010.0,
+        1788663060010.0
+      ]
+    },
+    {
+      "rate_requests_s": 300.0,
+      "accepted": 17991,
+      "dropped": 9,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 6.081,
+          "enqueue_mean_ms": 4.564,
+          "server_job_p95_ms": 18.0,
+          "observed_p95_ms": 60.001
+        },
+        {
+          "enqueue_p95_ms": 6.128,
+          "enqueue_mean_ms": 4.691,
+          "server_job_p95_ms": 19.0,
+          "observed_p95_ms": 59.906
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": null,
+        "http_get_handler": null,
+        "http_enqueue": null,
+        "http_status_query": null,
+        "pool_checkout": null
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 110210,
+      "empty_claims": 94678,
+      "empty_fraction": 0.8590690499954632,
+      "window_ms": [
+        1788663060010.0,
+        1788663120010.0
+      ]
+    },
+    {
+      "rate_requests_s": 500.0,
+      "accepted": 29692,
+      "dropped": 308,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 9.32,
+          "enqueue_mean_ms": 7.096,
+          "server_job_p95_ms": 20.0,
+          "observed_p95_ms": 64.509
+        },
+        {
+          "enqueue_p95_ms": 9.258,
+          "enqueue_mean_ms": 9.17,
+          "server_job_p95_ms": 21.0,
+          "observed_p95_ms": 65.261
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": null,
+        "http_get_handler": null,
+        "http_enqueue": null,
+        "http_status_query": null,
+        "pool_checkout": null
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 138613,
+      "empty_claims": 109518,
+      "empty_fraction": 0.7900990527583993,
+      "window_ms": [
+        1788663120010.0,
+        1788663180010.0
+      ]
+    },
+    {
+      "rate_requests_s": 150.0,
+      "accepted": 9000,
+      "dropped": 0,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 4.433,
+          "enqueue_mean_ms": 3.703,
+          "server_job_p95_ms": 19.0,
+          "observed_p95_ms": 57.378
+        },
+        {
+          "enqueue_p95_ms": 4.458,
+          "enqueue_mean_ms": 3.775,
+          "server_job_p95_ms": 19.0,
+          "observed_p95_ms": 57.362
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": null,
+        "http_get_handler": null,
+        "http_enqueue": null,
+        "http_status_query": null,
+        "pool_checkout": null
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 47455,
+      "empty_claims": 39867,
+      "empty_fraction": 0.8401011484564324,
+      "window_ms": [
+        1788663180010.0,
+        1788663240010.0
+      ]
+    }
+  ],
+  "notes": [
+    "Server histogram deltas bracket each phase independently per pod; windows include sampling slack.",
+    "Pool checkout is aggregated across API, worker and control pools and includes acquisition overhead.",
+    "Server handler stops at response construction; it excludes socket send, network and client parsing.",
+    "Exact HTTP percentiles belong to each generator; server percentiles are bucket upper bounds.",
+    "Missing initial histogram keys mean no observations yet in an initialized diagnostic process.",
+    "Timing phases with missing pod boundaries are incomplete; do not treat them as full service totals."
+  ]
+}

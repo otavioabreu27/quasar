@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from benchmark_v2 import Benchmark
 from analyze_release_benchmark import bracket, delta
 from benchmark_parallel import merge
+from analyze_generator_diagnosis import histogram
 
 
 def args(**changes):
@@ -55,6 +56,13 @@ def run(benchmark):
 
 
 class GeneratorTest(unittest.TestCase):
+    def test_diagnostic_histogram_reports_bounds_not_exact_percentiles(self):
+        value = histogram({'x_count': 100, 'x_sum_ms': 210,
+                           'x_bucket_1': 90, 'x_bucket_5': 10}, 'x')
+        self.assertEqual(value['p95_bucket_upper_ms'], 5)
+        self.assertEqual(value['mean_ms'], 2.1)
+        self.assertIsNone(histogram({}, 'x'))
+
     def test_parallel_merge_counts_but_does_not_average_percentiles(self):
         _, first = run(FakeBenchmark(args(parsed_stages=[(0.1, 20)])))
         _, second = run(FakeBenchmark(args(parsed_stages=[(0.1, 20)])))

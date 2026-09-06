@@ -9,7 +9,9 @@ verify() ->
     try
         report_metrics_ffi:start(),
         preserved = report_metrics_ffi:measure(<<"http_post_handler">>, fun() -> preserved end),
-        try report_metrics_ffi:measure(<<"http_get_handler">>, fun() -> error(expected) end)
+        try
+            report_metrics_ffi:measure(<<"http_get_handler">>, fun() -> error(expected) end),
+            error(exception_not_propagated)
         catch error:expected -> ok end,
         [{_, 1}] = ets:lookup(report_metrics_ffi, <<"http_post_handler_count">>),
         [{_, 1}] = ets:lookup(report_metrics_ffi, <<"http_get_handler_count">>),

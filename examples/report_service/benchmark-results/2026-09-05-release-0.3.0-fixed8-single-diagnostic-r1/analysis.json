@@ -1,0 +1,395 @@
+{
+  "scenario": "release-0.3.0-fixed8-single-diagnostic",
+  "scheduled_requests": 69000,
+  "attempted_requests": 67848,
+  "accepted": 67848,
+  "completed": 67848,
+  "submit_errors": {},
+  "poll_errors": {},
+  "generator_dropped": {
+    "executor_late": 891,
+    "scheduler_late": 261
+  },
+  "invalid_results": 0,
+  "phases": [
+    {
+      "accepted": 3000,
+      "attempted": 3000,
+      "completed": 3000,
+      "dropped": 0,
+      "duration_s": 60.0,
+      "e2e_ms": {
+        "count": 3000,
+        "max_ms": 99.709,
+        "mean_ms": 56.24,
+        "min_ms": 55.489,
+        "p50_ms": 56.202,
+        "p90_ms": 56.497,
+        "p95_ms": 56.605,
+        "p99_ms": 57.31,
+        "stddev_ms": 1.033
+      },
+      "enqueue_ms": {
+        "count": 3000,
+        "max_ms": 15.469,
+        "mean_ms": 3.412,
+        "min_ms": 2.911,
+        "p50_ms": 3.374,
+        "p90_ms": 3.598,
+        "p95_ms": 3.694,
+        "p99_ms": 3.993,
+        "stddev_ms": 0.437
+      },
+      "index": 0,
+      "rate_requests_s": 50.0,
+      "schedule_lag_ms": {
+        "count": 3000,
+        "max_ms": 33.714,
+        "mean_ms": 0.257,
+        "min_ms": 0.116,
+        "p50_ms": 0.228,
+        "p90_ms": 0.312,
+        "p95_ms": 0.344,
+        "p99_ms": 0.389,
+        "stddev_ms": 0.67
+      },
+      "scheduled": 3000,
+      "server_e2e_ms": {
+        "count": 3000,
+        "max_ms": 21.0,
+        "mean_ms": 6.075,
+        "min_ms": 5.0,
+        "p50_ms": 6.0,
+        "p90_ms": 7.0,
+        "p95_ms": 7.0,
+        "p99_ms": 8.0,
+        "stddev_ms": 0.764
+      },
+      "submit_errors": 0
+    },
+    {
+      "accepted": 8971,
+      "attempted": 8971,
+      "completed": 8971,
+      "dropped": 29,
+      "duration_s": 60.0,
+      "e2e_ms": {
+        "count": 8971,
+        "max_ms": 297.118,
+        "mean_ms": 59.765,
+        "min_ms": 54.87,
+        "p50_ms": 56.193,
+        "p90_ms": 57.276,
+        "p95_ms": 59.568,
+        "p99_ms": 180.194,
+        "stddev_ms": 20.296
+      },
+      "enqueue_ms": {
+        "count": 8971,
+        "max_ms": 131.708,
+        "mean_ms": 4.528,
+        "min_ms": 2.677,
+        "p50_ms": 3.393,
+        "p90_ms": 4.216,
+        "p95_ms": 5.755,
+        "p99_ms": 40.198,
+        "stddev_ms": 6.824
+      },
+      "index": 1,
+      "rate_requests_s": 150.0,
+      "schedule_lag_ms": {
+        "count": 8971,
+        "max_ms": 49.85,
+        "mean_ms": 1.284,
+        "min_ms": 0.092,
+        "p50_ms": 0.209,
+        "p90_ms": 0.581,
+        "p95_ms": 0.688,
+        "p99_ms": 40.785,
+        "stddev_ms": 6.055
+      },
+      "scheduled": 9000,
+      "server_e2e_ms": {
+        "count": 8971,
+        "max_ms": 25.0,
+        "mean_ms": 9.526,
+        "min_ms": 3.0,
+        "p50_ms": 6.0,
+        "p90_ms": 19.0,
+        "p95_ms": 19.0,
+        "p99_ms": 20.0,
+        "stddev_ms": 6.055
+      },
+      "submit_errors": 0
+    },
+    {
+      "accepted": 17737,
+      "attempted": 17737,
+      "completed": 17737,
+      "dropped": 263,
+      "duration_s": 60.0,
+      "e2e_ms": {
+        "count": 17737,
+        "max_ms": 563.803,
+        "mean_ms": 61.623,
+        "min_ms": 55.045,
+        "p50_ms": 57.516,
+        "p90_ms": 58.74,
+        "p95_ms": 59.935,
+        "p99_ms": 263.663,
+        "stddev_ms": 33.591
+      },
+      "enqueue_ms": {
+        "count": 17737,
+        "max_ms": 275.828,
+        "mean_ms": 5.448,
+        "min_ms": 2.677,
+        "p50_ms": 4.038,
+        "p90_ms": 4.989,
+        "p95_ms": 5.558,
+        "p99_ms": 58.637,
+        "stddev_ms": 12.857
+      },
+      "index": 2,
+      "rate_requests_s": 300.0,
+      "schedule_lag_ms": {
+        "count": 17737,
+        "max_ms": 50.0,
+        "mean_ms": 1.141,
+        "min_ms": 0.097,
+        "p50_ms": 0.254,
+        "p90_ms": 0.832,
+        "p95_ms": 1.035,
+        "p99_ms": 46.951,
+        "stddev_ms": 5.824
+      },
+      "scheduled": 18000,
+      "server_e2e_ms": {
+        "count": 17737,
+        "max_ms": 45.0,
+        "mean_ms": 10.356,
+        "min_ms": 3.0,
+        "p50_ms": 7.0,
+        "p90_ms": 19.0,
+        "p95_ms": 20.0,
+        "p99_ms": 22.0,
+        "stddev_ms": 6.457
+      },
+      "submit_errors": 0
+    },
+    {
+      "accepted": 29140,
+      "attempted": 29140,
+      "completed": 29140,
+      "dropped": 860,
+      "duration_s": 60.0,
+      "e2e_ms": {
+        "count": 29140,
+        "max_ms": 582.557,
+        "mean_ms": 113.758,
+        "min_ms": 56.756,
+        "p50_ms": 102.973,
+        "p90_ms": 173.201,
+        "p95_ms": 199.25,
+        "p99_ms": 274.02,
+        "stddev_ms": 47.408
+      },
+      "enqueue_ms": {
+        "count": 29140,
+        "max_ms": 353.719,
+        "mean_ms": 20.705,
+        "min_ms": 3.042,
+        "p50_ms": 14.721,
+        "p90_ms": 42.336,
+        "p95_ms": 56.644,
+        "p99_ms": 95.858,
+        "stddev_ms": 19.475
+      },
+      "index": 3,
+      "rate_requests_s": 500.0,
+      "schedule_lag_ms": {
+        "count": 29140,
+        "max_ms": 49.987,
+        "mean_ms": 17.283,
+        "min_ms": 0.118,
+        "p50_ms": 13.564,
+        "p90_ms": 39.251,
+        "p95_ms": 44.917,
+        "p99_ms": 48.921,
+        "stddev_ms": 14.019
+      },
+      "scheduled": 30000,
+      "server_e2e_ms": {
+        "count": 29140,
+        "max_ms": 63.0,
+        "mean_ms": 13.27,
+        "min_ms": 3.0,
+        "p50_ms": 10.0,
+        "p90_ms": 23.0,
+        "p95_ms": 26.0,
+        "p99_ms": 35.0,
+        "stddev_ms": 7.496
+      },
+      "submit_errors": 0
+    },
+    {
+      "accepted": 9000,
+      "attempted": 9000,
+      "completed": 9000,
+      "dropped": 0,
+      "duration_s": 60.0,
+      "e2e_ms": {
+        "count": 9000,
+        "max_ms": 440.25,
+        "mean_ms": 59.383,
+        "min_ms": 55.047,
+        "p50_ms": 56.262,
+        "p90_ms": 57.252,
+        "p95_ms": 60.222,
+        "p99_ms": 154.064,
+        "stddev_ms": 20.836
+      },
+      "enqueue_ms": {
+        "count": 9000,
+        "max_ms": 211.859,
+        "mean_ms": 4.866,
+        "min_ms": 2.636,
+        "p50_ms": 3.409,
+        "p90_ms": 4.179,
+        "p95_ms": 5.919,
+        "p99_ms": 39.707,
+        "stddev_ms": 11.081
+      },
+      "index": 4,
+      "rate_requests_s": 150.0,
+      "schedule_lag_ms": {
+        "count": 9000,
+        "max_ms": 43.346,
+        "mean_ms": 0.603,
+        "min_ms": 0.105,
+        "p50_ms": 0.199,
+        "p90_ms": 0.56,
+        "p95_ms": 0.679,
+        "p99_ms": 13.459,
+        "stddev_ms": 2.652
+      },
+      "scheduled": 9000,
+      "server_e2e_ms": {
+        "count": 9000,
+        "max_ms": 35.0,
+        "mean_ms": 10.355,
+        "min_ms": 3.0,
+        "p50_ms": 6.0,
+        "p90_ms": 19.0,
+        "p95_ms": 20.0,
+        "p99_ms": 20.0,
+        "stddev_ms": 6.417
+      },
+      "submit_errors": 0
+    }
+  ],
+  "latency": {
+    "enqueue": {
+      "count": 67848,
+      "max_ms": 353.719,
+      "mean_ms": 11.712,
+      "min_ms": 2.636,
+      "p50_ms": 4.5,
+      "p90_ms": 28.264,
+      "p95_ms": 41.484,
+      "p99_ms": 81.971,
+      "stddev_ms": 17.019
+    },
+    "observed_end_to_end": {
+      "count": 67848,
+      "max_ms": 582.557,
+      "mean_ms": 83.233,
+      "min_ms": 54.87,
+      "p50_ms": 58.227,
+      "p90_ms": 144.591,
+      "p95_ms": 172.948,
+      "p99_ms": 252.255,
+      "stddev_ms": 45.554
+    },
+    "poll": {
+      "count": 67848,
+      "max_ms": 360.025,
+      "mean_ms": 9.249,
+      "min_ms": 1.642,
+      "p50_ms": 2.853,
+      "p90_ms": 23.412,
+      "p95_ms": 37.141,
+      "p99_ms": 80.311,
+      "stddev_ms": 16.835
+    },
+    "schedule_lag": {
+      "count": 67848,
+      "max_ms": 50.0,
+      "mean_ms": 7.982,
+      "min_ms": 0.092,
+      "p50_ms": 0.575,
+      "p90_ms": 29.516,
+      "p95_ms": 38.93,
+      "p99_ms": 48.192,
+      "stddev_ms": 12.816
+    },
+    "server_end_to_end": {
+      "count": 67848,
+      "max_ms": 63.0,
+      "mean_ms": 11.308,
+      "min_ms": 3.0,
+      "p50_ms": 8.0,
+      "p90_ms": 20.0,
+      "p95_ms": 23.0,
+      "p99_ms": 30.0,
+      "stddev_ms": 7.001
+    }
+  },
+  "limitations": [
+    "Generator saturated: offered rate was NOT delivered"
+  ],
+  "database_costs": {
+    "window_epoch_ms": [
+      1788663414014,
+      1788663719014
+    ],
+    "database_transactions_including_reads_per_job": 9.43074224737649,
+    "instance_wal_bytes_per_job": 2215.716528121684,
+    "instance_wal_syncs_per_job": 2.454825492276854,
+    "query_deltas_with_baseline": {},
+    "attribution": "Includes other database/instance activity and bracketing idle time; not isolated job cost"
+  },
+  "runtime_deltas": {
+    "claims": 433302.0,
+    "claim_returned": 67848.0,
+    "empty_claims": 367429.0,
+    "lease_renewals": 0.0,
+    "jobs_completed": 67848.0,
+    "persistence_failures": 0.0,
+    "reaped_jobs": 0.0,
+    "pool_checkout_count": 639888.0,
+    "pool_checkout_sum_ms": 4653.0,
+    "pool_checkout_failures": 0.0,
+    "cgroup_usage_usec": 745042129.0,
+    "cgroup_throttled_usec": 0.0,
+    "cgroup_nr_throttled": 0.0
+  },
+  "full_window_pods": [
+    "report-service-6cdfbcfb8-4tmwp",
+    "report-service-6cdfbcfb8-8vdmt",
+    "report-service-6cdfbcfb8-dmvm5",
+    "report-service-6cdfbcfb8-kqtkr",
+    "report-service-6cdfbcfb8-lj4wc",
+    "report-service-6cdfbcfb8-q6cll",
+    "report-service-6cdfbcfb8-tsqrd",
+    "report-service-6cdfbcfb8-v4lcd"
+  ],
+  "partial_window_pods": [],
+  "app_cpu_ms_per_job": 10.981047768541446,
+  "notes": [
+    "No memory-per-request estimate: resident RAM is shared, not an allocation cost.",
+    "CPU uses container cgroup counters only for complete, non-reset pod lifetimes.",
+    "Server latency ends at completion timestamp before commit; observed latency includes polling.",
+    "Use fixed replicas to compare resource cost; HPA run tests elasticity separately."
+  ]
+}

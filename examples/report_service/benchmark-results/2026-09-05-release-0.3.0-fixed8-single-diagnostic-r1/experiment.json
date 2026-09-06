@@ -1,0 +1,8 @@
+{
+  "image": "ghcr.io/otavioabreu27/report_service@sha256:67c55d7717c6fb5cb31580f8887b5f5724a990b8e0b82d66ff2554b2732f053d",
+  "scenario": "release-0.3.0-fixed8-single-diagnostic",
+  "stages": "60:50,60:150,60:300,60:500,60:150",
+  "batch_size": 1,
+  "require_runtime_metrics": 1,
+  "generators": 1
+}

@@ -1,0 +1,283 @@
+{
+  "scenario": "release-0.3.0-fixed8-single-diagnostic",
+  "phases": [
+    {
+      "rate_requests_s": 50.0,
+      "accepted": 3000,
+      "dropped": 0,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 3.694,
+          "enqueue_mean_ms": 3.412,
+          "server_job_p95_ms": 7.0,
+          "observed_p95_ms": 56.605
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": {
+          "count": 3640,
+          "mean_ms": 2.1796703296703295,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_get_handler": {
+          "count": 3632,
+          "mean_ms": 1.0077092511013215,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        },
+        "http_enqueue": {
+          "count": 3640,
+          "mean_ms": 2.0565934065934064,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_status_query": {
+          "count": 3632,
+          "mean_ms": 0.8375550660792952,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        },
+        "pool_checkout": {
+          "count": 43828,
+          "mean_ms": 0.0009354750387879894,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        }
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 32270,
+      "empty_claims": 28630,
+      "empty_fraction": 0.8872017353579176,
+      "window_ms": [
+        1788663415060,
+        1788663475060.0
+      ]
+    },
+    {
+      "rate_requests_s": 150.0,
+      "accepted": 8971,
+      "dropped": 29,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 5.755,
+          "enqueue_mean_ms": 4.528,
+          "server_job_p95_ms": 19.0,
+          "observed_p95_ms": 59.568
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": {
+          "count": 10291,
+          "mean_ms": 2.304732290350792,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_get_handler": {
+          "count": 10276,
+          "mean_ms": 1.0107045543012845,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_enqueue": {
+          "count": 10291,
+          "mean_ms": 2.1276843844135653,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_status_query": {
+          "count": 10276,
+          "mean_ms": 0.7967107824056053,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        },
+        "pool_checkout": {
+          "count": 114209,
+          "mean_ms": 0.0010769729180712553,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        }
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 82699,
+      "empty_claims": 72459,
+      "empty_fraction": 0.8761774628471928,
+      "window_ms": [
+        1788663475060.0,
+        1788663535060.0
+      ]
+    },
+    {
+      "rate_requests_s": 300.0,
+      "accepted": 17737,
+      "dropped": 263,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 5.558,
+          "enqueue_mean_ms": 5.448,
+          "server_job_p95_ms": 20.0,
+          "observed_p95_ms": 59.935
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": {
+          "count": 19867,
+          "mean_ms": 2.93451452156843,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_get_handler": {
+          "count": 19845,
+          "mean_ms": 1.1848324514991182,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_enqueue": {
+          "count": 19868,
+          "mean_ms": 2.706160660358365,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_status_query": {
+          "count": 19845,
+          "mean_ms": 0.9362055933484504,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "pool_checkout": {
+          "count": 203378,
+          "mean_ms": 0.0033582786732094918,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        }
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 143152,
+      "empty_claims": 123740,
+      "empty_fraction": 0.8643958868894601,
+      "window_ms": [
+        1788663535060.0,
+        1788663595060.0
+      ]
+    },
+    {
+      "rate_requests_s": 500.0,
+      "accepted": 29140,
+      "dropped": 860,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 56.644,
+          "enqueue_mean_ms": 20.705,
+          "server_job_p95_ms": 26.0,
+          "observed_p95_ms": 199.25
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": {
+          "count": 29793,
+          "mean_ms": 6.229651260363172,
+          "p95_bucket_upper_ms": 20,
+          "p95_bound_available": true
+        },
+        "http_get_handler": {
+          "count": 29803,
+          "mean_ms": 1.5071637083515081,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_enqueue": {
+          "count": 29793,
+          "mean_ms": 5.912932568052899,
+          "p95_bucket_upper_ms": 20,
+          "p95_bound_available": true
+        },
+        "http_status_query": {
+          "count": 29803,
+          "mean_ms": 1.1855517900882462,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "pool_checkout": {
+          "count": 221439,
+          "mean_ms": 0.018592027601280713,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        }
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 131406,
+      "empty_claims": 103178,
+      "empty_fraction": 0.785184846962848,
+      "window_ms": [
+        1788663595060.0,
+        1788663655060.0
+      ]
+    },
+    {
+      "rate_requests_s": 150.0,
+      "accepted": 9000,
+      "dropped": 0,
+      "per_generator": [
+        {
+          "enqueue_p95_ms": 5.919,
+          "enqueue_mean_ms": 4.866,
+          "server_job_p95_ms": 20.0,
+          "observed_p95_ms": 60.222
+        }
+      ],
+      "timed_segments": {
+        "http_post_handler": {
+          "count": 9034,
+          "mean_ms": 2.2603497896834184,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_get_handler": {
+          "count": 9063,
+          "mean_ms": 1.0062893081761006,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        },
+        "http_enqueue": {
+          "count": 9034,
+          "mean_ms": 2.080916537524906,
+          "p95_bucket_upper_ms": 5,
+          "p95_bound_available": true
+        },
+        "http_status_query": {
+          "count": 9063,
+          "mean_ms": 0.8250027584684982,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        },
+        "pool_checkout": {
+          "count": 101966,
+          "mean_ms": 0.0009709118725849793,
+          "p95_bucket_upper_ms": 1,
+          "p95_bound_available": true
+        }
+      },
+      "full_window_pods": 8,
+      "missing_pods": [],
+      "claims": 74197,
+      "empty_claims": 65196,
+      "empty_fraction": 0.878687817566748,
+      "window_ms": [
+        1788663655060.0,
+        1788663715060.0
+      ]
+    }
+  ],
+  "notes": [
+    "Server histogram deltas bracket each phase independently per pod; windows include sampling slack.",
+    "Pool checkout is aggregated across API, worker and control pools and includes acquisition overhead.",
+    "Server handler stops at response construction; it excludes socket send, network and client parsing.",
+    "Exact HTTP percentiles belong to each generator; server percentiles are bucket upper bounds.",
+    "Missing initial histogram keys mean no observations yet in an initialized diagnostic process.",
+    "Timing phases with missing pod boundaries are incomplete; do not treat them as full service totals."
+  ]
+}

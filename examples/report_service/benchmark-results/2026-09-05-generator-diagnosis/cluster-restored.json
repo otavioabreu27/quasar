@@ -1,0 +1,3660 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "30",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/name\":\"report-service\"},\"name\":\"report-service\",\"namespace\":\"reports\"},\"spec\":{\"replicas\":2,\"revisionHistoryLimit\":3,\"selector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"report-service\"}},\"strategy\":{\"rollingUpdate\":{\"maxSurge\":1,\"maxUnavailable\":0},\"type\":\"RollingUpdate\"},\"template\":{\"metadata\":{\"labels\":{\"app.kubernetes.io/name\":\"report-service\"}},\"spec\":{\"containers\":[{\"env\":[{\"name\":\"DATABASE_URL\",\"valueFrom\":{\"secretKeyRef\":{\"key\":\"DATABASE_URL\",\"name\":\"report-service\"}}},{\"name\":\"HOST\",\"value\":\"0.0.0.0\"},{\"name\":\"PORT\",\"value\":\"8080\"},{\"name\":\"INSTANCE_ID\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"metadata.name\"}}},{\"name\":\"DB_POOL_SIZE\",\"value\":\"8\"},{\"name\":\"WORKER_CONCURRENCY\",\"value\":\"8\"},{\"name\":\"WORKER_PREFETCH\",\"value\":\"1\"},{\"name\":\"QUEUE_POLL_INTERVAL_MS\",\"value\":\"5000\"},{\"name\":\"HTTP_POOL_WORKERS\",\"value\":\"32\"},{\"name\":\"HTTP_POOL_PREFETCH\",\"value\":\"2\"},{\"name\":\"HTTP_BUFFER_CAPACITY\",\"value\":\"256\"},{\"name\":\"SIMULATED_WORK_MS\",\"value\":\"0\"},{\"name\":\"RETENTION_COMPLETED_DAYS\",\"value\":\"7\"},{\"name\":\"RETENTION_CANCELLED_DAYS\",\"value\":\"30\"},{\"name\":\"RETENTION_DISCARDED_DAYS\",\"value\":\"30\"},{\"name\":\"RETENTION_BATCH_SIZE\",\"value\":\"1000\"},{\"name\":\"RETENTION_PAUSE_MS\",\"value\":\"100\"},{\"name\":\"RETENTION_INTERVAL_MS\",\"value\":\"60000\"}],\"image\":\"ghcr.io/otavioabreu27/report_service:latest\",\"imagePullPolicy\":\"Always\",\"livenessProbe\":{\"failureThreshold\":3,\"httpGet\":{\"path\":\"/health/live\",\"port\":\"http\"},\"periodSeconds\":10,\"timeoutSeconds\":2},\"name\":\"report-service\",\"ports\":[{\"containerPort\":8080,\"name\":\"http\"}],\"readinessProbe\":{\"failureThreshold\":3,\"httpGet\":{\"path\":\"/health/ready\",\"port\":\"http\"},\"periodSeconds\":5,\"timeoutSeconds\":3},\"resources\":{\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"250m\",\"memory\":\"256Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]},\"readOnlyRootFilesystem\":true},\"startupProbe\":{\"failureThreshold\":60,\"httpGet\":{\"path\":\"/health/live\",\"port\":\"http\"},\"periodSeconds\":2,\"timeoutSeconds\":2}}],\"securityContext\":{\"seccompProfile\":{\"type\":\"RuntimeDefault\"}},\"terminationGracePeriodSeconds\":30,\"topologySpreadConstraints\":[{\"labelSelector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"report-service\"}},\"maxSkew\":1,\"topologyKey\":\"kubernetes.io/hostname\",\"whenUnsatisfiable\":\"ScheduleAnyway\"}]}}}}\n"
+                },
+                "creationTimestamp": "2026-09-05T15:34:10Z",
+                "generation": 85,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service"
+                },
+                "name": "report-service",
+                "namespace": "reports",
+                "resourceVersion": "807541",
+                "uid": "da4b16fb-3a34-479f-993b-652f7bbda495"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 8,
+                "revisionHistoryLimit": 3,
+                "selector": {
+                    "matchLabels": {
+                        "app.kubernetes.io/name": "report-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": 1,
+                        "maxUnavailable": 0
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                        },
+                        "labels": {
+                            "app.kubernetes.io/name": "report-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "env": [
+                                    {
+                                        "name": "DATABASE_URL",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "key": "DATABASE_URL",
+                                                "name": "report-service"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "HOST",
+                                        "value": "0.0.0.0"
+                                    },
+                                    {
+                                        "name": "PORT",
+                                        "value": "8080"
+                                    },
+                                    {
+                                        "name": "INSTANCE_ID",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.name"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "DB_POOL_SIZE",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "name": "DB_WORKER_POOL_SIZE",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "name": "DB_CONTROL_POOL_SIZE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "REAPER_INTERVAL_MS",
+                                        "value": "1000"
+                                    },
+                                    {
+                                        "name": "COMPLETION_MODE",
+                                        "value": "transactional"
+                                    },
+                                    {
+                                        "name": "WORKER_CONCURRENCY",
+                                        "value": "8"
+                                    },
+                                    {
+                                        "name": "WORKER_PREFETCH",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "QUEUE_POLL_INTERVAL_MS",
+                                        "value": "5000"
+                                    },
+                                    {
+                                        "name": "HTTP_POOL_WORKERS",
+                                        "value": "32"
+                                    },
+                                    {
+                                        "name": "HTTP_POOL_PREFETCH",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "name": "HTTP_BUFFER_CAPACITY",
+                                        "value": "256"
+                                    },
+                                    {
+                                        "name": "SIMULATED_WORK_MS",
+                                        "value": "0"
+                                    },
+                                    {
+                                        "name": "RETENTION_COMPLETED_DAYS",
+                                        "value": "7"
+                                    },
+                                    {
+                                        "name": "RETENTION_CANCELLED_DAYS",
+                                        "value": "30"
+                                    },
+                                    {
+                                        "name": "RETENTION_DISCARDED_DAYS",
+                                        "value": "30"
+                                    },
+                                    {
+                                        "name": "RETENTION_BATCH_SIZE",
+                                        "value": "1000"
+                                    },
+                                    {
+                                        "name": "RETENTION_PAUSE_MS",
+                                        "value": "100"
+                                    },
+                                    {
+                                        "name": "RETENTION_INTERVAL_MS",
+                                        "value": "60000"
+                                    }
+                                ],
+                                "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                                "imagePullPolicy": "Always",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health/live",
+                                        "port": "http",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 2
+                                },
+                                "name": "report-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "name": "http",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health/ready",
+                                        "port": "http",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 5,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 3
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "2",
+                                        "memory": "1Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "250m",
+                                        "memory": "256Mi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    },
+                                    "readOnlyRootFilesystem": true
+                                },
+                                "startupProbe": {
+                                    "failureThreshold": 60,
+                                    "httpGet": {
+                                        "path": "/health/live",
+                                        "port": "http",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 2,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 2
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "seccompProfile": {
+                                "type": "RuntimeDefault"
+                            }
+                        },
+                        "terminationGracePeriodSeconds": 30,
+                        "topologySpreadConstraints": [
+                            {
+                                "labelSelector": {
+                                    "matchLabels": {
+                                        "app.kubernetes.io/name": "report-service"
+                                    }
+                                },
+                                "maxSkew": 1,
+                                "topologyKey": "kubernetes.io/hostname",
+                                "whenUnsatisfiable": "ScheduleAnyway"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 8,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-09-06T02:48:06Z",
+                        "lastUpdateTime": "2026-09-06T02:48:06Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-09-05T15:34:10Z",
+                        "lastUpdateTime": "2026-09-06T03:03:34Z",
+                        "message": "ReplicaSet \"report-service-66d59697ff\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 85,
+                "readyReplicas": 8,
+                "replicas": 8,
+                "terminatingReplicas": 0,
+                "updatedReplicas": 8
+            }
+        },
+        {
+            "apiVersion": "autoscaling/v2",
+            "kind": "HorizontalPodAutoscaler",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"autoscaling/v2\",\"kind\":\"HorizontalPodAutoscaler\",\"metadata\":{\"annotations\":{},\"name\":\"report-service\",\"namespace\":\"reports\"},\"spec\":{\"behavior\":{\"scaleDown\":{\"policies\":[{\"periodSeconds\":60,\"type\":\"Percent\",\"value\":25}],\"selectPolicy\":\"Max\",\"stabilizationWindowSeconds\":300},\"scaleUp\":{\"policies\":[{\"periodSeconds\":60,\"type\":\"Percent\",\"value\":100},{\"periodSeconds\":60,\"type\":\"Pods\",\"value\":4}],\"selectPolicy\":\"Max\",\"stabilizationWindowSeconds\":0}},\"maxReplicas\":8,\"metrics\":[{\"resource\":{\"name\":\"cpu\",\"target\":{\"averageUtilization\":70,\"type\":\"Utilization\"}},\"type\":\"Resource\"},{\"resource\":{\"name\":\"memory\",\"target\":{\"averageUtilization\":80,\"type\":\"Utilization\"}},\"type\":\"Resource\"}],\"minReplicas\":2,\"scaleTargetRef\":{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"name\":\"report-service\"}}}\n"
+                },
+                "creationTimestamp": "2026-09-05T15:34:10Z",
+                "name": "report-service",
+                "namespace": "reports",
+                "resourceVersion": "807642",
+                "uid": "e85b8050-dfdc-4a36-9e93-572542195403"
+            },
+            "spec": {
+                "behavior": {
+                    "scaleDown": {
+                        "policies": [
+                            {
+                                "periodSeconds": 60,
+                                "type": "Percent",
+                                "value": 25
+                            }
+                        ],
+                        "selectPolicy": "Max",
+                        "stabilizationWindowSeconds": 300
+                    },
+                    "scaleUp": {
+                        "policies": [
+                            {
+                                "periodSeconds": 60,
+                                "type": "Percent",
+                                "value": 100
+                            },
+                            {
+                                "periodSeconds": 60,
+                                "type": "Pods",
+                                "value": 4
+                            }
+                        ],
+                        "selectPolicy": "Max",
+                        "stabilizationWindowSeconds": 0
+                    }
+                },
+                "maxReplicas": 8,
+                "metrics": [
+                    {
+                        "resource": {
+                            "name": "cpu",
+                            "target": {
+                                "averageUtilization": 70,
+                                "type": "Utilization"
+                            }
+                        },
+                        "type": "Resource"
+                    },
+                    {
+                        "resource": {
+                            "name": "memory",
+                            "target": {
+                                "averageUtilization": 80,
+                                "type": "Utilization"
+                            }
+                        },
+                        "type": "Resource"
+                    }
+                ],
+                "minReplicas": 2,
+                "scaleTargetRef": {
+                    "apiVersion": "apps/v1",
+                    "kind": "Deployment",
+                    "name": "report-service"
+                }
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-09-05T15:34:25Z",
+                        "message": "recent recommendations were higher than current one, applying the highest recent recommendation",
+                        "reason": "ScaleDownStabilized",
+                        "status": "True",
+                        "type": "AbleToScale"
+                    },
+                    {
+                        "lastTransitionTime": "2026-09-06T02:48:26Z",
+                        "message": "the HPA was able to successfully calculate a replica count from memory resource utilization (percentage of request)",
+                        "reason": "ValidMetricFound",
+                        "status": "True",
+                        "type": "ScalingActive"
+                    },
+                    {
+                        "lastTransitionTime": "2026-09-06T03:02:12Z",
+                        "message": "the desired count is within the acceptable range",
+                        "reason": "DesiredWithinRange",
+                        "status": "False",
+                        "type": "ScalingLimited"
+                    }
+                ],
+                "currentMetrics": [
+                    {
+                        "resource": {
+                            "current": {
+                                "averageUtilization": 0,
+                                "averageValue": "2m"
+                            },
+                            "name": "cpu"
+                        },
+                        "type": "Resource"
+                    },
+                    {
+                        "resource": {
+                            "current": {
+                                "averageUtilization": 27,
+                                "averageValue": "72932864"
+                            },
+                            "name": "memory"
+                        },
+                        "type": "Resource"
+                    }
+                ],
+                "currentReplicas": 8,
+                "desiredReplicas": 8,
+                "lastScaleTime": "2026-09-06T02:45:11Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                },
+                "creationTimestamp": "2026-09-06T03:03:30Z",
+                "generateName": "report-service-66d59697ff-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service",
+                    "pod-template-hash": "66d59697ff"
+                },
+                "name": "report-service-66d59697ff-89l2z",
+                "namespace": "reports",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "report-service-66d59697ff",
+                        "uid": "4ced781d-c30a-4d8c-a75c-473bb638dc0b"
+                    }
+                ],
+                "resourceVersion": "807522",
+                "uid": "f13304e3-bd4d-4828-bac2-dfacd24ad979"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "DATABASE_URL",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DATABASE_URL",
+                                        "name": "report-service"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HOST",
+                                "value": "0.0.0.0"
+                            },
+                            {
+                                "name": "PORT",
+                                "value": "8080"
+                            },
+                            {
+                                "name": "INSTANCE_ID",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DB_POOL_SIZE",
+                                "value": "3"
+                            },
+                            {
+                                "name": "DB_WORKER_POOL_SIZE",
+                                "value": "4"
+                            },
+                            {
+                                "name": "DB_CONTROL_POOL_SIZE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "REAPER_INTERVAL_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "COMPLETION_MODE",
+                                "value": "transactional"
+                            },
+                            {
+                                "name": "WORKER_CONCURRENCY",
+                                "value": "8"
+                            },
+                            {
+                                "name": "WORKER_PREFETCH",
+                                "value": "1"
+                            },
+                            {
+                                "name": "QUEUE_POLL_INTERVAL_MS",
+                                "value": "5000"
+                            },
+                            {
+                                "name": "HTTP_POOL_WORKERS",
+                                "value": "32"
+                            },
+                            {
+                                "name": "HTTP_POOL_PREFETCH",
+                                "value": "2"
+                            },
+                            {
+                                "name": "HTTP_BUFFER_CAPACITY",
+                                "value": "256"
+                            },
+                            {
+                                "name": "SIMULATED_WORK_MS",
+                                "value": "0"
+                            },
+                            {
+                                "name": "RETENTION_COMPLETED_DAYS",
+                                "value": "7"
+                            },
+                            {
+                                "name": "RETENTION_CANCELLED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_DISCARDED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_BATCH_SIZE",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RETENTION_PAUSE_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RETENTION_INTERVAL_MS",
+                                "value": "60000"
+                            }
+                        ],
+                        "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "imagePullPolicy": "Always",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "name": "report-service",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/ready",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 60,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-g72z7",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "k3s-worker-1",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "report-service"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-g72z7",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:31Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:30Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:33Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:33Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:30Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://82fe77baf6dce68c720a8af60672682df94b7a0f5a60691424075693ea083380",
+                        "image": "sha256:a7c47d2d592783dd09e567c11e7d20b26d3bd4d6d2452a4eac4cf9f67dc11d5a",
+                        "imageID": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "lastState": {},
+                        "name": "report-service",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-06T03:03:32Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 10001,
+                                "supplementalGroups": [
+                                    10001
+                                ],
+                                "uid": 10001
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-g72z7",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.15.202",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.15.202"
+                    },
+                    {
+                        "ip": "2804:1b3:a9c0:56d1:be24:11ff:fe53:ade7"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.42.2.172",
+                "podIPs": [
+                    {
+                        "ip": "10.42.2.172"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "232m",
+                        "memory": "256Mi"
+                    }
+                },
+                "startTime": "2026-09-06T03:03:30Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                },
+                "creationTimestamp": "2026-09-06T03:03:19Z",
+                "generateName": "report-service-66d59697ff-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service",
+                    "pod-template-hash": "66d59697ff"
+                },
+                "name": "report-service-66d59697ff-csxp5",
+                "namespace": "reports",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "report-service-66d59697ff",
+                        "uid": "4ced781d-c30a-4d8c-a75c-473bb638dc0b"
+                    }
+                ],
+                "resourceVersion": "807351",
+                "uid": "2fe39615-41c9-4089-a9af-bb5c465c94a4"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "DATABASE_URL",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DATABASE_URL",
+                                        "name": "report-service"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HOST",
+                                "value": "0.0.0.0"
+                            },
+                            {
+                                "name": "PORT",
+                                "value": "8080"
+                            },
+                            {
+                                "name": "INSTANCE_ID",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DB_POOL_SIZE",
+                                "value": "3"
+                            },
+                            {
+                                "name": "DB_WORKER_POOL_SIZE",
+                                "value": "4"
+                            },
+                            {
+                                "name": "DB_CONTROL_POOL_SIZE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "REAPER_INTERVAL_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "COMPLETION_MODE",
+                                "value": "transactional"
+                            },
+                            {
+                                "name": "WORKER_CONCURRENCY",
+                                "value": "8"
+                            },
+                            {
+                                "name": "WORKER_PREFETCH",
+                                "value": "1"
+                            },
+                            {
+                                "name": "QUEUE_POLL_INTERVAL_MS",
+                                "value": "5000"
+                            },
+                            {
+                                "name": "HTTP_POOL_WORKERS",
+                                "value": "32"
+                            },
+                            {
+                                "name": "HTTP_POOL_PREFETCH",
+                                "value": "2"
+                            },
+                            {
+                                "name": "HTTP_BUFFER_CAPACITY",
+                                "value": "256"
+                            },
+                            {
+                                "name": "SIMULATED_WORK_MS",
+                                "value": "0"
+                            },
+                            {
+                                "name": "RETENTION_COMPLETED_DAYS",
+                                "value": "7"
+                            },
+                            {
+                                "name": "RETENTION_CANCELLED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_DISCARDED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_BATCH_SIZE",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RETENTION_PAUSE_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RETENTION_INTERVAL_MS",
+                                "value": "60000"
+                            }
+                        ],
+                        "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "imagePullPolicy": "Always",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "name": "report-service",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/ready",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 60,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-qxpkx",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "k3s-worker-2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "report-service"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-qxpkx",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:19Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:19Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:22Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:22Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:19Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://758ccdd189f914f6df3476de408282333c0e1b6014d15648d7045651e5f4bae3",
+                        "image": "sha256:a7c47d2d592783dd09e567c11e7d20b26d3bd4d6d2452a4eac4cf9f67dc11d5a",
+                        "imageID": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "lastState": {},
+                        "name": "report-service",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-06T03:03:20Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 10001,
+                                "supplementalGroups": [
+                                    10001
+                                ],
+                                "uid": 10001
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-qxpkx",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.15.203",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.15.203"
+                    },
+                    {
+                        "ip": "2804:1b3:a9c0:56d1:be24:11ff:fe96:a68d"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.42.1.159",
+                "podIPs": [
+                    {
+                        "ip": "10.42.1.159"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "232m",
+                        "memory": "256Mi"
+                    }
+                },
+                "startTime": "2026-09-06T03:03:19Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                },
+                "creationTimestamp": "2026-09-06T03:03:25Z",
+                "generateName": "report-service-66d59697ff-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service",
+                    "pod-template-hash": "66d59697ff"
+                },
+                "name": "report-service-66d59697ff-ddjhn",
+                "namespace": "reports",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "report-service-66d59697ff",
+                        "uid": "4ced781d-c30a-4d8c-a75c-473bb638dc0b"
+                    }
+                ],
+                "resourceVersion": "807434",
+                "uid": "461ed39e-ea35-4f18-a812-2d1e5b1ac60a"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "DATABASE_URL",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DATABASE_URL",
+                                        "name": "report-service"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HOST",
+                                "value": "0.0.0.0"
+                            },
+                            {
+                                "name": "PORT",
+                                "value": "8080"
+                            },
+                            {
+                                "name": "INSTANCE_ID",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DB_POOL_SIZE",
+                                "value": "3"
+                            },
+                            {
+                                "name": "DB_WORKER_POOL_SIZE",
+                                "value": "4"
+                            },
+                            {
+                                "name": "DB_CONTROL_POOL_SIZE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "REAPER_INTERVAL_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "COMPLETION_MODE",
+                                "value": "transactional"
+                            },
+                            {
+                                "name": "WORKER_CONCURRENCY",
+                                "value": "8"
+                            },
+                            {
+                                "name": "WORKER_PREFETCH",
+                                "value": "1"
+                            },
+                            {
+                                "name": "QUEUE_POLL_INTERVAL_MS",
+                                "value": "5000"
+                            },
+                            {
+                                "name": "HTTP_POOL_WORKERS",
+                                "value": "32"
+                            },
+                            {
+                                "name": "HTTP_POOL_PREFETCH",
+                                "value": "2"
+                            },
+                            {
+                                "name": "HTTP_BUFFER_CAPACITY",
+                                "value": "256"
+                            },
+                            {
+                                "name": "SIMULATED_WORK_MS",
+                                "value": "0"
+                            },
+                            {
+                                "name": "RETENTION_COMPLETED_DAYS",
+                                "value": "7"
+                            },
+                            {
+                                "name": "RETENTION_CANCELLED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_DISCARDED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_BATCH_SIZE",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RETENTION_PAUSE_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RETENTION_INTERVAL_MS",
+                                "value": "60000"
+                            }
+                        ],
+                        "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "imagePullPolicy": "Always",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "name": "report-service",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/ready",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 60,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-kg7t2",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "k3s-worker-1",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "report-service"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-kg7t2",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:25Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:25Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:27Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:27Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:25Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://24e9eb3c2b1e5ce9dbf845116b3615fc25af33ea70ec0b95a994db94edb23e89",
+                        "image": "sha256:a7c47d2d592783dd09e567c11e7d20b26d3bd4d6d2452a4eac4cf9f67dc11d5a",
+                        "imageID": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "lastState": {},
+                        "name": "report-service",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-06T03:03:26Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 10001,
+                                "supplementalGroups": [
+                                    10001
+                                ],
+                                "uid": 10001
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-kg7t2",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.15.202",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.15.202"
+                    },
+                    {
+                        "ip": "2804:1b3:a9c0:56d1:be24:11ff:fe53:ade7"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.42.2.170",
+                "podIPs": [
+                    {
+                        "ip": "10.42.2.170"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "232m",
+                        "memory": "256Mi"
+                    }
+                },
+                "startTime": "2026-09-06T03:03:25Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                },
+                "creationTimestamp": "2026-09-06T03:03:16Z",
+                "generateName": "report-service-66d59697ff-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service",
+                    "pod-template-hash": "66d59697ff"
+                },
+                "name": "report-service-66d59697ff-ddxqx",
+                "namespace": "reports",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "report-service-66d59697ff",
+                        "uid": "4ced781d-c30a-4d8c-a75c-473bb638dc0b"
+                    }
+                ],
+                "resourceVersion": "807306",
+                "uid": "cf329b49-9801-4c56-85e5-d4f94828ee86"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "DATABASE_URL",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DATABASE_URL",
+                                        "name": "report-service"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HOST",
+                                "value": "0.0.0.0"
+                            },
+                            {
+                                "name": "PORT",
+                                "value": "8080"
+                            },
+                            {
+                                "name": "INSTANCE_ID",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DB_POOL_SIZE",
+                                "value": "3"
+                            },
+                            {
+                                "name": "DB_WORKER_POOL_SIZE",
+                                "value": "4"
+                            },
+                            {
+                                "name": "DB_CONTROL_POOL_SIZE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "REAPER_INTERVAL_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "COMPLETION_MODE",
+                                "value": "transactional"
+                            },
+                            {
+                                "name": "WORKER_CONCURRENCY",
+                                "value": "8"
+                            },
+                            {
+                                "name": "WORKER_PREFETCH",
+                                "value": "1"
+                            },
+                            {
+                                "name": "QUEUE_POLL_INTERVAL_MS",
+                                "value": "5000"
+                            },
+                            {
+                                "name": "HTTP_POOL_WORKERS",
+                                "value": "32"
+                            },
+                            {
+                                "name": "HTTP_POOL_PREFETCH",
+                                "value": "2"
+                            },
+                            {
+                                "name": "HTTP_BUFFER_CAPACITY",
+                                "value": "256"
+                            },
+                            {
+                                "name": "SIMULATED_WORK_MS",
+                                "value": "0"
+                            },
+                            {
+                                "name": "RETENTION_COMPLETED_DAYS",
+                                "value": "7"
+                            },
+                            {
+                                "name": "RETENTION_CANCELLED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_DISCARDED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_BATCH_SIZE",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RETENTION_PAUSE_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RETENTION_INTERVAL_MS",
+                                "value": "60000"
+                            }
+                        ],
+                        "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "imagePullPolicy": "Always",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "name": "report-service",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/ready",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 60,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-d2q4q",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "k3s-master",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "report-service"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-d2q4q",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:16Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:16Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:19Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:19Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:16Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://603bac837fe0009bc385b5e6b8f6c5361b85fa5ed059d5d931d8e1293b1a83bc",
+                        "image": "sha256:a7c47d2d592783dd09e567c11e7d20b26d3bd4d6d2452a4eac4cf9f67dc11d5a",
+                        "imageID": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "lastState": {},
+                        "name": "report-service",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-06T03:03:17Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 10001,
+                                "supplementalGroups": [
+                                    10001
+                                ],
+                                "uid": 10001
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-d2q4q",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.15.201",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.15.201"
+                    },
+                    {
+                        "ip": "2804:1b3:a9c0:56d1:be24:11ff:fe28:772"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.42.0.189",
+                "podIPs": [
+                    {
+                        "ip": "10.42.0.189"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "232m",
+                        "memory": "256Mi"
+                    }
+                },
+                "startTime": "2026-09-06T03:03:16Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                },
+                "creationTimestamp": "2026-09-06T03:03:09Z",
+                "generateName": "report-service-66d59697ff-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service",
+                    "pod-template-hash": "66d59697ff"
+                },
+                "name": "report-service-66d59697ff-jhdv4",
+                "namespace": "reports",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "report-service-66d59697ff",
+                        "uid": "4ced781d-c30a-4d8c-a75c-473bb638dc0b"
+                    }
+                ],
+                "resourceVersion": "807221",
+                "uid": "c4583783-7b3a-4457-8abd-0ec9c6a47295"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "DATABASE_URL",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DATABASE_URL",
+                                        "name": "report-service"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HOST",
+                                "value": "0.0.0.0"
+                            },
+                            {
+                                "name": "PORT",
+                                "value": "8080"
+                            },
+                            {
+                                "name": "INSTANCE_ID",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DB_POOL_SIZE",
+                                "value": "3"
+                            },
+                            {
+                                "name": "DB_WORKER_POOL_SIZE",
+                                "value": "4"
+                            },
+                            {
+                                "name": "DB_CONTROL_POOL_SIZE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "REAPER_INTERVAL_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "COMPLETION_MODE",
+                                "value": "transactional"
+                            },
+                            {
+                                "name": "WORKER_CONCURRENCY",
+                                "value": "8"
+                            },
+                            {
+                                "name": "WORKER_PREFETCH",
+                                "value": "1"
+                            },
+                            {
+                                "name": "QUEUE_POLL_INTERVAL_MS",
+                                "value": "5000"
+                            },
+                            {
+                                "name": "HTTP_POOL_WORKERS",
+                                "value": "32"
+                            },
+                            {
+                                "name": "HTTP_POOL_PREFETCH",
+                                "value": "2"
+                            },
+                            {
+                                "name": "HTTP_BUFFER_CAPACITY",
+                                "value": "256"
+                            },
+                            {
+                                "name": "SIMULATED_WORK_MS",
+                                "value": "0"
+                            },
+                            {
+                                "name": "RETENTION_COMPLETED_DAYS",
+                                "value": "7"
+                            },
+                            {
+                                "name": "RETENTION_CANCELLED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_DISCARDED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_BATCH_SIZE",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RETENTION_PAUSE_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RETENTION_INTERVAL_MS",
+                                "value": "60000"
+                            }
+                        ],
+                        "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "imagePullPolicy": "Always",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "name": "report-service",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/ready",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 60,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-xdt77",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "k3s-worker-2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "report-service"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-xdt77",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:10Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:09Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:09Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://92c521df7189d81717af4bc9ebdacd2a9162bf629e8b325f83f5cc9d1adf5269",
+                        "image": "sha256:a7c47d2d592783dd09e567c11e7d20b26d3bd4d6d2452a4eac4cf9f67dc11d5a",
+                        "imageID": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "lastState": {},
+                        "name": "report-service",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-06T03:03:10Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 10001,
+                                "supplementalGroups": [
+                                    10001
+                                ],
+                                "uid": 10001
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-xdt77",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.15.203",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.15.203"
+                    },
+                    {
+                        "ip": "2804:1b3:a9c0:56d1:be24:11ff:fe96:a68d"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.42.1.158",
+                "podIPs": [
+                    {
+                        "ip": "10.42.1.158"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "232m",
+                        "memory": "256Mi"
+                    }
+                },
+                "startTime": "2026-09-06T03:03:09Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                },
+                "creationTimestamp": "2026-09-06T03:03:22Z",
+                "generateName": "report-service-66d59697ff-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service",
+                    "pod-template-hash": "66d59697ff"
+                },
+                "name": "report-service-66d59697ff-js9rm",
+                "namespace": "reports",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "report-service-66d59697ff",
+                        "uid": "4ced781d-c30a-4d8c-a75c-473bb638dc0b"
+                    }
+                ],
+                "resourceVersion": "807393",
+                "uid": "92578043-6c88-4169-af9d-59a7e68a32d3"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "DATABASE_URL",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DATABASE_URL",
+                                        "name": "report-service"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HOST",
+                                "value": "0.0.0.0"
+                            },
+                            {
+                                "name": "PORT",
+                                "value": "8080"
+                            },
+                            {
+                                "name": "INSTANCE_ID",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DB_POOL_SIZE",
+                                "value": "3"
+                            },
+                            {
+                                "name": "DB_WORKER_POOL_SIZE",
+                                "value": "4"
+                            },
+                            {
+                                "name": "DB_CONTROL_POOL_SIZE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "REAPER_INTERVAL_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "COMPLETION_MODE",
+                                "value": "transactional"
+                            },
+                            {
+                                "name": "WORKER_CONCURRENCY",
+                                "value": "8"
+                            },
+                            {
+                                "name": "WORKER_PREFETCH",
+                                "value": "1"
+                            },
+                            {
+                                "name": "QUEUE_POLL_INTERVAL_MS",
+                                "value": "5000"
+                            },
+                            {
+                                "name": "HTTP_POOL_WORKERS",
+                                "value": "32"
+                            },
+                            {
+                                "name": "HTTP_POOL_PREFETCH",
+                                "value": "2"
+                            },
+                            {
+                                "name": "HTTP_BUFFER_CAPACITY",
+                                "value": "256"
+                            },
+                            {
+                                "name": "SIMULATED_WORK_MS",
+                                "value": "0"
+                            },
+                            {
+                                "name": "RETENTION_COMPLETED_DAYS",
+                                "value": "7"
+                            },
+                            {
+                                "name": "RETENTION_CANCELLED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_DISCARDED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_BATCH_SIZE",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RETENTION_PAUSE_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RETENTION_INTERVAL_MS",
+                                "value": "60000"
+                            }
+                        ],
+                        "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "imagePullPolicy": "Always",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "name": "report-service",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/ready",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 60,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-pnjjd",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "k3s-worker-2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "report-service"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-pnjjd",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:22Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:22Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:25Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:25Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:22Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://bcd9554ad8e0c135bd090e8ec373812d62b27d2956b463f809304776b6355421",
+                        "image": "sha256:a7c47d2d592783dd09e567c11e7d20b26d3bd4d6d2452a4eac4cf9f67dc11d5a",
+                        "imageID": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "lastState": {},
+                        "name": "report-service",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-06T03:03:23Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 10001,
+                                "supplementalGroups": [
+                                    10001
+                                ],
+                                "uid": 10001
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-pnjjd",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.15.203",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.15.203"
+                    },
+                    {
+                        "ip": "2804:1b3:a9c0:56d1:be24:11ff:fe96:a68d"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.42.1.160",
+                "podIPs": [
+                    {
+                        "ip": "10.42.1.160"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "232m",
+                        "memory": "256Mi"
+                    }
+                },
+                "startTime": "2026-09-06T03:03:22Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                },
+                "creationTimestamp": "2026-09-06T03:03:27Z",
+                "generateName": "report-service-66d59697ff-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service",
+                    "pod-template-hash": "66d59697ff"
+                },
+                "name": "report-service-66d59697ff-qrcgj",
+                "namespace": "reports",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "report-service-66d59697ff",
+                        "uid": "4ced781d-c30a-4d8c-a75c-473bb638dc0b"
+                    }
+                ],
+                "resourceVersion": "807479",
+                "uid": "260a80f3-6680-4d53-a167-153f1949d9dd"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "DATABASE_URL",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DATABASE_URL",
+                                        "name": "report-service"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HOST",
+                                "value": "0.0.0.0"
+                            },
+                            {
+                                "name": "PORT",
+                                "value": "8080"
+                            },
+                            {
+                                "name": "INSTANCE_ID",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DB_POOL_SIZE",
+                                "value": "3"
+                            },
+                            {
+                                "name": "DB_WORKER_POOL_SIZE",
+                                "value": "4"
+                            },
+                            {
+                                "name": "DB_CONTROL_POOL_SIZE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "REAPER_INTERVAL_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "COMPLETION_MODE",
+                                "value": "transactional"
+                            },
+                            {
+                                "name": "WORKER_CONCURRENCY",
+                                "value": "8"
+                            },
+                            {
+                                "name": "WORKER_PREFETCH",
+                                "value": "1"
+                            },
+                            {
+                                "name": "QUEUE_POLL_INTERVAL_MS",
+                                "value": "5000"
+                            },
+                            {
+                                "name": "HTTP_POOL_WORKERS",
+                                "value": "32"
+                            },
+                            {
+                                "name": "HTTP_POOL_PREFETCH",
+                                "value": "2"
+                            },
+                            {
+                                "name": "HTTP_BUFFER_CAPACITY",
+                                "value": "256"
+                            },
+                            {
+                                "name": "SIMULATED_WORK_MS",
+                                "value": "0"
+                            },
+                            {
+                                "name": "RETENTION_COMPLETED_DAYS",
+                                "value": "7"
+                            },
+                            {
+                                "name": "RETENTION_CANCELLED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_DISCARDED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_BATCH_SIZE",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RETENTION_PAUSE_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RETENTION_INTERVAL_MS",
+                                "value": "60000"
+                            }
+                        ],
+                        "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "imagePullPolicy": "Always",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "name": "report-service",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/ready",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 60,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-dlbrf",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "k3s-worker-1",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "report-service"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-dlbrf",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:28Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:27Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:30Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:30Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:27Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://fb017b6ed8e5e042fd65dacf086554dff211528a07c803781b21948c1cc5d6a7",
+                        "image": "sha256:a7c47d2d592783dd09e567c11e7d20b26d3bd4d6d2452a4eac4cf9f67dc11d5a",
+                        "imageID": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "lastState": {},
+                        "name": "report-service",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-06T03:03:29Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 10001,
+                                "supplementalGroups": [
+                                    10001
+                                ],
+                                "uid": 10001
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-dlbrf",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.15.202",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.15.202"
+                    },
+                    {
+                        "ip": "2804:1b3:a9c0:56d1:be24:11ff:fe53:ade7"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.42.2.171",
+                "podIPs": [
+                    {
+                        "ip": "10.42.2.171"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "232m",
+                        "memory": "256Mi"
+                    }
+                },
+                "startTime": "2026-09-06T03:03:27Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/restartedAt": "2026-09-05T18:05:59-03:00"
+                },
+                "creationTimestamp": "2026-09-06T03:03:13Z",
+                "generateName": "report-service-66d59697ff-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/name": "report-service",
+                    "pod-template-hash": "66d59697ff"
+                },
+                "name": "report-service-66d59697ff-vpph2",
+                "namespace": "reports",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "report-service-66d59697ff",
+                        "uid": "4ced781d-c30a-4d8c-a75c-473bb638dc0b"
+                    }
+                ],
+                "resourceVersion": "807265",
+                "uid": "a970cb08-8ccf-4720-ad4d-be8e9c921727"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "DATABASE_URL",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DATABASE_URL",
+                                        "name": "report-service"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HOST",
+                                "value": "0.0.0.0"
+                            },
+                            {
+                                "name": "PORT",
+                                "value": "8080"
+                            },
+                            {
+                                "name": "INSTANCE_ID",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DB_POOL_SIZE",
+                                "value": "3"
+                            },
+                            {
+                                "name": "DB_WORKER_POOL_SIZE",
+                                "value": "4"
+                            },
+                            {
+                                "name": "DB_CONTROL_POOL_SIZE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "REAPER_INTERVAL_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "COMPLETION_MODE",
+                                "value": "transactional"
+                            },
+                            {
+                                "name": "WORKER_CONCURRENCY",
+                                "value": "8"
+                            },
+                            {
+                                "name": "WORKER_PREFETCH",
+                                "value": "1"
+                            },
+                            {
+                                "name": "QUEUE_POLL_INTERVAL_MS",
+                                "value": "5000"
+                            },
+                            {
+                                "name": "HTTP_POOL_WORKERS",
+                                "value": "32"
+                            },
+                            {
+                                "name": "HTTP_POOL_PREFETCH",
+                                "value": "2"
+                            },
+                            {
+                                "name": "HTTP_BUFFER_CAPACITY",
+                                "value": "256"
+                            },
+                            {
+                                "name": "SIMULATED_WORK_MS",
+                                "value": "0"
+                            },
+                            {
+                                "name": "RETENTION_COMPLETED_DAYS",
+                                "value": "7"
+                            },
+                            {
+                                "name": "RETENTION_CANCELLED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_DISCARDED_DAYS",
+                                "value": "30"
+                            },
+                            {
+                                "name": "RETENTION_BATCH_SIZE",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RETENTION_PAUSE_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RETENTION_INTERVAL_MS",
+                                "value": "60000"
+                            }
+                        ],
+                        "image": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "imagePullPolicy": "Always",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "name": "report-service",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health/ready",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 60,
+                            "httpGet": {
+                                "path": "/health/live",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 2
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-cgrtk",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "k3s-master",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "report-service"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-cgrtk",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:16Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:16Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-06T03:03:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://1b9136cbc660fb719d0d0697c922671bd94fc3e535fe77d1be52d85de88326c8",
+                        "image": "sha256:a7c47d2d592783dd09e567c11e7d20b26d3bd4d6d2452a4eac4cf9f67dc11d5a",
+                        "imageID": "ghcr.io/otavioabreu27/report_service@sha256:1177329ebbd53243b6c2b7763b26a59fb964e659683af3a3239c99fe52443a38",
+                        "lastState": {},
+                        "name": "report-service",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-06T03:03:14Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 10001,
+                                "supplementalGroups": [
+                                    10001
+                                ],
+                                "uid": 10001
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-cgrtk",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.15.201",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.15.201"
+                    },
+                    {
+                        "ip": "2804:1b3:a9c0:56d1:be24:11ff:fe28:772"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.42.0.188",
+                "podIPs": [
+                    {
+                        "ip": "10.42.0.188"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "232m",
+                        "memory": "256Mi"
+                    }
+                },
+                "startTime": "2026-09-06T03:03:13Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

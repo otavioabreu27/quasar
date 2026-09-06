@@ -1,0 +1,693 @@
+{
+  "scenario": "release-0.3.0-fixed8-dual",
+  "scheduled_requests": 69000,
+  "attempted_requests": 68683,
+  "accepted": 68683,
+  "completed": 68683,
+  "submit_errors": {},
+  "poll_errors": {},
+  "generator_dropped": {
+    "executor_late": 130,
+    "scheduler_late": 186,
+    "submit_capacity": 1
+  },
+  "invalid_results": 0,
+  "phases": [
+    {
+      "index": 0,
+      "duration_s": 60.0,
+      "rate_requests_s": 50.0,
+      "scheduled": 3000,
+      "attempted": 3000,
+      "accepted": 3000,
+      "completed": 3000,
+      "dropped": 0,
+      "submit_errors": 0,
+      "generators": [
+        {
+          "accepted": 1500,
+          "attempted": 1500,
+          "completed": 1500,
+          "dropped": 0,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 1500,
+            "max_ms": 91.525,
+            "mean_ms": 56.563,
+            "min_ms": 55.299,
+            "p50_ms": 56.458,
+            "p90_ms": 57.177,
+            "p95_ms": 57.373,
+            "p99_ms": 58.274,
+            "stddev_ms": 1.092
+          },
+          "enqueue_ms": {
+            "count": 1500,
+            "max_ms": 16.826,
+            "mean_ms": 3.841,
+            "min_ms": 2.842,
+            "p50_ms": 3.74,
+            "p90_ms": 4.451,
+            "p95_ms": 4.652,
+            "p99_ms": 5.125,
+            "stddev_ms": 0.654
+          },
+          "index": 0,
+          "rate_requests_s": 25.0,
+          "schedule_lag_ms": {
+            "count": 1500,
+            "max_ms": 15.739,
+            "mean_ms": 0.245,
+            "min_ms": 0.103,
+            "p50_ms": 0.211,
+            "p90_ms": 0.314,
+            "p95_ms": 0.348,
+            "p99_ms": 0.789,
+            "stddev_ms": 0.424
+          },
+          "scheduled": 1500,
+          "server_e2e_ms": {
+            "count": 1500,
+            "max_ms": 27.0,
+            "mean_ms": 12.191,
+            "min_ms": 5.0,
+            "p50_ms": 8.0,
+            "p90_ms": 19.0,
+            "p95_ms": 19.0,
+            "p99_ms": 20.0,
+            "stddev_ms": 5.943
+          },
+          "submit_errors": 0
+        },
+        {
+          "accepted": 1500,
+          "attempted": 1500,
+          "completed": 1500,
+          "dropped": 0,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 1500,
+            "max_ms": 92.255,
+            "mean_ms": 56.624,
+            "min_ms": 55.314,
+            "p50_ms": 56.59,
+            "p90_ms": 57.171,
+            "p95_ms": 57.341,
+            "p99_ms": 58.236,
+            "stddev_ms": 1.125
+          },
+          "enqueue_ms": {
+            "count": 1500,
+            "max_ms": 17.068,
+            "mean_ms": 3.913,
+            "min_ms": 2.887,
+            "p50_ms": 4.028,
+            "p90_ms": 4.489,
+            "p95_ms": 4.645,
+            "p99_ms": 5.009,
+            "stddev_ms": 0.681
+          },
+          "index": 0,
+          "rate_requests_s": 25.0,
+          "schedule_lag_ms": {
+            "count": 1500,
+            "max_ms": 15.746,
+            "mean_ms": 0.246,
+            "min_ms": 0.102,
+            "p50_ms": 0.21,
+            "p90_ms": 0.312,
+            "p95_ms": 0.354,
+            "p99_ms": 0.785,
+            "stddev_ms": 0.424
+          },
+          "scheduled": 1500,
+          "server_e2e_ms": {
+            "count": 1500,
+            "max_ms": 20.0,
+            "mean_ms": 9.243,
+            "min_ms": 5.0,
+            "p50_ms": 7.0,
+            "p90_ms": 18.0,
+            "p95_ms": 19.0,
+            "p99_ms": 19.0,
+            "stddev_ms": 4.996
+          },
+          "submit_errors": 0
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "duration_s": 60.0,
+      "rate_requests_s": 150.0,
+      "scheduled": 9000,
+      "attempted": 9000,
+      "accepted": 9000,
+      "completed": 9000,
+      "dropped": 0,
+      "submit_errors": 0,
+      "generators": [
+        {
+          "accepted": 4500,
+          "attempted": 4500,
+          "completed": 4500,
+          "dropped": 0,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 4500,
+            "max_ms": 62.254,
+            "mean_ms": 56.571,
+            "min_ms": 55.33,
+            "p50_ms": 56.471,
+            "p90_ms": 57.274,
+            "p95_ms": 57.451,
+            "p99_ms": 58.218,
+            "stddev_ms": 0.578
+          },
+          "enqueue_ms": {
+            "count": 4500,
+            "max_ms": 9.582,
+            "mean_ms": 3.751,
+            "min_ms": 2.778,
+            "p50_ms": 3.709,
+            "p90_ms": 4.353,
+            "p95_ms": 4.467,
+            "p99_ms": 4.876,
+            "stddev_ms": 0.513
+          },
+          "index": 1,
+          "rate_requests_s": 75.0,
+          "schedule_lag_ms": {
+            "count": 4500,
+            "max_ms": 3.201,
+            "mean_ms": 0.266,
+            "min_ms": 0.082,
+            "p50_ms": 0.214,
+            "p90_ms": 0.484,
+            "p95_ms": 0.659,
+            "p99_ms": 0.881,
+            "stddev_ms": 0.175
+          },
+          "scheduled": 4500,
+          "server_e2e_ms": {
+            "count": 4500,
+            "max_ms": 23.0,
+            "mean_ms": 12.68,
+            "min_ms": 4.0,
+            "p50_ms": 18.0,
+            "p90_ms": 19.0,
+            "p95_ms": 19.0,
+            "p99_ms": 19.0,
+            "stddev_ms": 6.027
+          },
+          "submit_errors": 0
+        },
+        {
+          "accepted": 4500,
+          "attempted": 4500,
+          "completed": 4500,
+          "dropped": 0,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 4500,
+            "max_ms": 62.121,
+            "mean_ms": 56.564,
+            "min_ms": 55.115,
+            "p50_ms": 56.481,
+            "p90_ms": 57.25,
+            "p95_ms": 57.427,
+            "p99_ms": 58.161,
+            "stddev_ms": 0.554
+          },
+          "enqueue_ms": {
+            "count": 4500,
+            "max_ms": 9.18,
+            "mean_ms": 3.76,
+            "min_ms": 2.759,
+            "p50_ms": 3.732,
+            "p90_ms": 4.336,
+            "p95_ms": 4.45,
+            "p99_ms": 4.835,
+            "stddev_ms": 0.503
+          },
+          "index": 1,
+          "rate_requests_s": 75.0,
+          "schedule_lag_ms": {
+            "count": 4500,
+            "max_ms": 2.838,
+            "mean_ms": 0.259,
+            "min_ms": 0.082,
+            "p50_ms": 0.213,
+            "p90_ms": 0.405,
+            "p95_ms": 0.638,
+            "p99_ms": 0.818,
+            "stddev_ms": 0.162
+          },
+          "scheduled": 4500,
+          "server_e2e_ms": {
+            "count": 4500,
+            "max_ms": 23.0,
+            "mean_ms": 12.768,
+            "min_ms": 4.0,
+            "p50_ms": 18.0,
+            "p90_ms": 19.0,
+            "p95_ms": 19.0,
+            "p99_ms": 19.0,
+            "stddev_ms": 6.021
+          },
+          "submit_errors": 0
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "duration_s": 60.0,
+      "rate_requests_s": 300.0,
+      "scheduled": 18000,
+      "attempted": 17991,
+      "accepted": 17991,
+      "completed": 17991,
+      "dropped": 9,
+      "submit_errors": 0,
+      "generators": [
+        {
+          "accepted": 8994,
+          "attempted": 8994,
+          "completed": 8994,
+          "dropped": 6,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 8994,
+            "max_ms": 265.085,
+            "mean_ms": 58.337,
+            "min_ms": 54.899,
+            "p50_ms": 56.816,
+            "p90_ms": 58.434,
+            "p95_ms": 60.001,
+            "p99_ms": 113.629,
+            "stddev_ms": 10.376
+          },
+          "enqueue_ms": {
+            "count": 8994,
+            "max_ms": 95.136,
+            "mean_ms": 4.564,
+            "min_ms": 2.632,
+            "p50_ms": 4.096,
+            "p90_ms": 5.497,
+            "p95_ms": 6.081,
+            "p99_ms": 14.967,
+            "stddev_ms": 3.193
+          },
+          "index": 2,
+          "rate_requests_s": 150.0,
+          "schedule_lag_ms": {
+            "count": 8994,
+            "max_ms": 49.741,
+            "mean_ms": 0.581,
+            "min_ms": 0.105,
+            "p50_ms": 0.192,
+            "p90_ms": 0.514,
+            "p95_ms": 0.718,
+            "p99_ms": 11.093,
+            "stddev_ms": 3.129
+          },
+          "scheduled": 9000,
+          "server_e2e_ms": {
+            "count": 8994,
+            "max_ms": 26.0,
+            "mean_ms": 8.544,
+            "min_ms": 4.0,
+            "p50_ms": 6.0,
+            "p90_ms": 18.0,
+            "p95_ms": 18.0,
+            "p99_ms": 20.0,
+            "stddev_ms": 4.959
+          },
+          "submit_errors": 0
+        },
+        {
+          "accepted": 8997,
+          "attempted": 8997,
+          "completed": 8997,
+          "dropped": 3,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 8997,
+            "max_ms": 268.492,
+            "mean_ms": 58.849,
+            "min_ms": 54.915,
+            "p50_ms": 56.979,
+            "p90_ms": 58.502,
+            "p95_ms": 59.906,
+            "p99_ms": 135.648,
+            "stddev_ms": 13.5
+          },
+          "enqueue_ms": {
+            "count": 8997,
+            "max_ms": 95.812,
+            "mean_ms": 4.691,
+            "min_ms": 2.68,
+            "p50_ms": 4.257,
+            "p90_ms": 5.548,
+            "p95_ms": 6.128,
+            "p99_ms": 16.459,
+            "stddev_ms": 3.405
+          },
+          "index": 2,
+          "rate_requests_s": 150.0,
+          "schedule_lag_ms": {
+            "count": 8997,
+            "max_ms": 49.218,
+            "mean_ms": 0.559,
+            "min_ms": 0.107,
+            "p50_ms": 0.192,
+            "p90_ms": 0.461,
+            "p95_ms": 0.711,
+            "p99_ms": 13.425,
+            "stddev_ms": 2.806
+          },
+          "scheduled": 9000,
+          "server_e2e_ms": {
+            "count": 8997,
+            "max_ms": 26.0,
+            "mean_ms": 9.819,
+            "min_ms": 4.0,
+            "p50_ms": 7.0,
+            "p90_ms": 18.0,
+            "p95_ms": 19.0,
+            "p99_ms": 20.0,
+            "stddev_ms": 5.557
+          },
+          "submit_errors": 0
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "duration_s": 60.0,
+      "rate_requests_s": 500.0,
+      "scheduled": 30000,
+      "attempted": 29692,
+      "accepted": 29692,
+      "completed": 29692,
+      "dropped": 308,
+      "submit_errors": 0,
+      "generators": [
+        {
+          "accepted": 14863,
+          "attempted": 14863,
+          "completed": 14863,
+          "dropped": 137,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 14863,
+            "max_ms": 771.434,
+            "mean_ms": 63.436,
+            "min_ms": 55.266,
+            "p50_ms": 58.406,
+            "p90_ms": 61.269,
+            "p95_ms": 64.509,
+            "p99_ms": 241.945,
+            "stddev_ms": 32.649
+          },
+          "enqueue_ms": {
+            "count": 14863,
+            "max_ms": 339.98,
+            "mean_ms": 7.096,
+            "min_ms": 2.556,
+            "p50_ms": 5.059,
+            "p90_ms": 6.993,
+            "p95_ms": 9.32,
+            "p99_ms": 66.942,
+            "stddev_ms": 14.683
+          },
+          "index": 3,
+          "rate_requests_s": 250.0,
+          "schedule_lag_ms": {
+            "count": 14863,
+            "max_ms": 49.886,
+            "mean_ms": 1.337,
+            "min_ms": 0.112,
+            "p50_ms": 0.239,
+            "p90_ms": 0.868,
+            "p95_ms": 1.185,
+            "p99_ms": 46.13,
+            "stddev_ms": 6.332
+          },
+          "scheduled": 15000,
+          "server_e2e_ms": {
+            "count": 14863,
+            "max_ms": 96.0,
+            "mean_ms": 10.6,
+            "min_ms": 3.0,
+            "p50_ms": 7.0,
+            "p90_ms": 19.0,
+            "p95_ms": 20.0,
+            "p99_ms": 28.0,
+            "stddev_ms": 6.941
+          },
+          "submit_errors": 0
+        },
+        {
+          "accepted": 14829,
+          "attempted": 14829,
+          "completed": 14829,
+          "dropped": 171,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 14829,
+            "max_ms": 1362.004,
+            "mean_ms": 73.046,
+            "min_ms": 55.074,
+            "p50_ms": 58.484,
+            "p90_ms": 61.669,
+            "p95_ms": 65.261,
+            "p99_ms": 791.186,
+            "stddev_ms": 104.564
+          },
+          "enqueue_ms": {
+            "count": 14829,
+            "max_ms": 791.305,
+            "mean_ms": 9.17,
+            "min_ms": 2.785,
+            "p50_ms": 5.093,
+            "p90_ms": 7.152,
+            "p95_ms": 9.258,
+            "p99_ms": 204.024,
+            "stddev_ms": 33.152
+          },
+          "index": 3,
+          "rate_requests_s": 250.0,
+          "schedule_lag_ms": {
+            "count": 14829,
+            "max_ms": 49.939,
+            "mean_ms": 0.783,
+            "min_ms": 0.113,
+            "p50_ms": 0.24,
+            "p90_ms": 0.861,
+            "p95_ms": 1.148,
+            "p99_ms": 12.875,
+            "stddev_ms": 3.55
+          },
+          "scheduled": 15000,
+          "server_e2e_ms": {
+            "count": 14829,
+            "max_ms": 108.0,
+            "mean_ms": 12.399,
+            "min_ms": 3.0,
+            "p50_ms": 9.0,
+            "p90_ms": 20.0,
+            "p95_ms": 21.0,
+            "p99_ms": 29.0,
+            "stddev_ms": 7.339
+          },
+          "submit_errors": 0
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "duration_s": 60.0,
+      "rate_requests_s": 150.0,
+      "scheduled": 9000,
+      "attempted": 9000,
+      "accepted": 9000,
+      "completed": 9000,
+      "dropped": 0,
+      "submit_errors": 0,
+      "generators": [
+        {
+          "accepted": 4500,
+          "attempted": 4500,
+          "completed": 4500,
+          "dropped": 0,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 4500,
+            "max_ms": 61.972,
+            "mean_ms": 56.513,
+            "min_ms": 55.245,
+            "p50_ms": 56.413,
+            "p90_ms": 57.189,
+            "p95_ms": 57.378,
+            "p99_ms": 57.966,
+            "stddev_ms": 0.558
+          },
+          "enqueue_ms": {
+            "count": 4500,
+            "max_ms": 9.602,
+            "mean_ms": 3.703,
+            "min_ms": 2.778,
+            "p50_ms": 3.584,
+            "p90_ms": 4.304,
+            "p95_ms": 4.433,
+            "p99_ms": 4.797,
+            "stddev_ms": 0.525
+          },
+          "index": 4,
+          "rate_requests_s": 75.0,
+          "schedule_lag_ms": {
+            "count": 4500,
+            "max_ms": 2.404,
+            "mean_ms": 0.263,
+            "min_ms": 0.093,
+            "p50_ms": 0.211,
+            "p90_ms": 0.474,
+            "p95_ms": 0.656,
+            "p99_ms": 0.866,
+            "stddev_ms": 0.164
+          },
+          "scheduled": 4500,
+          "server_e2e_ms": {
+            "count": 4500,
+            "max_ms": 24.0,
+            "mean_ms": 9.046,
+            "min_ms": 4.0,
+            "p50_ms": 7.0,
+            "p90_ms": 18.0,
+            "p95_ms": 19.0,
+            "p99_ms": 20.0,
+            "stddev_ms": 4.985
+          },
+          "submit_errors": 0
+        },
+        {
+          "accepted": 4500,
+          "attempted": 4500,
+          "completed": 4500,
+          "dropped": 0,
+          "duration_s": 60.0,
+          "e2e_ms": {
+            "count": 4500,
+            "max_ms": 62.792,
+            "mean_ms": 56.537,
+            "min_ms": 55.274,
+            "p50_ms": 56.444,
+            "p90_ms": 57.165,
+            "p95_ms": 57.362,
+            "p99_ms": 58.126,
+            "stddev_ms": 0.54
+          },
+          "enqueue_ms": {
+            "count": 4500,
+            "max_ms": 8.442,
+            "mean_ms": 3.775,
+            "min_ms": 2.844,
+            "p50_ms": 3.798,
+            "p90_ms": 4.339,
+            "p95_ms": 4.458,
+            "p99_ms": 4.818,
+            "stddev_ms": 0.5
+          },
+          "index": 4,
+          "rate_requests_s": 75.0,
+          "schedule_lag_ms": {
+            "count": 4500,
+            "max_ms": 4.331,
+            "mean_ms": 0.255,
+            "min_ms": 0.098,
+            "p50_ms": 0.211,
+            "p90_ms": 0.377,
+            "p95_ms": 0.614,
+            "p99_ms": 0.858,
+            "stddev_ms": 0.162
+          },
+          "scheduled": 4500,
+          "server_e2e_ms": {
+            "count": 4500,
+            "max_ms": 27.0,
+            "mean_ms": 11.206,
+            "min_ms": 4.0,
+            "p50_ms": 7.0,
+            "p90_ms": 19.0,
+            "p95_ms": 19.0,
+            "p99_ms": 20.0,
+            "stddev_ms": 6.042
+          },
+          "submit_errors": 0
+        }
+      ]
+    }
+  ],
+  "latency": {
+    "enqueue": {
+      "count": 68683
+    },
+    "observed_end_to_end": {
+      "count": 68683
+    },
+    "poll": {
+      "count": 68683
+    },
+    "schedule_lag": {
+      "count": 68683
+    },
+    "server_end_to_end": {
+      "count": 68683
+    }
+  },
+  "limitations": [
+    "Generator saturated: offered rate was NOT delivered"
+  ],
+  "database_costs": {
+    "window_epoch_ms": [
+      1788662938745,
+      1788663243745
+    ],
+    "database_transactions_including_reads_per_job": 7.939184368766653,
+    "instance_wal_bytes_per_job": 1660.4698979368984,
+    "instance_wal_syncs_per_job": 2.323326004979398,
+    "query_deltas_with_baseline": {},
+    "attribution": "Includes other database/instance activity and bracketing idle time; not isolated job cost"
+  },
+  "runtime_deltas": {
+    "claims": 336299.0,
+    "claim_returned": 68683.0,
+    "empty_claims": 279023.0,
+    "lease_renewals": 0.0,
+    "jobs_completed": 68683.0,
+    "persistence_failures": 0.0,
+    "reaped_jobs": 0.0,
+    "cgroup_usage_usec": 630771129.0,
+    "cgroup_throttled_usec": 0.0,
+    "cgroup_nr_throttled": 0.0
+  },
+  "full_window_pods": [
+    "report-service-69dc546c9c-7pf9l",
+    "report-service-69dc546c9c-bltbd",
+    "report-service-69dc546c9c-f4qjt",
+    "report-service-69dc546c9c-gmj49",
+    "report-service-69dc546c9c-kg66n",
+    "report-service-69dc546c9c-lzr7f",
+    "report-service-69dc546c9c-pfx77",
+    "report-service-69dc546c9c-qgzh4"
+  ],
+  "partial_window_pods": [],
+  "app_cpu_ms_per_job": 9.183802818746997,
+  "notes": [
+    "No memory-per-request estimate: resident RAM is shared, not an allocation cost.",
+    "CPU uses container cgroup counters only for complete, non-reset pod lifetimes.",
+    "Server latency ends at completion timestamp before commit; observed latency includes polling.",
+    "Use fixed replicas to compare resource cost; HPA run tests elasticity separately."
+  ]
+}
